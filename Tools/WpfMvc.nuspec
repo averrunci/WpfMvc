@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>WpfMvc</id>
+    <version>1.0.0</version>
+    <title>WPF MVC</title>
+    <authors>averrunci</authors>
+    <owners>averrunci</owners>
+    <licenseUrl></licenseUrl>
+    <projectUrl>https://bitbucket.org/averrunci/wpfmvc</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>The class library for Windows Presentation Foundation with Model View Controller</description>
+    <language>en-US</language>
+    <copyright>Copyright (C) 2016 Fievus</copyright>
+    <tags>wpf mvc</tags>
+  </metadata>
+</package>
