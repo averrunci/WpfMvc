@@ -6,7 +6,6 @@
     <title>WPF MVC</title>
     <authors>averrunci</authors>
     <owners>averrunci</owners>
-    <licenseUrl></licenseUrl>
     <projectUrl>https://bitbucket.org/averrunci/wpfmvc</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>The class library for Windows Presentation Foundation with Model View Controller</description>
@@ -14,4 +13,9 @@
     <copyright>Copyright (C) 2016 Fievus</copyright>
     <tags>wpf mvc</tags>
   </metadata>
+  <files>
+    <file src="..\LICENSE" target="\"/>
+    <file src="..\Binary\Release\WpfMvc.dll" target="lib\net46"/>
+    <file src="..\Binary\Release\WpfMvc.XML" target="lib\net46"/>
+  </files>
 </package>
