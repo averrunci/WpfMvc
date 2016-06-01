@@ -12,6 +12,14 @@
     <language>en-US</language>
     <copyright>Copyright (C) 2016 Fievus</copyright>
     <tags>wpf mvc</tags>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="PresentationCore" targetFramework="net46"/>
+      <frameworkAssembly assemblyName="PresentationFramework" targetFramework="net46"/>
+      <frameworkAssembly assemblyName="System" targetFramework="net46"/>
+      <frameworkAssembly assemblyName="System.ComponentModel.DataAnnotations" targetFramework="net46"/>
+      <frameworkAssembly assemblyName="System.Core" targetFramework="net46"/>
+      <frameworkAssembly assemblyName="WindowsBase" targetFramework="net46"/>
+    </frameworkAssemblies>
   </metadata>
   <files>
     <file src="..\LICENSE" target="\"/>
