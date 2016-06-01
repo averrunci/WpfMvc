@@ -54,7 +54,7 @@ This attribute is specified to the method to handle a routed event.
 It is also specified to the property or the field that is defined with a delegate.
 The method is declared as follows;
 
-1. No argument.
+- No argument.
 ```
 [RoutedEventHandler(Element = "ActionButton", RoutedEvent = "Click")]
 private void ActionButton_Click()
@@ -63,7 +63,7 @@ private void ActionButton_Click()
 }
 ```
 
-1. One argument that is a RoutedEventArgs.
+- One argument that is a RoutedEventArgs.
 ```
 [RoutedEventHandler(Element = "ActionButton", RoutedEvent = "Click")]
 private void ActionButton_Click(RoutedEventArgs e)
@@ -72,7 +72,7 @@ private void ActionButton_Click(RoutedEventArgs e)
 }
 ```
 
-1. Two arguments that are an object and a RoutedEventArgs.
+- Two arguments that are an object and a RoutedEventArgs.
 ```
 [RoutedEventHandler(Element = "ActionButton", RoutedEvent = "Click")]
 private void ActionButton_Click(object sender, RoutedEventArgs e)
@@ -87,19 +87,19 @@ This attribute is specified to the field, property, or method to which a DataCon
 The method has an argument the type of which is the one of a DataContext.
 The implementation is as follows;
 
-1. Field
+- Field
 ```
 [DataContext]
 private DataContexType context;
 ```
 
-1. Property
+- Property
 ```
 [DataContext]
 public DataContexType Context { get; set; }
 ```
 
-1. Method
+- Method
 ```
 [DataContext]
 public void SetContext(DataContexType context)
@@ -119,19 +119,19 @@ If the name of the element is different from the one of the field, property, or 
 the name of the element is specified to the Name property of the ElementAttribute.
 The implementation to inject an element the name of which is "Element" is as follows;
 
-1. Field
+- Field
 ```
 [Element(Name = "Element")]
 private UIElement element;
 ```
 
-1. Property
+- Property
 ```
 [Element]
 public UIElement Element { get; set; }
 ```
 
-1. Method
+- Method
 ```
 [Element]
 public void SetElement(UIElement element)
