@@ -36,7 +36,7 @@ namespace Fievus.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login.Log
                 passwordBox.Password = "password";
 
                 Assert.That(loginContent.Password.Value, Is.EqualTo(passwordBox.Password));
-            });
+            }).Shutdown();
         }
     }
 
