@@ -14,7 +14,7 @@ namespace Fievus.Windows.Samples.SimpleLoginDemo.Presentation.Contents.User
         public UserContent Context { get; set; }
 
         [RoutedEventHandler(ElementName = "LogoutButton", RoutedEvent = "Click")]
-        public void Logout()
+        private void Logout()
         {
             Context.Logout();
         }

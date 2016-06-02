@@ -44,6 +44,8 @@ namespace Fievus.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login
 
         public void Login()
         {
+            if (!IsValid) { return; }
+
             OnContentChanging(new ContentChangingEventArgs(new UserContent(UserId.Value)));
         }
 

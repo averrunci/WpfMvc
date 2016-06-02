@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleLoginDemo", "SimpleLoginDemo\SimpleLoginDemo.csproj", "{23C7A80E-B3BD-4510-9D44-EBFFA7211F21}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleLoginDemo.Presentation", "SimpleLoginDemo.Presentation\SimpleLoginDemo.Presentation.csproj", "{EAA7B78D-B6F7-4C6E-8D33-AFAD99A755C1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleLoginDemo.Adapter", "SimpleLoginDemo.Adapter\SimpleLoginDemo.Adapter.csproj", "{F760E225-5C5B-4486-ABF9-E9347CE751AB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleLoginDemo.Presentation.Test", "SimpleLoginDemo.Presentation.Test\SimpleLoginDemo.Presentation.Test.csproj", "{20DEA24A-F17C-4AEB-8905-B28A6EBB2810}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{F760E225-5C5B-4486-ABF9-E9347CE751AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F760E225-5C5B-4486-ABF9-E9347CE751AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F760E225-5C5B-4486-ABF9-E9347CE751AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20DEA24A-F17C-4AEB-8905-B28A6EBB2810}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20DEA24A-F17C-4AEB-8905-B28A6EBB2810}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20DEA24A-F17C-4AEB-8905-B28A6EBB2810}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20DEA24A-F17C-4AEB-8905-B28A6EBB2810}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
