@@ -19,90 +19,77 @@ namespace Fievus.Windows.Mvc
         [Test]
         public void ExecutesRoutedEventHandlerWithSpecifiedElementNameAndRoutedEventName()
         {
-            WpfApplicationRunner.Start<Application>().Run(application =>
-            {
-                var element = new FrameworkElement { Name = "TestElement" };
-                var handler = MockRepository.GenerateMock<RoutedEventHandler>();
-                var notCalledHandler = MockRepository.GenerateMock<RoutedEventHandler>();
+            var handler = MockRepository.GenerateMock<RoutedEventHandler>();
+            var notCalledHandler = MockRepository.GenerateMock<RoutedEventHandler>();
 
-                var routedEventHandlerBase = new RoutedEventHandlerBase();
-                routedEventHandlerBase.Add("TestElement", element, "Loaded", FrameworkElement.LoadedEvent, handler, true);
-                routedEventHandlerBase.Add("TestElement", element, "Unloaded", FrameworkElement.UnloadedEvent, notCalledHandler, true);
-                routedEventHandlerBase.Add("AnotherElement", new FrameworkElement(), "Loaded", FrameworkElement.LoadedEvent, notCalledHandler, true);
+            var routedEventHandlerBase = new RoutedEventHandlerBase();
+            routedEventHandlerBase.Add("TestElement", null, "Loaded", FrameworkElement.LoadedEvent, handler, true);
+            routedEventHandlerBase.Add("TestElement", null, "Unloaded", FrameworkElement.UnloadedEvent, notCalledHandler, true);
+            routedEventHandlerBase.Add("AnotherElement", null, "Loaded", FrameworkElement.LoadedEvent, notCalledHandler, true);
 
-                var sender = new object();
-                var args = new RoutedEventArgs();
-                routedEventHandlerBase.GetBy("TestElement")
-                    .From(sender)
-                    .With(args)
-                    .Raise("Loaded");
+            var sender = new object();
+            var args = new RoutedEventArgs();
+            routedEventHandlerBase.GetBy("TestElement")
+                .From(sender)
+                .With(args)
+                .Raise("Loaded");
 
-                handler.AssertWasCalled(h => h.Invoke(sender, args));
-                notCalledHandler.AssertWasNotCalled(h => h.Invoke(sender, args));
-            }).Shutdown();
+            handler.AssertWasCalled(h => h.Invoke(sender, args));
+            notCalledHandler.AssertWasNotCalled(h => h.Invoke(sender, args));
         }
 
         [Test]
         public void ExecutesRoutedEventHandlerWhenSpecifiedElementAndRoutedEventIsNull()
         {
-            WpfApplicationRunner.Start<Application>().Run(application =>
-            {
-                var handler = MockRepository.GenerateMock<RoutedEventHandler>();
+            var handler = MockRepository.GenerateMock<RoutedEventHandler>();
 
-                var routedEventHandlerBase = new RoutedEventHandlerBase();
-                routedEventHandlerBase.Add("TestElement", null, "Loaded", null, handler, true);
+            var routedEventHandlerBase = new RoutedEventHandlerBase();
+            routedEventHandlerBase.Add("TestElement", null, "Loaded", null, handler, true);
 
-                var sender = new object();
-                var args = new RoutedEventArgs();
-                routedEventHandlerBase.GetBy("TestElement")
-                    .From(sender)
-                    .With(args)
-                    .Raise("Loaded");
+            var sender = new object();
+            var args = new RoutedEventArgs();
+            routedEventHandlerBase.GetBy("TestElement")
+                .From(sender)
+                .With(args)
+                .Raise("Loaded");
 
-                handler.AssertWasCalled(h => h.Invoke(sender, args));
-            }).Shutdown();
+            handler.AssertWasCalled(h => h.Invoke(sender, args));
         }
 
         [Test]
         public void ExecutesRoutedEventHandlerThatDoesNotHaveArgumentWithSpecifiedElementNameAndRoutedEventName()
         {
-            WpfApplicationRunner.Start<Application>().Run(application =>
-            {
-                var handler = MockRepository.GenerateMock<Action>();
+            var handler = MockRepository.GenerateMock<Action>();
 
-                var routedEventHandlerBase = new RoutedEventHandlerBase();
-                routedEventHandlerBase.Add("TestElement", null, "Loaded", null, handler, true);
+            var routedEventHandlerBase = new RoutedEventHandlerBase();
+            routedEventHandlerBase.Add("TestElement", null, "Loaded", null, handler, true);
 
-                var sender = new object();
-                var args = new RoutedEventArgs();
-                routedEventHandlerBase.GetBy("TestElement")
-                    .From(sender)
-                    .With(args)
-                    .Raise("Loaded");
+            var sender = new object();
+            var args = new RoutedEventArgs();
+            routedEventHandlerBase.GetBy("TestElement")
+                .From(sender)
+                .With(args)
+                .Raise("Loaded");
 
-                handler.AssertWasCalled(h => h.Invoke());
-            }).Shutdown();
+            handler.AssertWasCalled(h => h.Invoke());
         }
 
         [Test]
         public void ExecutesRoutedEventHandlerThatHaveOneArgumentWithSpecifiedElementNameAndRoutedEventName()
         {
-            WpfApplicationRunner.Start<Application>().Run(application =>
-            {
-                var handler = MockRepository.GenerateMock<Action<RoutedEventArgs>>();
+            var handler = MockRepository.GenerateMock<Action<RoutedEventArgs>>();
 
-                var routedEventHandlerBase = new RoutedEventHandlerBase();
-                routedEventHandlerBase.Add("TestElement", null, "Loaded", null, handler, true);
+            var routedEventHandlerBase = new RoutedEventHandlerBase();
+            routedEventHandlerBase.Add("TestElement", null, "Loaded", null, handler, true);
 
-                var sender = new object();
-                var args = new RoutedEventArgs();
-                routedEventHandlerBase.GetBy("TestElement")
-                    .From(sender)
-                    .With(args)
-                    .Raise("Loaded");
+            var sender = new object();
+            var args = new RoutedEventArgs();
+            routedEventHandlerBase.GetBy("TestElement")
+                .From(sender)
+                .With(args)
+                .Raise("Loaded");
 
-                handler.AssertWasCalled(h => h.Invoke(args));
-            }).Shutdown();
+            handler.AssertWasCalled(h => h.Invoke(args));
         }
 
         [Test]
