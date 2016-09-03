@@ -4,11 +4,14 @@
 // of the MIT license.  See the LICENSE file for details.
 using System;
 using System.Windows;
+using System.Windows.Input;
 
 namespace Fievus.Windows.Mvc
 {
     internal class TestWpfControllers
     {
+        public static readonly RoutedUICommand TestCommand = new RoutedUICommand("Test", "TestCommand", typeof(TestWpfControllers));
+
         public class TestWpfController
         {
             [DataContext]
@@ -23,7 +26,22 @@ namespace Fievus.Windows.Mvc
                 AssertionHandler?.Invoke();
             }
 
+            [CommandHandler(CommandName = "TestCommand")]
+            private void TestCommand_Executed(ExecutedRoutedEventArgs e)
+            {
+                ExecutedAssertionHandler?.Invoke();
+            }
+
+            [CommandHandler(CommandName = "TestCommand")]
+            private void TestCommand_CanExecute(CanExecuteRoutedEventArgs e)
+            {
+                CanExecuteAssertionHandler?.Invoke();
+                e.CanExecute = true;
+            }
+
             public Action AssertionHandler { get; set; }
+            public Action ExecutedAssertionHandler { get; set; }
+            public Action CanExecuteAssertionHandler { get; set; }
 
             public TestWpfController() { }
         }
@@ -68,9 +86,32 @@ namespace Fievus.Windows.Mvc
                 [RoutedEventHandler(ElementName = "childElement", RoutedEvent = "Loaded")]
                 private Action<RoutedEventArgs> handler;
 
+                [CommandHandler(CommandName = "TestCommand")]
+                private Action<ExecutedRoutedEventArgs> executedHandler;
+
+                [CommandHandler(CommandName = "TestCommand")]
+                private Action<CanExecuteRoutedEventArgs> canExecuteHandler;
+
                 public OneArgumentHandlerController(Action<RoutedEventArgs> assertionHandler)
                 {
                     handler = e => assertionHandler(e);
+                }
+
+                public OneArgumentHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler) : this(executedAssertionHandler, null)
+                {
+                }
+
+                public OneArgumentHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler, Action<CanExecuteRoutedEventArgs> canExecuteAssertionHandler)
+                {
+                    executedHandler = e => executedAssertionHandler(e);
+                    if (canExecuteAssertionHandler != null)
+                    {
+                        canExecuteHandler = e =>
+                        {
+                            canExecuteAssertionHandler(e);
+                            e.CanExecute = true;
+                        };
+                    }
                 }
 
                 public object Context { get { return context; } }
@@ -100,6 +141,66 @@ namespace Fievus.Windows.Mvc
                 public object Context { get { return context; } }
                 public FrameworkElement Element { get { return element; } }
                 public FrameworkElement ChildElement { get { return childElement; } }
+            }
+
+            public class OneArgumentExecutedOnlyHandlerController
+            {
+                [CommandHandler(CommandName = "TestCommand")]
+                private Action<ExecutedRoutedEventArgs> executedHandler;
+
+                public OneArgumentExecutedOnlyHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler)
+                {
+                    executedHandler = executedAssertionHandler;
+                }
+            }
+
+            public class OneArgumentExecutedAndCanExecuteHandlerController
+            {
+                [CommandHandler(CommandName = "TestCommand")]
+                private Action<ExecutedRoutedEventArgs> executedHandler;
+
+                [CommandHandler(CommandName = "TestCommand")]
+                private Action<CanExecuteRoutedEventArgs> canExecuteHandler;
+
+                public OneArgumentExecutedAndCanExecuteHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler, Action<CanExecuteRoutedEventArgs> canExecuteAssertionHandler)
+                {
+                    executedHandler = e => executedAssertionHandler(e);
+                    canExecuteHandler = e =>
+                    {
+                        canExecuteAssertionHandler(e);
+                        e.CanExecute = true;
+                    };
+                }
+            }
+
+            public class ExecutedOnlyHandlerController
+            {
+                [CommandHandler(CommandName = "TestCommand")]
+                private ExecutedRoutedEventHandler executedHandler;
+
+                public ExecutedOnlyHandlerController(ExecutedRoutedEventHandler executedAssertionHandler)
+                {
+                    executedHandler = (s, e) => executedAssertionHandler(s, e);
+                }
+            }
+
+            public class ExecutedAndCanExecuteHandlerController
+            {
+                [CommandHandler(CommandName = "TestCommand")]
+                private ExecutedRoutedEventHandler executedHandler;
+
+                [CommandHandler(CommandName = "TestCommand")]
+                private CanExecuteRoutedEventHandler canExecuteHandler;
+
+                public ExecutedAndCanExecuteHandlerController(ExecutedRoutedEventHandler executedAssertionHandler, CanExecuteRoutedEventHandler canExecuteAssertionHandler)
+                {
+                    executedHandler = (s, e) => executedAssertionHandler(s, e);
+                    canExecuteHandler = (s, e) =>
+                    {
+                        canExecuteAssertionHandler(s, e);
+                        e.CanExecute = true;
+                    };
+                }
             }
         }
 
@@ -162,6 +263,66 @@ namespace Fievus.Windows.Mvc
                 public RoutedEventHandlerController(RoutedEventHandler assertionHandler)
                 {
                    Handler = (s, e) => assertionHandler(s, e);
+                }
+            }
+
+            public class OneArgumentExecutedOnlyHandlerController
+            {
+                [CommandHandler(CommandName = "TestCommand")]
+                private Action<ExecutedRoutedEventArgs> ExecutedHandler { get; set; }
+
+                public OneArgumentExecutedOnlyHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler)
+                {
+                    ExecutedHandler = executedAssertionHandler;
+                }
+            }
+
+            public class OneArgumentExecutedAndCanExecuteHandlerController
+            {
+                [CommandHandler(CommandName = "TestCommand")]
+                private Action<ExecutedRoutedEventArgs> ExecutedHandler { get; set; }
+
+                [CommandHandler(CommandName = "TestCommand")]
+                private Action<CanExecuteRoutedEventArgs> CanExecuteHandler { get; set; }
+
+                public OneArgumentExecutedAndCanExecuteHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler, Action<CanExecuteRoutedEventArgs> canExecuteAssertionHandler)
+                {
+                    ExecutedHandler = e => executedAssertionHandler(e);
+                    CanExecuteHandler = e =>
+                    {
+                        canExecuteAssertionHandler(e);
+                        e.CanExecute = true;
+                    };
+                }
+            }
+
+            public class ExecutedOnlyHandlerController
+            {
+                [CommandHandler(CommandName = "TestCommand")]
+                private ExecutedRoutedEventHandler ExecutedHandler { get; set; }
+
+                public ExecutedOnlyHandlerController(ExecutedRoutedEventHandler executedAssertionHandler)
+                {
+                    ExecutedHandler = (s, e) => executedAssertionHandler(s, e);
+                }
+            }
+
+            public class ExecutedAndCanExecuteHandlerController
+            {
+                [CommandHandler(CommandName = "TestCommand")]
+                private ExecutedRoutedEventHandler ExecutedHandler { get; set; }
+
+                [CommandHandler(CommandName = "TestCommand")]
+                private CanExecuteRoutedEventHandler CanExecuteHandler { get; set; }
+
+                public ExecutedAndCanExecuteHandlerController(ExecutedRoutedEventHandler executedAssertionHandler, CanExecuteRoutedEventHandler canExecuteAssertionHandler)
+                {
+                    ExecutedHandler = (s, e) => executedAssertionHandler(s, e);
+                    CanExecuteHandler = (s, e) =>
+                    {
+                        canExecuteAssertionHandler(s, e);
+                        e.CanExecute = true;
+                    };
                 }
             }
         }
@@ -246,6 +407,84 @@ namespace Fievus.Windows.Mvc
                 public RoutedEventHandlerController(RoutedEventHandler assertionHandler)
                 {
                     handler = (s, e) => assertionHandler(s, e);
+                }
+            }
+
+            public class OneArgumentExecutedOnlyHandlerController
+            {
+                [CommandHandler(CommandName = "TestCommand")]
+                public void TestCommand_Executed(ExecutedRoutedEventArgs e)
+                {
+                    executedHandler(e);
+                }
+                private Action<ExecutedRoutedEventArgs> executedHandler { get; set; }
+
+                public OneArgumentExecutedOnlyHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler)
+                {
+                    executedHandler = executedAssertionHandler;
+                }
+            }
+
+            public class OneArgumentExecutedAndCanExecuteHandlerController
+            {
+                [CommandHandler(CommandName = "TestCommand")]
+                public void TestCommand_Executed(ExecutedRoutedEventArgs e)
+                {
+                    executedHandler(e);
+                }
+                private Action<ExecutedRoutedEventArgs> executedHandler { get; set; }
+
+                [CommandHandler(CommandName = "TestCommand")]
+                public void TestCommand_CanExecute(CanExecuteRoutedEventArgs e)
+                {
+                    canExecuteHandler?.Invoke(e);
+                    e.CanExecute = true;
+                }
+                private Action<CanExecuteRoutedEventArgs> canExecuteHandler { get; set; }
+
+                public OneArgumentExecutedAndCanExecuteHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler, Action<CanExecuteRoutedEventArgs> canExecuteAssertionHandler)
+                {
+                    executedHandler = e => executedAssertionHandler(e);
+                    canExecuteHandler = e => canExecuteAssertionHandler(e);
+                }
+            }
+
+            public class ExecutedOnlyHandlerController
+            {
+                [CommandHandler(CommandName = "TestCommand")]
+                public void TestCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+                {
+                    executedHandler(sender, e);
+                }
+                private ExecutedRoutedEventHandler executedHandler { get; set; }
+
+                public ExecutedOnlyHandlerController(ExecutedRoutedEventHandler executedAssertionHandler)
+                {
+                    executedHandler = (s, e) => executedAssertionHandler(s, e);
+                }
+            }
+
+            public class ExecutedAndCanExecuteHandlerController
+            {
+                [CommandHandler(CommandName = "TestCommand")]
+                public void TestCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+                {
+                    executedHandler(sender, e);
+                }
+                private ExecutedRoutedEventHandler executedHandler { get; set; }
+
+                [CommandHandler(CommandName = "TestCommand")]
+                public void TestCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+                {
+                    canExecuteHandler?.Invoke(sender, e);
+                    e.CanExecute = true;
+                }
+                private CanExecuteRoutedEventHandler canExecuteHandler { get; set; }
+
+                public ExecutedAndCanExecuteHandlerController(ExecutedRoutedEventHandler executedAssertionHandler, CanExecuteRoutedEventHandler canExecuteAssertionHandler)
+                {
+                    executedHandler = (s, e) => executedAssertionHandler(s, e);
+                    canExecuteHandler = (s, e) => canExecuteAssertionHandler(s, e);
                 }
             }
         }

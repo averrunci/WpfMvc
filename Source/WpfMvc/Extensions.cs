@@ -10,6 +10,16 @@ namespace Fievus.Windows
 {
     internal static class Extensions
     {
+        public static void IfPresent<T>(this T @this, Action<T> action)
+        {
+            if (@this != null) { action(@this); }
+        }
+
+        public static void IfAbsent<T>(this T @this, Action action)
+        {
+            if (@this == null) { action(); }
+        }
+
         public static T RequireNonNull<T>(this T @this) => RequireNonNull(@this, null);
 
         public static T RequireNonNull<T>(this T @this, string name)
@@ -28,6 +38,6 @@ namespace Fievus.Windows
             }
         }
 
-        public static bool IsEmpty<T>(this IEnumerable<T> @this) => @this?.Count() == 0;
+        public static bool IsEmpty<T>(this IEnumerable<T> @this) => !@this.Any();
     }
 }

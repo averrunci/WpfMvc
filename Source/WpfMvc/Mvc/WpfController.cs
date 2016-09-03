@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
+using System.Windows.Input;
+using System.Windows.Media;
 
 namespace Fievus.Windows.Mvc
 {
@@ -25,6 +27,10 @@ namespace Fievus.Windows.Mvc
 
         private static readonly DependencyProperty RoutedEventHandlerBasesProperty = DependencyProperty.RegisterAttached(
             "ShadowRoutedEventHandlerBases", typeof(IDictionary<object, RoutedEventHandlerBase>), typeof(WpfController), new PropertyMetadata(null)
+        );
+
+        private static readonly DependencyProperty CommandHandlerBasesProperty = DependencyProperty.RegisterAttached(
+            "ShadowCommandHandlerBases", typeof(IDictionary<object, CommandHandlerBase>), typeof(WpfController), new PropertyMetadata(null)
         );
 
         /// <summary>
@@ -84,6 +90,8 @@ namespace Fievus.Windows.Mvc
             if (Injector != null) { Injector.Inject(controller); }
 
             SetDataContext(element.DataContext, controller);
+            if (element.IsLoaded) { ElementOnInitialized(element, EventArgs.Empty); }
+
             element.Initialized += ElementOnInitialized;
             element.Unloaded += ElementOnUnloaded;
             element.DataContextChanged += ElementOnDataContextChanged;
@@ -101,6 +109,7 @@ namespace Fievus.Windows.Mvc
             element.Initialized -= ElementOnInitialized;
             element.Unloaded -= ElementOnUnloaded;
             element.DataContextChanged -= ElementOnDataContextChanged;
+
             SetElement(null, controller);
             SetDataContext(null, controller);
             UnregisterRoutedEventHandler(element, controller);
@@ -115,6 +124,16 @@ namespace Fievus.Windows.Mvc
         /// </returns>
         public static RoutedEventHandlerBase RetrieveRoutedEventHandlers(object controller)
             => controller == null ? new RoutedEventHandlerBase() : RetrieveRoutedEventHandlers(null, controller);
+
+        /// <summary>
+        /// Gets command handlers that the specified WPF controller has.
+        /// </summary>
+        /// <param name="controller">The WPF controller that has command handlers.</param>
+        /// <returns>
+        /// The command handlers that the specified WPF controller has.
+        /// </returns>
+        public static CommandHandlerBase RetrieveCommandHandlers(object controller)
+            => controller == null ? new CommandHandlerBase() : RetrieveCommandHandlers(null, controller);
 
         /// <summary>
         /// Sets the specified data context to the specified WPF controller.
@@ -279,6 +298,147 @@ namespace Fievus.Windows.Mvc
             return routedEventName != null && !routedEventName.EndsWith("Event") ? string.Format("{0}Event", routedEventName) : routedEventName;
         }
 
+        private static void RegisterCommandHandler(FrameworkElement rootElement, object controller)
+        {
+            if (rootElement == null || controller == null) { return; }
+
+            RetrieveCommandHandlers(rootElement, controller).RegisterCommandHandler();
+        }
+
+        private static void UnregisterCommandHandler(FrameworkElement rootElement, object controller)
+        {
+            if (rootElement == null || controller == null) { return; }
+
+            RetrieveCommandHandlers(rootElement, controller).UnregisterCommandHandler();
+        }
+
+        private static CommandHandlerBase RetrieveCommandHandlers(FrameworkElement rootElement, object controller)
+        {
+            var commandHandlerBases = EnsureCommandHandlerBases(rootElement);
+            if (commandHandlerBases.ContainsKey(controller)) { return commandHandlerBases[controller]; }
+
+            var commandHandlers = new CommandHandlerBase();
+            commandHandlerBases[controller] = commandHandlers;
+
+            controller.GetType().GetFields(contextBindingFlags)
+                .Where(field => field.GetCustomAttributes<CommandHandlerAttribute>().Any())
+                .ForEach(field => AddCommandHandlers(field, rootElement, CreateCommandHandler(field.GetValue(controller) as Delegate), commandHandlers));
+            controller.GetType().GetProperties(contextBindingFlags)
+                .Where(property => property.GetCustomAttributes<CommandHandlerAttribute>().Any())
+                .ForEach(property => AddCommandHandlers(property, rootElement, CreateCommandHandler(property.GetValue(controller, null) as Delegate), commandHandlers));
+            controller.GetType().GetMethods(contextBindingFlags)
+                .Where(method => method.GetCustomAttributes<CommandHandlerAttribute>().Any())
+                .ForEach(method => AddCommandHandlers(method, rootElement, CreateCommandHandler(method, controller), commandHandlers));
+
+            return commandHandlers;
+        }
+
+        private static IDictionary<object, CommandHandlerBase> EnsureCommandHandlerBases(FrameworkElement rootElement)
+        {
+            if (rootElement == null) { return new Dictionary<object, CommandHandlerBase>(); }
+
+            var commandHandlerBases = rootElement.GetValue(CommandHandlerBasesProperty) as IDictionary<object, CommandHandlerBase>;
+            if (commandHandlerBases != null) { return commandHandlerBases; }
+
+            commandHandlerBases = new Dictionary<object, CommandHandlerBase>();
+            rootElement.SetValue(CommandHandlerBasesProperty, commandHandlerBases);
+            return commandHandlerBases;
+        }
+
+        private static Delegate CreateCommandHandler(Delegate @delegate)
+        {
+            return @delegate == null ? null : CreateCommandHandler(@delegate.Method, @delegate.Target);
+        }
+
+        private static Delegate CreateCommandHandler(MethodInfo method, object target)
+        {
+            if (method == null) { return null; }
+
+            var paramters = method.GetParameters();
+            switch (paramters.Length)
+            {
+                case 1:
+                    if (paramters[0].ParameterType == typeof(ExecutedRoutedEventArgs))
+                    {
+                        return new ExecutedRoutedEventHandler((s, e) => method.Invoke(target, new object[] { e }));
+                    }
+                    else if (paramters[0].ParameterType == typeof(CanExecuteRoutedEventArgs))
+                    {
+                        return new CanExecuteRoutedEventHandler((s, e) => method.Invoke(target, new object[] { e }));
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"The type of the parameter must be {typeof(ExecutedRoutedEventArgs)} or {typeof(CanExecuteRoutedEventArgs)}.");
+                    }
+                case 2:
+                    if (paramters[1].ParameterType == typeof(ExecutedRoutedEventArgs))
+                    {
+                        return new ExecutedRoutedEventHandler((s, e) => method.Invoke(target, new object[] { s, e }));
+                    }
+                    else if (paramters[1].ParameterType == typeof(CanExecuteRoutedEventArgs))
+                    {
+                        return new CanExecuteRoutedEventHandler((s, e) => method.Invoke(target, new object[] { s, e }));
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"The type of the second parameter must be {typeof(ExecutedRoutedEventArgs)} or {typeof(CanExecuteRoutedEventArgs)}.");
+                    }
+                default:
+                    throw new InvalidOperationException("The length of the method parameters must be 1 or 2.");
+            }
+        }
+
+        private static void AddCommandHandlers(MemberInfo member, FrameworkElement rootElement, Delegate handler, CommandHandlerBase commandHandlers)
+        {
+            if (commandHandlers == null) { return; }
+
+            member.GetCustomAttributes<CommandHandlerAttribute>(true)
+                .ForEach(commandHandler =>
+                {
+                    if (rootElement == null)
+                    {
+                        AddCommandHandler(commandHandler.CommandName, null, rootElement, handler, commandHandlers);
+                    }
+                    else
+                    {
+                        FindCommand(rootElement).ForEach(command =>
+                            AddCommandHandler(commandHandler.CommandName, command, rootElement, handler, commandHandlers)
+                        );
+                    }
+                });
+        }
+
+        private static void AddCommandHandler(string commandName, ICommand command, FrameworkElement rootElement, Delegate handler, CommandHandlerBase commandHandlers)
+        {
+            (handler as ExecutedRoutedEventHandler).IfPresent(executedHandler =>
+                commandHandlers.Add(commandName, command, rootElement, executedHandler));
+            (handler as CanExecuteRoutedEventHandler).IfPresent(canExecuteHandler =>
+                commandHandlers.Add(commandName, command, rootElement, canExecuteHandler));
+        }
+
+        private static IEnumerable<ICommand> FindCommand(FrameworkElement element)
+        {
+            if (element == null) { yield break; }
+
+            foreach (var child in LogicalTreeHelper.GetChildren(element))
+            {
+                var childElement = child as FrameworkElement;
+                if (childElement == null) { yield break; }
+
+                var commandProperty = childElement.GetType().GetProperties().Where(p => p.PropertyType.IsAssignableFrom(typeof(ICommand))).FirstOrDefault();
+                if (commandProperty != null)
+                {
+                    var command = commandProperty.GetValue(child) as ICommand;
+                    if (command != null) { yield return command; }
+                }
+
+                foreach (var command in FindCommand(childElement))
+                {
+                    yield return command;
+                }
+            }
+        }
+
         private static void ElementOnInitialized(object sender, EventArgs e)
         {
             var element = sender as FrameworkElement;
@@ -291,6 +451,7 @@ namespace Fievus.Windows.Mvc
             {
                 SetElement(element, controller);
                 RegisterRoutedEventHandler(element, controller);
+                RegisterCommandHandler(element, controller);
             });
         }
 
@@ -306,6 +467,7 @@ namespace Fievus.Windows.Mvc
             {
                 SetElement(null, controller);
                 UnregisterRoutedEventHandler(element, controller);
+                UnregisterCommandHandler(element, controller);
             });
         }
 

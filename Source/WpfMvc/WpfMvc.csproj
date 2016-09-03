@@ -41,9 +41,11 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Mvc\CommandHandlerAttribute.cs" />
     <Compile Include="Mvc\Bindings\PropertyValueChangedEventArgs.cs" />
     <Compile Include="Mvc\Bindings\PropertyValueChangingEventArgs.cs" />
     <Compile Include="Mvc\Bindings\PropertyValueValidateEventArgs.cs" />
+    <Compile Include="Mvc\CommandHandlerBase.cs" />
     <Compile Include="Mvc\DataContextAttribute.cs" />
     <Compile Include="Mvc\ElementAttribute.cs" />
     <Compile Include="Mvc\FrameworkElements.cs" />
