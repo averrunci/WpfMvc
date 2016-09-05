@@ -22,7 +22,7 @@
     </frameworkAssemblies>
   </metadata>
   <files>
-    <file src="..\LICENSE" target="\"/>
+    <file src="..\LICENSE"/>
     <file src="..\Binary\Release\WpfMvc.dll" target="lib\net46"/>
     <file src="..\Binary\Release\WpfMvc.XML" target="lib\net46"/>
   </files>
