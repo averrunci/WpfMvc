@@ -3,6 +3,7 @@
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
 using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -41,6 +42,95 @@ namespace Fievus.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login.Log
     }
 
     [TestFixture]
+    public class LoginButtonEnabledDisabled
+    {
+        [Test]
+        public void DisablesLoginButtonWhenUserIdIsNull()
+        {
+            var loginContent = new LoginContent();
+            loginContent.UserId.Value = null;
+            loginContent.Password.Value = "password";
+            var controller = new LoginContentController { Context = loginContent };
+
+            var e = WpfController.RetrieveCommandHandlers(controller)
+                .GetBy(SimpleLoginCommands.Login.Name)
+                .With(SimpleLoginCommands.Login)
+                .RaiseCanExecute(loginContent)
+                .FirstOrDefault();
+
+            Assert.That(e.CanExecute, Is.False);
+        }
+
+        [Test]
+        public void DisablesLoginButtonWhenUserIdIsEmpty()
+        {
+            var loginContent = new LoginContent();
+            loginContent.UserId.Value = string.Empty;
+            loginContent.Password.Value = "password";
+            var controller = new LoginContentController { Context = loginContent };
+
+            var e = WpfController.RetrieveCommandHandlers(controller)
+                .GetBy(SimpleLoginCommands.Login.Name)
+                .With(SimpleLoginCommands.Login)
+                .RaiseCanExecute(loginContent)
+                .FirstOrDefault();
+
+            Assert.That(e.CanExecute, Is.False);
+        }
+
+        [Test]
+        public void DisablesLoginButtonWhenPasswordIsNull()
+        {
+            var loginContent = new LoginContent();
+            loginContent.UserId.Value = "user";
+            loginContent.Password.Value = null;
+            var controller = new LoginContentController { Context = loginContent };
+
+            var e = WpfController.RetrieveCommandHandlers(controller)
+                .GetBy(SimpleLoginCommands.Login.Name)
+                .With(SimpleLoginCommands.Login)
+                .RaiseCanExecute(loginContent)
+                .FirstOrDefault();
+
+            Assert.That(e.CanExecute, Is.False);
+        }
+
+        [Test]
+        public void DisablesLoginButtonWhenPasswordIsEmpty()
+        {
+            var loginContent = new LoginContent();
+            loginContent.UserId.Value = "user";
+            loginContent.Password.Value = string.Empty;
+            var controller = new LoginContentController { Context = loginContent };
+
+            var e = WpfController.RetrieveCommandHandlers(controller)
+                .GetBy(SimpleLoginCommands.Login.Name)
+                .With(SimpleLoginCommands.Login)
+                .RaiseCanExecute(loginContent)
+                .FirstOrDefault();
+
+            Assert.That(e.CanExecute, Is.False);
+        }
+
+        [Test]
+        public void EnablesLoginButtonWhenUseIdIsNotNullOrEmptyAndPasswordIsNotNullOrEmpty()
+        {
+            var loginContent = new LoginContent();
+            loginContent.UserId.Value = "userid";
+            loginContent.Password.Value = "password";
+            var controller = new LoginContentController { Context = loginContent };
+
+            var e = WpfController.RetrieveCommandHandlers(controller)
+                .GetBy(SimpleLoginCommands.Login.Name)
+                .With(SimpleLoginCommands.Login)
+                .RaiseCanExecute(loginContent)
+                .FirstOrDefault();
+
+            Assert.That(e.CanExecute, Is.True);
+        }
+    }
+
+    [TestFixture]
     public class WhenLoginButtonIsClicked
     {
         [Test]
@@ -57,9 +147,10 @@ namespace Fievus.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login.Log
 
             var controller = new LoginContentController { Context = loginContent, UserAuthentication = userAuthentication };
 
-            WpfController.RetrieveRoutedEventHandlers(controller)
-                .GetBy("LoginButton")
-                .Raise("Click");
+            WpfController.RetrieveCommandHandlers(controller)
+                .GetBy(SimpleLoginCommands.Login.Name)
+                .With(SimpleLoginCommands.Login)
+                .RaiseExecuted(loginContent);
 
             handler.AssertWasCalled(
                 h => h.Invoke(
@@ -75,9 +166,10 @@ namespace Fievus.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login.Log
             var loginContent = new LoginContent();
             var controller = new LoginContentController { Context = loginContent };
 
-            WpfController.RetrieveRoutedEventHandlers(controller)
-                .GetBy("LoginButton")
-                .Raise("Click");
+            WpfController.RetrieveCommandHandlers(controller)
+                .GetBy(SimpleLoginCommands.Login.Name)
+                .With(SimpleLoginCommands.Login)
+                .RaiseExecuted(loginContent);
 
             Assert.That(loginContent.Message.Value, Is.EqualTo(Resources.LoginNotAvailable));
         }
@@ -90,9 +182,10 @@ namespace Fievus.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login.Log
             var userAuthentication = MockRepository.GenerateStub<IUserAuthentication>();
             var controller = new LoginContentController { Context = loginContent, UserAuthentication = userAuthentication };
 
-            WpfController.RetrieveRoutedEventHandlers(controller)
-                .GetBy("LoginButton")
-                .Raise("Click");
+            WpfController.RetrieveCommandHandlers(controller)
+                .GetBy(SimpleLoginCommands.Login.Name)
+                .With(SimpleLoginCommands.Login)
+                .RaiseExecuted(loginContent);
 
             Assert.That(loginContent.Message.Value, Is.Empty);
         }
@@ -108,9 +201,10 @@ namespace Fievus.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login.Log
             userAuthentication.Expect(u => u.Authenticate(loginContent.UserId.Value, loginContent.Password.Value)).Return(UserAuthenticationResult.Failed());
             var controller = new LoginContentController { Context = loginContent, UserAuthentication = userAuthentication };
 
-            WpfController.RetrieveRoutedEventHandlers(controller)
-                .GetBy("LoginButton")
-                .Raise("Click");
+            WpfController.RetrieveCommandHandlers(controller)
+                .GetBy(SimpleLoginCommands.Login.Name)
+                .With(SimpleLoginCommands.Login)
+                .RaiseExecuted(loginContent);
 
             Assert.That(loginContent.Message.Value, Is.EqualTo(Resources.LoginFailureMessage));
         }

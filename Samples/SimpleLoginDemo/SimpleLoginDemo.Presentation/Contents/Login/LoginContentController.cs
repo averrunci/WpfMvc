@@ -4,6 +4,7 @@
 // of the MIT license.  See the LICENSE file for details.
 using System;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 using Fievus.Windows.Mvc;
 
@@ -30,8 +31,14 @@ namespace Fievus.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login
             PasswordBox.PasswordChanged += (s, e) => { Context.Password.Value = PasswordBox.Password; };
         }
 
-        [RoutedEventHandler(ElementName = "LoginButton", RoutedEvent = "Click")]
-        private void Login()
+        [CommandHandler(CommandName = "Login")]
+        private void CanExecuteLogin(CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = !string.IsNullOrEmpty(Context.UserId.Value) && !string.IsNullOrEmpty(Context.Password.Value);
+        }
+
+        [CommandHandler(CommandName = "Login")]
+        private void ExecuteLogin(ExecutedRoutedEventArgs e)
         {
             Context.Message.Value = string.Empty;
 

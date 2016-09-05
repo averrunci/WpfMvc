@@ -7,6 +7,7 @@ of the MIT license.  See the LICENSE file for details.
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:w="clr-namespace:Fievus.Windows.Mvc;assembly=WpfMvc"
+                    xmlns:l="clr-namespace:Fievus.Windows.Samples.SimpleLoginDemo.Presentation"
                     xmlns:m="clr-namespace:Fievus.Windows.Samples.SimpleLoginDemo.Presentation.Contents.User"
                     xmlns:p="clr-namespace:Fievus.Windows.Samples.SimpleLoginDemo.Presentation.Properties">
     <ResourceDictionary.MergedDictionaries>
@@ -20,9 +21,9 @@ of the MIT license.  See the LICENSE file for details.
             </w:WpfController.Controllers>
             
             <StackPanel DockPanel.Dock="Top">
-                <Button Name="LogoutButton"
-                        Style="{StaticResource LogoutButtonStyle}"
-                        Content="{x:Static p:Resources.LogoutButtonText}"/>
+                <Button Style="{StaticResource LogoutButtonStyle}"
+                        Command="{x:Static l:SimpleLoginCommands.Logout}" CommandParameter="{Binding}"
+                        Content="{Binding Command.Text,RelativeSource={RelativeSource Self}}"/>
             </StackPanel>
             
             <TextBlock Style="{StaticResource MessageStyle}"

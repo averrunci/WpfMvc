@@ -7,6 +7,7 @@ of the MIT license.  See the LICENSE file for details.
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:w="clr-namespace:Fievus.Windows.Mvc;assembly=WpfMvc"
+                    xmlns:l="clr-namespace:Fievus.Windows.Samples.SimpleLoginDemo.Presentation"
                     xmlns:m="clr-namespace:Fievus.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login"
                     xmlns:p="clr-namespace:Fievus.Windows.Samples.SimpleLoginDemo.Presentation.Properties">
     <ResourceDictionary.MergedDictionaries>
@@ -33,7 +34,7 @@ of the MIT license.  See the LICENSE file for details.
                 <StackPanel>
                     <StackPanel Style="{StaticResource InputGroupStyle}">
                         <TextBlock Text="{x:Static p:Resources.UserIdLabel}"/>
-                        <TextBox Text="{Binding UserId.Value}"/>
+                        <TextBox Text="{Binding UserId.Value,UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
 
                     <StackPanel Style="{StaticResource InputGroupStyle}">
@@ -44,9 +45,9 @@ of the MIT license.  See the LICENSE file for details.
                         </Grid>
                     </StackPanel>
 
-                    <Button Name="LoginButton"
-                            Style="{StaticResource LoginButtonStyle}"
-                            Content="{x:Static p:Resources.LoginButtonText}"/>
+                    <Button Style="{StaticResource LoginButtonStyle}"
+                            Command="{x:Static l:SimpleLoginCommands.Login}" CommandParameter="{Binding}"
+                            Content="{Binding Command.Text,RelativeSource={RelativeSource Self}}"/>
                 </StackPanel>
             </Border>
         </Grid>

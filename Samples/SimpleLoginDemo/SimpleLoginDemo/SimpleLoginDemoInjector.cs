@@ -10,7 +10,7 @@ using Ninject;
 
 using Fievus.Windows.Samples.SimpleLoginDemo.Adapter;
 
-namespace SimpleLoginDemo
+namespace Fievus.Windows.Samples.SimpleLoginDemo
 {
     public class SimpleLoginDemoInjector : IWpfControllerInjector
     {

@@ -21,9 +21,10 @@ namespace Fievus.Windows.Samples.SimpleLoginDemo.Presentation.Contents.User.User
             var userContent = MockRepository.GenerateMock<UserContent>("User");
             var controller = new UserContentController { Context = userContent };
 
-            WpfController.RetrieveRoutedEventHandlers(controller)
-                .GetBy("LogoutButton")
-                .Raise("Click");
+            WpfController.RetrieveCommandHandlers(controller)
+                .GetBy(SimpleLoginCommands.Logout.Name)
+                .With(SimpleLoginCommands.Logout)
+                .RaiseExecuted(userContent);
 
             userContent.AssertWasCalled(u => u.Logout());
         }

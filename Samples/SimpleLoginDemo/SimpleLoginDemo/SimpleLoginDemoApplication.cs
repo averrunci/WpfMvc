@@ -12,7 +12,7 @@ using Fievus.Windows.Mvc;
 using Fievus.Windows.Samples.SimpleLoginDemo.Presentation.Contents;
 using Fievus.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login;
 
-namespace SimpleLoginDemo
+namespace Fievus.Windows.Samples.SimpleLoginDemo
 {
     public class SimpleLoginDemo : Application
     {

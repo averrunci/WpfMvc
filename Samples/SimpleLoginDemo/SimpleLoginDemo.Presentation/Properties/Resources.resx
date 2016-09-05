@@ -120,7 +120,7 @@
   <data name="Copyright" xml:space="preserve">
     <value>Copyright (C) 2016 Fievus</value>
   </data>
-  <data name="LoginButtonText" xml:space="preserve">
+  <data name="LoginCommandText" xml:space="preserve">
     <value>Log in</value>
   </data>
   <data name="LoginFailureMessage" xml:space="preserve">
@@ -129,7 +129,7 @@
   <data name="LoginNotAvailable" xml:space="preserve">
     <value>Login is not available.</value>
   </data>
-  <data name="LogoutButtonText" xml:space="preserve">
+  <data name="LogoutCommandText" xml:space="preserve">
     <value>Log out</value>
   </data>
   <data name="PasswordLabel" xml:space="preserve">
