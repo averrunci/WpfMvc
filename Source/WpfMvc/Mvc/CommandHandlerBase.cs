@@ -157,12 +157,18 @@ namespace Fievus.Windows.Mvc
             /// Raises the command CanExecute event using the specified parameter.
             /// </summary>
             /// <param name="parameter">The parameter of the command.</param>
-            public void RaiseCanExecute(object parameter)
+            /// <returns><see cref="CanExecuteRoutedEventArgs"/> used to raise the CanExecute event.</returns>
+            public IEnumerable<CanExecuteRoutedEventArgs> RaiseCanExecute(object parameter)
             {
+                var args = new List<CanExecuteRoutedEventArgs>();
                 items.Where(item => item.CanExecuteHandler != null)
                     .ForEach(item =>
-                        item.CanExecuteHandler(sender, CreateEventArgs<CanExecuteRoutedEventArgs>(item, parameter))
-                    );
+                    {
+                        var e = CreateEventArgs<CanExecuteRoutedEventArgs>(item, parameter);
+                        item.CanExecuteHandler(sender, e);
+                        args.Add(e);
+                    });
+                return args.AsReadOnly();
             }
 
             private T CreateEventArgs<T>(Item item, object parameter)

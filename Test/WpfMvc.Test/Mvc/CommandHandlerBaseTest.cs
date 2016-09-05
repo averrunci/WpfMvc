@@ -48,10 +48,11 @@ namespace Fievus.Windows.Mvc
 
             var sender = new object();
             var parameter = new object();
-            commandHandlerBase.GetBy(TestWpfControllers.TestCommand.Name)
+            var args = commandHandlerBase.GetBy(TestWpfControllers.TestCommand.Name)
                 .From(sender)
                 .RaiseCanExecute(parameter);
 
+            Assert.That(args, Has.Count.EqualTo(1));
             handler.AssertWasCalled(h => h.Invoke(Arg<object>.Is.Equal(sender), Arg<CanExecuteRoutedEventArgs>.Matches(e => e.Parameter == parameter)));
             notCalledHandler.AssertWasNotCalled(h => h.Invoke(Arg<object>.Is.Anything, Arg<CanExecuteRoutedEventArgs>.Is.Anything));
         }
