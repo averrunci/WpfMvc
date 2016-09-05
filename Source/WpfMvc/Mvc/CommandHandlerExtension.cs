@@ -141,13 +141,13 @@ namespace Fievus.Windows.Mvc
                 commandHandlers.Add(commandName, command, rootElement, canExecuteHandler));
         }
 
-        private IEnumerable<ICommand> FindCommand(FrameworkElement element)
+        private IEnumerable<ICommand> FindCommand(DependencyObject element)
         {
             if (element == null) { yield break; }
 
             foreach (var child in LogicalTreeHelper.GetChildren(element))
             {
-                var childElement = child as FrameworkElement;
+                var childElement = child as DependencyObject;
                 if (childElement == null) { yield break; }
 
                 var commandProperty = childElement.GetType().GetProperties().Where(p => typeof(ICommand).IsAssignableFrom(p.PropertyType)).FirstOrDefault();
