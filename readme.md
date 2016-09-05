@@ -45,7 +45,7 @@ This library provides a feature to specify a controller with an attached propert
 </Grid>
 ```
 
-This library also provides features to inject routed event handlers, a data context, and visual elements to the controller using attributes.
+This library also provides features to inject routed event handlers, command event handlers, a data context, and visual elements to the controller using attributes.
 The available attributes are as follows.
 
 ### RoutedEventHandlerAttribute
@@ -78,6 +78,40 @@ private void ActionButton_Click(RoutedEventArgs e)
 private void ActionButton_Click(object sender, RoutedEventArgs e)
 {
     // implements the action.
+}
+```
+
+### CommandHandlerAttribute
+
+This attribute is specified to the method to handle a command event.
+It is also specified to the property or the field that is defined with a delegate.
+The method is declared as follows;
+
+- One argument that is a ExecutedRoutedEventArgs / CanExecuteRoutedEventArgs.
+```
+[CommandHandler(CommandName = "ActionCommand")]
+private void ActionCommand_Executed(ExecutedRoutedEVentArgs e)
+{
+    // implements the action of the command Executed event.
+}
+[CommandHandler(commandName = "ActionCommand")]
+private void ActionCommand_CanExecute(CanExecuteRoutedEventArgs e)
+{
+    // implements the action of the command CanExecuted event.
+}
+```
+
+- Two arguments that are an object and a ExecutedRoutedEventArgs / CanExecuteRoutedEventArgs
+```
+[CommandHandler(CommandName = "ActionCommand")]
+private void ActionCommand_Executed(object sender, ExecutedRoutedEVentArgs e)
+{
+    // implements the action of the command Executed event.
+}
+[CommandHandler(commandName = "ActionCommand")]
+private void ActionCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+{
+    // implements the action of the command CanExecuted event.
 }
 ```
 
