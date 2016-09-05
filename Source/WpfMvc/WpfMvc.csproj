@@ -46,14 +46,17 @@
     <Compile Include="Mvc\Bindings\PropertyValueChangingEventArgs.cs" />
     <Compile Include="Mvc\Bindings\PropertyValueValidateEventArgs.cs" />
     <Compile Include="Mvc\CommandHandlerBase.cs" />
+    <Compile Include="Mvc\CommandHandlerExtension.cs" />
     <Compile Include="Mvc\DataContextAttribute.cs" />
     <Compile Include="Mvc\ElementAttribute.cs" />
     <Compile Include="Mvc\FrameworkElements.cs" />
+    <Compile Include="Mvc\IWpfControllerExtension.cs" />
     <Compile Include="Mvc\IWpfControllerInjector.cs" />
     <Compile Include="Mvc\MessageRequestedEvent.cs" />
     <Compile Include="Mvc\MessageRequestedEventArgs.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Mvc\Bindings\ObservableProperty.cs" />
+    <Compile Include="Mvc\RoutedEventHandlerExtension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Mvc\Bindings\PropertyChangedEventManager.cs" />
     <Compile Include="Mvc\RoutedEventHandlerAttribute.cs" />

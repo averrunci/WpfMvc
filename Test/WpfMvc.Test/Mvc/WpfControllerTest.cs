@@ -108,99 +108,6 @@ namespace Fievus.Windows.Mvc.WpfControllerTest
                     assertionHandler.AssertWasCalled(h => h.Invoke(childElement, args));
                 }).Shutdown();
             }
-
-            [Test]
-            public void AddsCommandHandlerOfExecutedEventThatHasOneArgument()
-            {
-                WpfApplicationRunner.Start<Application>().Run(application =>
-                {
-                    var context = new object();
-                    var testButton = new Button { Name = "testButton", Command = TestWpfControllers.TestCommand };
-                    var element = new TestElement { Name = "element", Content = testButton, DataContext = context };
-
-                    var executedAssertionHandler = MockRepository.GenerateMock<Action<ExecutedRoutedEventArgs>>();
-                    var controller = new TestWpfControllers.AttributedToField.OneArgumentExecutedOnlyHandlerController(executedAssertionHandler);
-                    WpfController.GetControllers(element).Add(controller);
-
-                    element.RaiseInitialized();
-                    
-                    var parameter = new object();
-                    (testButton.Command as RoutedCommand).Execute(parameter, element);
-
-                    executedAssertionHandler.AssertWasCalled(h => h.Invoke(Arg<ExecutedRoutedEventArgs>.Matches(e => e.Parameter == parameter)));
-                }).Shutdown();
-            }
-
-            [Test]
-            public void AddsCommandHandlerOfExecutedEventAndCanExecuteEventThatHasOneArgument()
-            {
-                WpfApplicationRunner.Start<Application>().Run(application =>
-                {
-                    var context = new object();
-                    var testButton = new Button { Name = "testButton", Command = TestWpfControllers.TestCommand };
-                    var element = new TestElement { Name = "element", Content = testButton, DataContext = context };
-
-                    var executedAssertionHandler = MockRepository.GenerateMock<Action<ExecutedRoutedEventArgs>>();
-                    var canExecuteAssertionHandler = MockRepository.GenerateMock<Action<CanExecuteRoutedEventArgs>>();
-                    var controller = new TestWpfControllers.AttributedToField.OneArgumentExecutedAndCanExecuteHandlerController(executedAssertionHandler, canExecuteAssertionHandler);
-                    WpfController.GetControllers(element).Add(controller);
-
-                    element.RaiseInitialized();
-
-                    var parameter = new object();
-                    (testButton.Command as RoutedCommand).Execute(parameter, element);
-
-                    canExecuteAssertionHandler.AssertWasCalled(h => h.Invoke(Arg<CanExecuteRoutedEventArgs>.Matches(e => e.Parameter == parameter)));
-                    executedAssertionHandler.AssertWasCalled(h => h.Invoke(Arg<ExecutedRoutedEventArgs>.Matches(e => e.Parameter == parameter)));
-                }).Shutdown();
-            }
-
-            [Test]
-            public void AddsCommandHandlerOfExecutedEventThaIsExecutedRoutedEventHandler()
-            {
-                WpfApplicationRunner.Start<Application>().Run(application =>
-                {
-                    var context = new object();
-                    var testButton = new Button { Name = "testButton", Command = TestWpfControllers.TestCommand };
-                    var element = new TestElement { Name = "element", Content = testButton, DataContext = context };
-
-                    var executedAssertionHandler = MockRepository.GenerateMock<ExecutedRoutedEventHandler>();
-                    var controller = new TestWpfControllers.AttributedToField.ExecutedOnlyHandlerController(executedAssertionHandler);
-                    WpfController.GetControllers(element).Add(controller);
-
-                    element.RaiseInitialized();
-
-                    var parameter = new object();
-                    (testButton.Command as RoutedCommand).Execute(parameter, element);
-
-                    executedAssertionHandler.AssertWasCalled(h => h.Invoke(Arg<object>.Is.Equal(element), Arg<ExecutedRoutedEventArgs>.Matches(e => e.Parameter == parameter)));
-                }).Shutdown();
-            }
-
-            [Test]
-            public void AddsCommandHandlerOfExecutedEventAndCanExecuteEventThaIsExecutedRoutedEventHandler()
-            {
-                WpfApplicationRunner.Start<Application>().Run(application =>
-                {
-                    var context = new object();
-                    var testButton = new Button { Name = "testButton", Command = TestWpfControllers.TestCommand };
-                    var element = new TestElement { Name = "element", Content = testButton, DataContext = context };
-
-                    var executedAssertionHandler = MockRepository.GenerateMock<ExecutedRoutedEventHandler>();
-                    var canExecuteAssertionHandler = MockRepository.GenerateMock<CanExecuteRoutedEventHandler>();
-                    var controller = new TestWpfControllers.AttributedToField.ExecutedAndCanExecuteHandlerController(executedAssertionHandler, canExecuteAssertionHandler);
-                    WpfController.GetControllers(element).Add(controller);
-
-                    element.RaiseInitialized();
-
-                    var parameter = new object();
-                    (testButton.Command as RoutedCommand).CanExecute(parameter, element);
-                    (testButton.Command as RoutedCommand).Execute(parameter, element);
-
-                    canExecuteAssertionHandler.AssertWasCalled(h => h.Invoke(Arg<object>.Is.Equal(element), Arg<CanExecuteRoutedEventArgs>.Matches(e => e.Parameter == parameter)));
-                    executedAssertionHandler.AssertWasCalled(h => h.Invoke(Arg<object>.Is.Equal(element), Arg<ExecutedRoutedEventArgs>.Matches(e => e.Parameter == parameter)));
-                }).Shutdown();
-            }
         }
 
         [TestFixture]
@@ -294,7 +201,204 @@ namespace Fievus.Windows.Mvc.WpfControllerTest
                     assertionHandler.AssertWasCalled(h => h.Invoke(childElement, args));
                 }).Shutdown();
             }
+        }
 
+        [TestFixture]
+        public class AttributedToMethod
+        {
+            [Test]
+            public void AddsEventHandlerThatDoesNotHaveArgument()
+            {
+                WpfApplicationRunner.Start<Application>().Run(application =>
+                {
+                    var context = new object();
+                    var childElement = new FrameworkElement { Name = "ChildElement" };
+                    var element = new TestElement { Name = "element", Content = childElement, DataContext = context };
+
+                    var assertionHandler = MockRepository.GenerateMock<Action>();
+                    var controller = new TestWpfControllers.AttributedToMethod.NoArgumentHandlerController(assertionHandler);
+                    WpfController.GetControllers(element).Add(controller);
+
+                    Assert.That(controller.Context, Is.EqualTo(context));
+                    Assert.That(controller.Element, Is.Null);
+                    Assert.That(controller.ChildElement, Is.Null);
+
+                    element.RaiseInitialized();
+
+                    Assert.That(controller.Context, Is.EqualTo(context));
+                    Assert.That(controller.Element, Is.EqualTo(element));
+                    Assert.That(controller.ChildElement, Is.EqualTo(childElement));
+
+                    childElement.RaiseEvent(new RoutedEventArgs(FrameworkElement.LoadedEvent) { Source = childElement });
+
+                    assertionHandler.AssertWasCalled(h => h.Invoke());
+                }).Shutdown();
+            }
+
+            [Test]
+            public void AddsEventHandlerThatHasOneArgument()
+            {
+                WpfApplicationRunner.Start<Application>().Run(application =>
+                {
+                    var context = new object();
+                    var childElement = new FrameworkElement { Name = "ChildElement" };
+                    var element = new TestElement { Name = "element", Content = childElement, DataContext = context };
+
+                    var assertionHandler = MockRepository.GenerateMock<Action<RoutedEventArgs>>();
+                    var controller = new TestWpfControllers.AttributedToMethod.OneArgumentHandlerController(assertionHandler);
+                    WpfController.GetControllers(element).Add(controller);
+
+                    Assert.That(controller.Context, Is.EqualTo(context));
+                    Assert.That(controller.Element, Is.Null);
+                    Assert.That(controller.ChildElement, Is.Null);
+
+                    element.RaiseInitialized();
+
+                    Assert.That(controller.Context, Is.EqualTo(context));
+                    Assert.That(controller.Element, Is.EqualTo(element));
+                    Assert.That(controller.ChildElement, Is.EqualTo(childElement));
+
+                    var args = new RoutedEventArgs(FrameworkElement.LoadedEvent) { Source = childElement };
+                    childElement.RaiseEvent(args);
+
+                    assertionHandler.AssertWasCalled(h => h.Invoke(args));
+                }).Shutdown();
+            }
+
+            [Test]
+            public void AddsEventHandlerThaIsRoutedEventHandler()
+            {
+                WpfApplicationRunner.Start<Application>().Run(application =>
+                {
+                    var context = new object();
+                    var childElement = new FrameworkElement { Name = "ChildElement" };
+                    var element = new TestElement { Name = "element", Content = childElement, DataContext = context };
+
+                    var assertionHandler = MockRepository.GenerateMock<RoutedEventHandler>();
+                    var controller = new TestWpfControllers.AttributedToMethod.RoutedEventHandlerController(assertionHandler);
+                    WpfController.GetControllers(element).Add(controller);
+
+                    Assert.That(controller.Context, Is.EqualTo(context));
+                    Assert.That(controller.Element, Is.Null);
+                    Assert.That(controller.ChildElement, Is.Null);
+
+                    element.RaiseInitialized();
+
+                    Assert.That(controller.Context, Is.EqualTo(context));
+                    Assert.That(controller.Element, Is.EqualTo(element));
+                    Assert.That(controller.ChildElement, Is.EqualTo(childElement));
+
+                    var args = new RoutedEventArgs(FrameworkElement.LoadedEvent) { Source = childElement };
+                    childElement.RaiseEvent(args);
+
+                    assertionHandler.AssertWasCalled(h => h.Invoke(childElement, args));
+                }).Shutdown();
+            }
+        }
+    }
+
+    namespace CommandHandlerInjection
+    {
+        [TestFixture]
+        public class AttributedToField
+        {
+            [Test]
+            public void AddsCommandHandlerOfExecutedEventThatHasOneArgument()
+            {
+                WpfApplicationRunner.Start<Application>().Run(application =>
+                {
+                    var context = new object();
+                    var testButton = new Button { Name = "testButton", Command = TestWpfControllers.TestCommand };
+                    var element = new TestElement { Name = "element", Content = testButton, DataContext = context };
+
+                    var executedAssertionHandler = MockRepository.GenerateMock<Action<ExecutedRoutedEventArgs>>();
+                    var controller = new TestWpfControllers.AttributedToField.OneArgumentExecutedOnlyHandlerController(executedAssertionHandler);
+                    WpfController.GetControllers(element).Add(controller);
+
+                    element.RaiseInitialized();
+
+                    var parameter = new object();
+                    (testButton.Command as RoutedCommand).Execute(parameter, element);
+
+                    executedAssertionHandler.AssertWasCalled(h => h.Invoke(Arg<ExecutedRoutedEventArgs>.Matches(e => e.Parameter == parameter)));
+                }).Shutdown();
+            }
+
+            [Test]
+            public void AddsCommandHandlerOfExecutedEventAndCanExecuteEventThatHasOneArgument()
+            {
+                WpfApplicationRunner.Start<Application>().Run(application =>
+                {
+                    var context = new object();
+                    var testButton = new Button { Name = "testButton", Command = TestWpfControllers.TestCommand };
+                    var element = new TestElement { Name = "element", Content = testButton, DataContext = context };
+
+                    var executedAssertionHandler = MockRepository.GenerateMock<Action<ExecutedRoutedEventArgs>>();
+                    var canExecuteAssertionHandler = MockRepository.GenerateMock<Action<CanExecuteRoutedEventArgs>>();
+                    var controller = new TestWpfControllers.AttributedToField.OneArgumentExecutedAndCanExecuteHandlerController(executedAssertionHandler, canExecuteAssertionHandler);
+                    WpfController.GetControllers(element).Add(controller);
+
+                    element.RaiseInitialized();
+
+                    var parameter = new object();
+                    (testButton.Command as RoutedCommand).Execute(parameter, element);
+
+                    canExecuteAssertionHandler.AssertWasCalled(h => h.Invoke(Arg<CanExecuteRoutedEventArgs>.Matches(e => e.Parameter == parameter)));
+                    executedAssertionHandler.AssertWasCalled(h => h.Invoke(Arg<ExecutedRoutedEventArgs>.Matches(e => e.Parameter == parameter)));
+                }).Shutdown();
+            }
+
+            [Test]
+            public void AddsCommandHandlerOfExecutedEventThaIsExecutedRoutedEventHandler()
+            {
+                WpfApplicationRunner.Start<Application>().Run(application =>
+                {
+                    var context = new object();
+                    var testButton = new Button { Name = "testButton", Command = TestWpfControllers.TestCommand };
+                    var element = new TestElement { Name = "element", Content = testButton, DataContext = context };
+
+                    var executedAssertionHandler = MockRepository.GenerateMock<ExecutedRoutedEventHandler>();
+                    var controller = new TestWpfControllers.AttributedToField.ExecutedOnlyHandlerController(executedAssertionHandler);
+                    WpfController.GetControllers(element).Add(controller);
+
+                    element.RaiseInitialized();
+
+                    var parameter = new object();
+                    (testButton.Command as RoutedCommand).Execute(parameter, element);
+
+                    executedAssertionHandler.AssertWasCalled(h => h.Invoke(Arg<object>.Is.Equal(element), Arg<ExecutedRoutedEventArgs>.Matches(e => e.Parameter == parameter)));
+                }).Shutdown();
+            }
+
+            [Test]
+            public void AddsCommandHandlerOfExecutedEventAndCanExecuteEventThaIsExecutedRoutedEventHandler()
+            {
+                WpfApplicationRunner.Start<Application>().Run(application =>
+                {
+                    var context = new object();
+                    var testButton = new Button { Name = "testButton", Command = TestWpfControllers.TestCommand };
+                    var element = new TestElement { Name = "element", Content = testButton, DataContext = context };
+
+                    var executedAssertionHandler = MockRepository.GenerateMock<ExecutedRoutedEventHandler>();
+                    var canExecuteAssertionHandler = MockRepository.GenerateMock<CanExecuteRoutedEventHandler>();
+                    var controller = new TestWpfControllers.AttributedToField.ExecutedAndCanExecuteHandlerController(executedAssertionHandler, canExecuteAssertionHandler);
+                    WpfController.GetControllers(element).Add(controller);
+
+                    element.RaiseInitialized();
+
+                    var parameter = new object();
+                    (testButton.Command as RoutedCommand).CanExecute(parameter, element);
+                    (testButton.Command as RoutedCommand).Execute(parameter, element);
+
+                    canExecuteAssertionHandler.AssertWasCalled(h => h.Invoke(Arg<object>.Is.Equal(element), Arg<CanExecuteRoutedEventArgs>.Matches(e => e.Parameter == parameter)));
+                    executedAssertionHandler.AssertWasCalled(h => h.Invoke(Arg<object>.Is.Equal(element), Arg<ExecutedRoutedEventArgs>.Matches(e => e.Parameter == parameter)));
+                }).Shutdown();
+            }
+        }
+
+        [TestFixture]
+        public class AttributedToProperty
+        {
             [Test]
             public void AddsCommandHandlerOfExecutedEventThatHasOneArgument()
             {
@@ -392,95 +496,6 @@ namespace Fievus.Windows.Mvc.WpfControllerTest
         [TestFixture]
         public class AttributedToMethod
         {
-            [Test]
-            public void AddsEventHandlerThatDoesNotHaveArgument()
-            {
-                WpfApplicationRunner.Start<Application>().Run(application =>
-                {
-                    var context = new object();
-                    var childElement = new FrameworkElement { Name = "ChildElement" };
-                    var element = new TestElement { Name = "element", Content = childElement, DataContext = context };
-
-                    var assertionHandler = MockRepository.GenerateMock<Action>();
-                    var controller = new TestWpfControllers.AttributedToMethod.NoArgumentHandlerController(assertionHandler);
-                    WpfController.GetControllers(element).Add(controller);
-
-                    Assert.That(controller.Context, Is.EqualTo(context));
-                    Assert.That(controller.Element, Is.Null);
-                    Assert.That(controller.ChildElement, Is.Null);
-
-                    element.RaiseInitialized();
-
-                    Assert.That(controller.Context, Is.EqualTo(context));
-                    Assert.That(controller.Element, Is.EqualTo(element));
-                    Assert.That(controller.ChildElement, Is.EqualTo(childElement));
-
-                    childElement.RaiseEvent(new RoutedEventArgs(FrameworkElement.LoadedEvent) { Source = childElement });
-
-                    assertionHandler.AssertWasCalled(h => h.Invoke());
-                }).Shutdown();
-            }
-
-            [Test]
-            public void AddsEventHandlerThatHasOneArgument()
-            {
-                WpfApplicationRunner.Start<Application>().Run(application =>
-                {
-                    var context = new object();
-                    var childElement = new FrameworkElement { Name = "ChildElement" };
-                    var element = new TestElement { Name = "element", Content = childElement, DataContext = context };
-
-                    var assertionHandler = MockRepository.GenerateMock<Action<RoutedEventArgs>>();
-                    var controller = new TestWpfControllers.AttributedToMethod.OneArgumentHandlerController(assertionHandler);
-                    WpfController.GetControllers(element).Add(controller);
-
-                    Assert.That(controller.Context, Is.EqualTo(context));
-                    Assert.That(controller.Element, Is.Null);
-                    Assert.That(controller.ChildElement, Is.Null);
-
-                    element.RaiseInitialized();
-
-                    Assert.That(controller.Context, Is.EqualTo(context));
-                    Assert.That(controller.Element, Is.EqualTo(element));
-                    Assert.That(controller.ChildElement, Is.EqualTo(childElement));
-
-                    var args = new RoutedEventArgs(FrameworkElement.LoadedEvent) { Source = childElement };
-                    childElement.RaiseEvent(args);
-
-                    assertionHandler.AssertWasCalled(h => h.Invoke(args));
-                }).Shutdown();
-            }
-
-            [Test]
-            public void AddsEventHandlerThaIsRoutedEventHandler()
-            {
-                WpfApplicationRunner.Start<Application>().Run(application =>
-                {
-                    var context = new object();
-                    var childElement = new FrameworkElement { Name = "ChildElement" };
-                    var element = new TestElement { Name = "element", Content = childElement, DataContext = context };
-
-                    var assertionHandler = MockRepository.GenerateMock<RoutedEventHandler>();
-                    var controller = new TestWpfControllers.AttributedToMethod.RoutedEventHandlerController(assertionHandler);
-                    WpfController.GetControllers(element).Add(controller);
-
-                    Assert.That(controller.Context, Is.EqualTo(context));
-                    Assert.That(controller.Element, Is.Null);
-                    Assert.That(controller.ChildElement, Is.Null);
-
-                    element.RaiseInitialized();
-
-                    Assert.That(controller.Context, Is.EqualTo(context));
-                    Assert.That(controller.Element, Is.EqualTo(element));
-                    Assert.That(controller.ChildElement, Is.EqualTo(childElement));
-
-                    var args = new RoutedEventArgs(FrameworkElement.LoadedEvent) { Source = childElement };
-                    childElement.RaiseEvent(args);
-
-                    assertionHandler.AssertWasCalled(h => h.Invoke(childElement, args));
-                }).Shutdown();
-            }
-
             [Test]
             public void AddsCommandHandlerOfExecutedEventThatHasOneArgument()
             {
@@ -778,6 +793,99 @@ namespace Fievus.Windows.Mvc.WpfControllerTest
                 .RaiseCanExecute(parameter);
 
             canExecuteAssertionHandler.AssertWasCalled(h => h.Invoke());
+        }
+    }
+
+    [TestFixture]
+    public class WpfControllerExtension
+    {
+        [Test]
+        public void AttachesExtensionWhenInitializedEventIsRaised()
+        {
+            WpfApplicationRunner.Start<Application>().Run(application =>
+            {
+                var extension = MockRepository.GenerateMock<IWpfControllerExtension>();
+                WpfController.Add(extension);
+
+                try
+                {
+                    var element = new TestElement { Name = "element" };
+
+                    var controller = new TestWpfControllers.TestWpfController();
+                    WpfController.GetControllers(element).Add(controller);
+
+                    element.RaiseInitialized();
+
+                    extension.AssertWasCalled(e => e.Attach(element, controller));
+                }
+                finally
+                {
+                    WpfController.Remove(extension);
+                }
+            }).Shutdown();
+        }
+
+        [Test]
+        public void DetachesExtensionWhenUnloadEventIsRaised()
+        {
+            WpfApplicationRunner.Start<Application>().Run(application =>
+            {
+                var extension = MockRepository.GenerateMock<IWpfControllerExtension>();
+                WpfController.Add(extension);
+
+                try
+                {
+                    var element = new TestElement { Name = "element" };
+
+                    var controller = new TestWpfControllers.TestWpfController();
+                    WpfController.GetControllers(element).Add(controller);
+
+                    element.RaiseInitialized();
+                    element.RaiseEvent(new RoutedEventArgs(FrameworkElement.UnloadedEvent) { Source = element });
+
+                    extension.AssertWasCalled(e => e.Detach(element, controller));
+                }
+                finally
+                {
+                    WpfController.Remove(extension);
+                }
+            }).Shutdown();
+        }
+
+        [Test]
+        public void RetrievesExtensionWithSpecifiedExtensionType()
+        {
+            var extension = new TestExtension();
+            WpfController.Add(extension);
+
+            try
+            {
+                var controller = new TestWpfControllers.TestWpfController();
+
+                var retrievedExtension = WpfController.Retrieve<TestExtension, object>(controller);
+
+                Assert.That(retrievedExtension, Is.EqualTo(controller));
+            }
+            finally
+            {
+                WpfController.Remove(extension);
+            }
+        }
+
+        private class TestExtension : IWpfControllerExtension
+        {
+            void IWpfControllerExtension.Attach(FrameworkElement element, object controller)
+            {
+            }
+
+            void IWpfControllerExtension.Detach(FrameworkElement element, object controller)
+            {
+            }
+
+            object IWpfControllerExtension.Retrieve(object controller)
+            {
+                return controller;
+            }
         }
     }
 }

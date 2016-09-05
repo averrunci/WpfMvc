@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
 
 namespace Fievus.Windows
 {
@@ -39,5 +40,14 @@ namespace Fievus.Windows
         }
 
         public static bool IsEmpty<T>(this IEnumerable<T> @this) => !@this.Any();
+
+        public static E FindElement<E>(this FrameworkElement element, string name) where E : FrameworkElement
+        {
+            if (element == null) { return null; }
+            if (string.IsNullOrEmpty(name)) { return element as E; }
+            if (element.Name == name) { return element as E; }
+
+            return LogicalTreeHelper.FindLogicalNode(element, name) as E;
+        }
     }
 }
