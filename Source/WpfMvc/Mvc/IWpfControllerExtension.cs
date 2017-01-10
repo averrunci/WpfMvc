@@ -7,7 +7,7 @@ using System.Windows;
 namespace Fievus.Windows.Mvc
 {
     /// <summary>
-    /// Provides an function that is added to a WPF controller.
+    /// Provides the function that is added to a WPF controller.
     /// </summary>
     public interface IWpfControllerExtension
     {
