@@ -53,6 +53,7 @@
     <Compile Include="Mvc\RoutedEventHandlerBaseTest.cs" />
     <Compile Include="Mvc\TestElement.cs" />
     <Compile Include="Mvc\TestWpfControllers.cs" />
+    <Compile Include="Mvc\WpfControllerCollectionTest.cs" />
     <Compile Include="Mvc\WpfControllerTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Runners\StaActionRunnerTest.cs" />

@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016 Fievus
+﻿// Copyright (C) 2016-2017 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
@@ -886,6 +886,51 @@ namespace Fievus.Windows.Mvc.WpfControllerTest
             {
                 return controller;
             }
+        }
+    }
+
+    [TestFixture]
+    public class WpfControllerCreation
+    {
+        [Test]
+        public void CreatesControllerTheTypeOfWhichIsTheValueOfControllerTypeProperty()
+        {
+            var controllerType = typeof(TestWpfControllers.TestWpfController);
+
+            var wpfController = new WpfController { ControllerType = controllerType };
+            var controller = wpfController.Create();
+
+            Assert.That(controller, Is.TypeOf(controllerType));
+        }
+
+        [Test]
+        public void CreatesControllerWithSpecifiedIWpfControllerFactory()
+        {
+            var controllerType = typeof(TestWpfControllers.TestWpfController);
+            var expectedController = new TestWpfControllers.TestWpfController();
+
+            WpfController.Factory = MockRepository.GenerateMock<IWpfControllerFactory>();
+            WpfController.Factory.Expect(f => f.Create(controllerType)).Return(expectedController);
+
+            var wpfController = new WpfController { ControllerType = controllerType };
+            var controller = wpfController.Create();
+
+            Assert.That(controller, Is.EqualTo(expectedController));
+        }
+
+        [Test]
+        public void GetsNullWhenValueOfControllerTypePropertyIsNull()
+        {
+            var wpfController = new WpfController { ControllerType = null };
+            var controller = wpfController.Create();
+
+            Assert.That(controller, Is.Null);
+        }
+
+        [Test]
+        public void ThrowsExceptionWhenIWpfControllerThatIsNullIsSpecified()
+        {
+            Assert.Throws<ArgumentNullException>(() => WpfController.Factory = null);
         }
     }
 }

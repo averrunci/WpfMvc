@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016 Fievus
+﻿// Copyright (C) 2016-2017 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
@@ -14,7 +14,7 @@ namespace Fievus.Windows.Mvc
     /// Provides functions for the WPF controllers; a data context injection, elements injection,
     /// and routed event handlers injection.
     /// </summary>
-    public static class WpfController
+    public class WpfController
     {
         private static readonly BindingFlags contextBindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
 
@@ -26,6 +26,27 @@ namespace Fievus.Windows.Mvc
         /// Gets or sets the injector of WPF controllers.
         /// </summary>
         public static IWpfControllerInjector Injector { get; set; }
+
+        /// <summary>
+        /// Gets or sets the factory of WPF controller.
+        /// </summary>
+        public static IWpfControllerFactory Factory
+        {
+            get { return factory; }
+            set { factory = value.RequireNonNull(nameof(value)); }
+        }
+        private static IWpfControllerFactory factory = new SimpleWpfControllerFactory();
+
+        /// <summary>
+        /// Gets or sets the type of WPF controller.
+        /// </summary>
+        public Type ControllerType { get; set; }
+
+        /// <summary>
+        /// Creates a WPF controller of the specified controller type.
+        /// </summary>
+        /// <returns>The new instance of a WPF controller of the specified controller type.</returns>
+        public object Create() => ControllerType == null ? null : Factory.Create(ControllerType);
 
         private static IList<IWpfControllerExtension> Extensions { get; } = new List<IWpfControllerExtension>();
 
