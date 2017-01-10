@@ -90,6 +90,25 @@ namespace Fievus.Windows.Runners
             return AppDomain.CreateDomain(Guid.NewGuid().ToString(), AppDomain.CurrentDomain.Evidence, AppDomain.CurrentDomain.SetupInformation)
                 .CreateInstanceAndUnwrap(typeof(WpfApplicationRunner<T>).Assembly.FullName, typeof(WpfApplicationRunner<T>).FullName) as WpfApplicationRunner<T>;
         }
+
+        /// <summary>
+        /// Drains events by pushing empty frame.
+        /// </summary>
+        /// <param name="this">The WPF application that is executed.</param>
+        public static void DrainEvents(this Application @this)
+        {
+            var frame = new DispatcherFrame();
+            @this?.Dispatcher?.BeginInvoke(
+                DispatcherPriority.SystemIdle,
+                new Func<object, object>(f =>
+                {
+                    ((DispatcherFrame)f).Continue = false;
+                    return null;
+                }),
+                frame
+            );
+            Dispatcher.PushFrame(frame);
+        }
     }
 
     internal class WpfApplicationRunner<T> : MarshalByRefObject, IWpfApplicationRunner<T> where T : Application, new()
