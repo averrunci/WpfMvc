@@ -15,8 +15,8 @@ namespace $safeprojectname$
 
         public $safeitemrootname$()
         {
-            Startup += WpfMvcViewTest_Startup;
-            DispatcherUnhandledException += WpfMvcViewTest_DispatcherUnhandledException;
+            Startup += On$safeitemrootname$Startup;
+            DispatcherUnhandledException += On$safeitemrootname$DispatcherUnhandledException;
 
             AddResourceDictionary("Resources.xaml");
         }
@@ -29,13 +29,13 @@ namespace $safeprojectname$
             });
         }
 
-        private void WpfMvcViewTest_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+        private void On$safeitemrootname$DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
             MessageBox.Show(e.Exception.ToString());
             e.Handled = true;
         }
 
-        private void WpfMvcViewTest_Startup(object sender, StartupEventArgs e)
+        private void On$safeitemrootname$Startup(object sender, StartupEventArgs e)
         {
             MainWindow = new Window();
             MainWindow.Style = FindResource("MainWindowStyle") as Style;
