@@ -1,4 +1,4 @@
-// Copyright (C) 2016 Fievus
+// Copyright (C) 2016-2017 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
@@ -49,7 +49,7 @@ namespace Fievus.Windows.Samples.SimpleLoginDemo
 
         private void WpfMvcViewTest_Startup(object sender, StartupEventArgs e)
         {
-            WpfController.Injector = new SimpleLoginDemoInjector();
+            WpfController.Factory = new SimpleLoginDemoControllerFactory();
 
             MainWindow = new Window();
             MainWindow.Style = FindResource("MainWindowStyle") as Style;

@@ -61,6 +61,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="SimpleLoginDemoApplication.cs" />
+    <Compile Include="SimpleLoginDemoControllerFactory.cs" />
     <Compile Include="SimpleLoginDemoInjector.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

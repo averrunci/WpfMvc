@@ -61,7 +61,7 @@ namespace Fievus.Windows.Samples.SimpleLoginDemo.Presentation.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Copyright (C) 2016 Fievus.
+        ///   Looks up a localized string similar to Copyright (C) 2016-2017 Fievus.
         /// </summary>
         public static string Copyright {
             get {
