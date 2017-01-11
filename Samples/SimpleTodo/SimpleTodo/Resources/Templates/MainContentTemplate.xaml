@@ -1,0 +1,91 @@
+<!--
+Copyright (C) 2017 Fievus
+
+This software may be modified and distributed under the terms
+of the MIT license.  See the LICENSE file for details.
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:w="clr-namespace:Fievus.Windows.Mvc;assembly=WpfMvc"
+                    xmlns:m="clr-namespace:Fievus.Windows.Samples.SimpleTodo.Contents"
+                    xmlns:c="clr-namespace:Fievus.Windows.Samples.SimpleTodo.Converters"
+                    xmlns:p="clr-namespace:Fievus.Windows.Samples.SimpleTodo.Properties">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="../Styles/MainContentStyle.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    <c:TodoItemDisplayStateToBooleanConverter x:Key="TodoItemDisplayStateToBooleanConverter"/>
+
+    <DataTemplate DataType="{x:Type m:MainContent}">
+        <DockPanel>
+            <w:WpfController.Controllers>
+                <w:WpfController ControllerType="m:MainContentController"/>
+            </w:WpfController.Controllers>
+
+            <Grid DockPanel.Dock="Top"
+                  Style="{StaticResource HeaderGridStyle}">
+                <TextBlock Style="{StaticResource TitleStyle}"
+                           Text="{x:Static p:Resources.Title}"/>
+            </Grid>
+
+            <Grid DockPanel.Dock="Bottom"
+                  Style="{StaticResource FooterGridStyle}">
+                <TextBlock Style="{StaticResource CopyrightStyle}"
+                           Text="{x:Static p:Resources.Copyright}"/>
+            </Grid>
+
+            <Border Style="{StaticResource ContainerBorderStyle}">
+
+                <DockPanel>
+                    <DockPanel DockPanel.Dock="Top"
+                               Style="{StaticResource InputPanelStyle}">
+                        <CheckBox DockPanel.Dock="Left"
+                                  Visibility="{Binding CanCompleteAllTodoItems.Value, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                  IsChecked="{Binding AllCompleted.Value}"/>
+
+                        <TextBox Name="TodoContentTextBox"
+                                 Style="{StaticResource TodoContentTextBoxStyle}"
+                                 Text="{Binding TodoContent.Value, UpdateSourceTrigger=PropertyChanged}"/>
+                    </DockPanel>
+
+                    <Grid DockPanel.Dock="Bottom"
+                      Style="{StaticResource CommandPanelStyle}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0"
+                                   Style="{StaticResource ItemsLeftMessageTextBlockStyle}"
+                                   Text="{Binding ItemsLeftMessage.Value}"/>
+
+                        <ToggleButton Grid.Column="1"
+                                      Content="{x:Static m:TodoItemState.All}"
+                                      IsChecked="{Binding TodoItemDisplayState.Value,
+                                                          ConverterParameter={x:Static m:TodoItemState.All},
+                                                          Converter={StaticResource TodoItemDisplayStateToBooleanConverter}}"/>
+
+                        <ToggleButton Grid.Column="2"
+                                      Content="{x:Static m:TodoItemState.Active}"
+                                      IsChecked="{Binding TodoItemDisplayState.Value,
+                                                          ConverterParameter={x:Static m:TodoItemState.Active},
+                                                          Converter={StaticResource TodoItemDisplayStateToBooleanConverter}}"/>
+
+                        <ToggleButton Grid.Column="3"
+                                      Content="{x:Static m:TodoItemState.Completed}"
+                                      IsChecked="{Binding TodoItemDisplayState.Value,
+                                                          ConverterParameter={x:Static m:TodoItemState.Completed},
+                                                          Converter={StaticResource TodoItemDisplayStateToBooleanConverter}}"/>
+                    </Grid>
+
+                    <ListBox Style="{StaticResource TodoItemsListBoxStyle}"
+                             ItemContainerStyle="{StaticResource TodoItemContainerStyle}"
+                             ItemsSource="{Binding TodoItems}"/>
+                </DockPanel>
+            </Border>
+        </DockPanel>
+    </DataTemplate>
+</ResourceDictionary>
