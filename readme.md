@@ -45,6 +45,24 @@ This library provides a feature to specify a controller with an attached propert
 </Grid>
 ```
 
+A controller can be created with a factory that implements IWpfControllerFactory. If a factory is not specified, a default factory that creates a controller with Activator.CreateInstance method is used.
+
+```
+class ControllerFactory : IWpfControllerFactory {...}
+```
+
+```
+WpfController.Factory = new ControllerFactory();
+```
+
+```
+<Grid xmlns:w="clr-namespace:Fievus.Windows.Mvc;assembly=WpfMvc">
+    <w:WpfController.Controllers>
+	    <w:WpfController ControllerType="local:Controller"/>
+	</w:WpfController.Controllers>
+</Grid>
+```
+
 This library also provides features to inject routed event handlers, command event handlers, a data context, and visual elements to the controller using attributes.
 The available attributes are as follows.
 
@@ -94,7 +112,7 @@ private void ActionCommand_Executed(ExecutedRoutedEVentArgs e)
 {
     // implements the action of the command Executed event.
 }
-[CommandHandler(commandName = "ActionCommand")]
+[CommandHandler(CommandName = "ActionCommand")]
 private void ActionCommand_CanExecute(CanExecuteRoutedEventArgs e)
 {
     // implements the action of the command CanExecuted event.
@@ -108,7 +126,7 @@ private void ActionCommand_Executed(object sender, ExecutedRoutedEVentArgs e)
 {
     // implements the action of the command Executed event.
 }
-[CommandHandler(commandName = "ActionCommand")]
+[CommandHandler(CommandName = "ActionCommand")]
 private void ActionCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 {
     // implements the action of the command CanExecuted event.
