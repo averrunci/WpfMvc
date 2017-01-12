@@ -24,8 +24,8 @@ namespace Fievus.Windows.Samples.SimpleLoginDemo
 
         public SimpleLoginDemo()
         {
-            Startup += WpfMvcViewTest_Startup;
-            DispatcherUnhandledException += WpfMvcViewTest_DispatcherUnhandledException;
+            Startup += SimpleLoginDemo_Startup;
+            DispatcherUnhandledException += SimpleLoginDemo_DispatcherUnhandledException;
 
             AddResourceDictionary("Resources.xaml");
         }
@@ -41,13 +41,13 @@ namespace Fievus.Windows.Samples.SimpleLoginDemo
             });
         }
 
-        private void WpfMvcViewTest_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+        private void SimpleLoginDemo_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
             MessageBox.Show(e.Exception.ToString());
             e.Handled = true;
         }
 
-        private void WpfMvcViewTest_Startup(object sender, StartupEventArgs e)
+        private void SimpleLoginDemo_Startup(object sender, StartupEventArgs e)
         {
             WpfController.Factory = new SimpleLoginDemoControllerFactory();
 
