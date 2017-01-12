@@ -1,5 +1,11 @@
 # Release note
 
+## V1.2.0
+
+### Add
+
+- Add IWpfControllerFactory.
+
 ## v1.1.1
 
 ### Bug fix
