@@ -102,6 +102,11 @@ namespace Fievus.Windows.Mvc
 
             if (oldControllers != null)
             {
+                if (oldControllers.AssociatedElement == null) { throw new InvalidOperationException("Associated element must not be null."); }
+
+                oldControllers.AssociatedElement.Initialized -= ElementOnInitialized;
+                oldControllers.AssociatedElement.Unloaded -= ElementOnUnloaded;
+                oldControllers.AssociatedElement.DataContextChanged -= ElementOnDataContextChanged;
                 oldControllers.Detach();
             }
 
@@ -113,6 +118,9 @@ namespace Fievus.Windows.Mvc
                 if (element == null) { throw new InvalidOperationException("Dependency object must be FrameworkElement."); }
 
                 newControllers.AttachTo(element);
+                element.Initialized += ElementOnInitialized;
+                element.Unloaded += ElementOnUnloaded;
+                element.DataContextChanged += ElementOnDataContextChanged;
             }
         }
 
@@ -129,10 +137,6 @@ namespace Fievus.Windows.Mvc
 
             SetDataContext(element.DataContext, controller);
             if (element.IsLoaded) { ElementOnInitialized(element, EventArgs.Empty); }
-
-            element.Initialized += ElementOnInitialized;
-            element.Unloaded += ElementOnUnloaded;
-            element.DataContextChanged += ElementOnDataContextChanged;
         }
 
         /// <summary>
@@ -143,10 +147,6 @@ namespace Fievus.Windows.Mvc
         public static void Detach(object controller, FrameworkElement element)
         {
             if (controller == null || element == null) { return; }
-
-            element.Initialized -= ElementOnInitialized;
-            element.Unloaded -= ElementOnUnloaded;
-            element.DataContextChanged -= ElementOnDataContextChanged;
 
             SetElement(null, controller);
             SetDataContext(null, controller);
