@@ -1,5 +1,11 @@
 # Release note
 
+## V1.2.1
+
+### Changes
+
+- Change event subscriptions of an element that is associated with a WPF controller.
+
 ## V1.2.0
 
 ### Add
