@@ -74,7 +74,7 @@ The method is declared as follows;
 
 - No argument.
 ```
-[RoutedEventHandler(Element = "ActionButton", RoutedEvent = "Click")]
+[RoutedEventHandler(ElementName = "ActionButton", RoutedEvent = "Click")]
 private void ActionButton_Click()
 {
     // implements the action.
@@ -83,7 +83,7 @@ private void ActionButton_Click()
 
 - One argument that is a RoutedEventArgs.
 ```
-[RoutedEventHandler(Element = "ActionButton", RoutedEvent = "Click")]
+[RoutedEventHandler(ElementName = "ActionButton", RoutedEvent = "Click")]
 private void ActionButton_Click(RoutedEventArgs e)
 {
     // implements the action.
@@ -92,7 +92,7 @@ private void ActionButton_Click(RoutedEventArgs e)
 
 - Two arguments that are an object and a RoutedEventArgs.
 ```
-[RoutedEventHandler(Element = "ActionButton", RoutedEvent = "Click")]
+[RoutedEventHandler(ElementName = "ActionButton", RoutedEvent = "Click")]
 private void ActionButton_Click(object sender, RoutedEventArgs e)
 {
     // implements the action.
