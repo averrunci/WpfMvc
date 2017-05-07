@@ -2,7 +2,7 @@
 
 WPF MVC is a class library for Windows Presentation Foundation with Model View Controller architecture.
 
-
+![WPF MVC overview](Images/mvcsummary.png)
 
 In WPF MVC, the roles of a model, view, and controller are redefined as follows.
 
@@ -40,8 +40,8 @@ This library provides a feature to specify a controller with an attached propert
 ```
 <Grid xmlns:w="clr-namespace:Fievus.Windows.Mvc;assembly=WpfMvc">
     <w:WpfController.Controllers>
-	    <local:Controller/>
-	</w:WpfController.Controllers>
+        <local:Controller/>
+    </w:WpfController.Controllers>
 </Grid>
 ```
 
@@ -58,8 +58,8 @@ WpfController.Factory = new ControllerFactory();
 ```
 <Grid xmlns:w="clr-namespace:Fievus.Windows.Mvc;assembly=WpfMvc">
     <w:WpfController.Controllers>
-	    <w:WpfController ControllerType="local:Controller"/>
-	</w:WpfController.Controllers>
+        <w:WpfController ControllerType="local:Controller"/>
+    </w:WpfController.Controllers>
 </Grid>
 ```
 
@@ -156,7 +156,7 @@ public DataContexType Context { get; set; }
 [DataContext]
 public void SetContext(DataContexType context)
 {
-	this.context = context;
+    this.context = context;
 }
 private DataContexType context;
 ```
