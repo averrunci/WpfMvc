@@ -219,17 +219,17 @@ namespace Fievus.Windows.Mvc
                 .GetFields(contextBindingFlags)
                 .Select(Field => new { Field, Attribute = Field.GetCustomAttribute<ElementAttribute>(true) })
                 .Where(t => t.Attribute != null)
-                .ForEach(t => t.Field.SetValue(controller, rootElement.FindElement<FrameworkElement>(t.Attribute.Name ?? t.Field.Name)));
+                .ForEach(t => t.Field.SetValue(controller, rootElement.FindElement<object>(t.Attribute.Name ?? t.Field.Name)));
             controller.GetType()
                 .GetProperties(contextBindingFlags)
                 .Select(Property => new { Property, Attribute = Property.GetCustomAttribute<ElementAttribute>(true) })
                 .Where(t => t.Attribute != null)
-                .ForEach(t => t.Property.SetValue(controller, rootElement.FindElement<FrameworkElement>(t.Attribute.Name ?? t.Property.Name), null));
+                .ForEach(t => t.Property.SetValue(controller, rootElement.FindElement<object>(t.Attribute.Name ?? t.Property.Name), null));
             controller.GetType()
                 .GetMethods(contextBindingFlags)
                 .Select(Method => new { Method, Attribute = Method.GetCustomAttribute<ElementAttribute>(true) })
                 .Where(t => t.Attribute != null)
-                .ForEach(t => t.Method.Invoke(controller, new object[] { rootElement.FindElement<FrameworkElement>(ResolveElementMethodName(t.Method, t.Attribute)) }));
+                .ForEach(t => t.Method.Invoke(controller, new object[] { rootElement.FindElement<object>(ResolveElementMethodName(t.Method, t.Attribute)) }));
         }
 
         private static string ResolveElementMethodName(MethodInfo m, ElementAttribute a)

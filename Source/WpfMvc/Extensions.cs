@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016 Fievus
+﻿// Copyright (C) 2016-2017 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
@@ -41,13 +41,13 @@ namespace Fievus.Windows
 
         public static bool IsEmpty<T>(this IEnumerable<T> @this) => !@this.Any();
 
-        public static E FindElement<E>(this FrameworkElement element, string name) where E : FrameworkElement
+        public static E FindElement<E>(this FrameworkElement element, string name) where E : class
         {
             if (element == null) { return null; }
             if (string.IsNullOrEmpty(name)) { return element as E; }
             if (element.Name == name) { return element as E; }
 
-            return LogicalTreeHelper.FindLogicalNode(element, name) as E;
+            return LogicalTreeHelper.FindLogicalNode(element, name) as E ?? element.FindName(name) as E;
         }
     }
 }
