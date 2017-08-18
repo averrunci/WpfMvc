@@ -211,7 +211,11 @@ namespace Fievus.Windows.Mvc
         /// </summary>
         /// <param name="rootElement">The element that is set to the WPF controller.</param>
         /// <param name="controller">The WPF controller to which the element is set.</param>
-        public static void SetElement(FrameworkElement rootElement, object controller)
+        /// <param name="foundElementOnly">
+        /// If <c>true</c>, an element is not set to the UWP controller when it is not found in the specified element;
+        /// otherwise, <c>null</c> is set.
+        /// </param>
+        public static void SetElement(FrameworkElement rootElement, object controller, bool foundElementOnly = false)
         {
             if (controller == null) { return; }
 
@@ -219,17 +223,36 @@ namespace Fievus.Windows.Mvc
                 .GetFields(contextBindingFlags)
                 .Select(Field => new { Field, Attribute = Field.GetCustomAttribute<ElementAttribute>(true) })
                 .Where(t => t.Attribute != null)
-                .ForEach(t => t.Field.SetValue(controller, rootElement.FindElement<object>(t.Attribute.Name ?? t.Field.Name)));
+                .ForEach(t => {
+                    var element = rootElement.FindElement<object>(t.Attribute.Name ?? t.Field.Name);
+                    if (!foundElementOnly || element != null) {
+                        t.Field.SetValue(controller, element);
+                    }
+                });
             controller.GetType()
                 .GetProperties(contextBindingFlags)
                 .Select(Property => new { Property, Attribute = Property.GetCustomAttribute<ElementAttribute>(true) })
                 .Where(t => t.Attribute != null)
-                .ForEach(t => t.Property.SetValue(controller, rootElement.FindElement<object>(t.Attribute.Name ?? t.Property.Name), null));
+                .ForEach(t =>
+                {
+                    var element = rootElement.FindElement<object>(t.Attribute.Name ?? t.Property.Name);
+                    if (!foundElementOnly || element != null)
+                    {
+                        t.Property.SetValue(controller, element, null);
+                    }
+                });
             controller.GetType()
                 .GetMethods(contextBindingFlags)
                 .Select(Method => new { Method, Attribute = Method.GetCustomAttribute<ElementAttribute>(true) })
                 .Where(t => t.Attribute != null)
-                .ForEach(t => t.Method.Invoke(controller, new object[] { rootElement.FindElement<object>(ResolveElementMethodName(t.Method, t.Attribute)) }));
+                .ForEach(t =>
+                {
+                    var element = rootElement.FindElement<object>(ResolveElementMethodName(t.Method, t.Attribute));
+                    if (!foundElementOnly || element != null)
+                    {
+                        t.Method.Invoke(controller, new object[] { element });
+                    }
+                });
         }
 
         private static string ResolveElementMethodName(MethodInfo m, ElementAttribute a)

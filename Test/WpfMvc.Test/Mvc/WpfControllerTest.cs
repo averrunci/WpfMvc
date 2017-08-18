@@ -109,6 +109,25 @@ namespace Fievus.Windows.Mvc.WpfControllerTest
                     assertionHandler.AssertWasCalled(h => h.Invoke(childElement, args));
                 }).Shutdown();
             }
+
+            [Test]
+            public void SetsElementIndependently()
+            {
+                WpfApplicationRunner.Start<Application>().Run(application =>
+                {
+                    var context = new object();
+                    var childElement = new FrameworkElement { Name = "childElement" };
+                    var element = new TestElement { Name = "element", Content = childElement, DataContext = context };
+
+                    var controller = new TestWpfControllers.AttributedToField.NoArgumentHandlerController(null);
+
+                    WpfController.SetElement(element, controller, true);
+                    WpfController.SetElement(childElement, controller, true);
+
+                    Assert.That(controller.Element, Is.EqualTo(element));
+                    Assert.That(controller.ChildElement, Is.EqualTo(childElement));
+                }).Shutdown();
+            }
         }
 
         [TestFixture]
@@ -202,6 +221,25 @@ namespace Fievus.Windows.Mvc.WpfControllerTest
                     assertionHandler.AssertWasCalled(h => h.Invoke(childElement, args));
                 }).Shutdown();
             }
+
+            [Test]
+            public void SetsElementIndependently()
+            {
+                WpfApplicationRunner.Start<Application>().Run(application =>
+                {
+                    var context = new object();
+                    var childElement = new FrameworkElement { Name = "ChildElement" };
+                    var element = new TestElement { Name = "element", Content = childElement, DataContext = context };
+
+                    var controller = new TestWpfControllers.AttributedToProperty.NoArgumentHandlerController(null);
+
+                    WpfController.SetElement(element, controller, true);
+                    WpfController.SetElement(childElement, controller, true);
+
+                    Assert.That(controller.Element, Is.EqualTo(element));
+                    Assert.That(controller.ChildElement, Is.EqualTo(childElement));
+                }).Shutdown();
+            }
         }
 
         [TestFixture]
@@ -293,6 +331,25 @@ namespace Fievus.Windows.Mvc.WpfControllerTest
                     childElement.RaiseEvent(args);
 
                     assertionHandler.AssertWasCalled(h => h.Invoke(childElement, args));
+                }).Shutdown();
+            }
+
+            [Test]
+            public void SetsElementIndependently()
+            {
+                WpfApplicationRunner.Start<Application>().Run(application =>
+                {
+                    var context = new object();
+                    var childElement = new FrameworkElement { Name = "ChildElement" };
+                    var element = new TestElement { Name = "element", Content = childElement, DataContext = context };
+
+                    var controller = new TestWpfControllers.AttributedToMethod.NoArgumentHandlerController(null);
+
+                    WpfController.SetElement(element, controller, true);
+                    WpfController.SetElement(childElement, controller, true);
+
+                    Assert.That(controller.Element, Is.EqualTo(element));
+                    Assert.That(controller.ChildElement, Is.EqualTo(childElement));
                 }).Shutdown();
             }
         }
