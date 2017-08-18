@@ -57,7 +57,7 @@ namespace Fievus.Windows.Mvc
         /// <returns>
         /// <see cref="Executor"/> that raises routed event.
         /// </returns>
-        public Executor GetBy(string elementName) => new Executor(items.Where(i => i.ElementName == elementName));
+        public Executor GetBy(string elementName) => new Executor(items.Where(i => i.Has(elementName)));
 
         /// <summary>
         /// Registers routed event handlers to the element.
@@ -182,6 +182,15 @@ namespace Fievus.Windows.Mvc
                 Handler = handler;
                 HandledEventsToo = handledEventsToo;
             }
+
+            /// <summary>
+            /// Gets a value that indicates whether <see cref="Item"/> has the specified element name.
+            /// </summary>
+            /// <param name="elementName">An element name.</param>
+            /// <returns>
+            /// <c>true</c> if <see cref="Item"/> has the specified element name; otherwise, <c>false</c>.
+            /// </returns>
+            public bool Has(string elementName) => ElementName == (elementName ?? string.Empty);
 
             /// <summary>
             /// Registers the routed event handler to the element.

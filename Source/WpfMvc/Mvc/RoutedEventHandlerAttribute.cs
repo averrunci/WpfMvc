@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016 Fievus
+﻿// Copyright (C) 2016-2017 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
@@ -15,7 +15,7 @@ namespace Fievus.Windows.Mvc
         /// <summary>
         /// Gets or sets the name of the element on which the routed event is raised.
         /// </summary>
-        public string ElementName { get; set; }
+        public string ElementName { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the routed event which is raised on the element.

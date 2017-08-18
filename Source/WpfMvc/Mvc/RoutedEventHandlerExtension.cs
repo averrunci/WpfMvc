@@ -26,7 +26,9 @@ namespace Fievus.Windows.Mvc
         {
             if (element == null || controller == null) { return; }
 
-            RetrieveRoutedEventHandlers(element, controller).RegisterRoutedEventHandler();
+            var routedEventHandlers = RetrieveRoutedEventHandlers(element, controller);
+            routedEventHandlers.RegisterRoutedEventHandler();
+            routedEventHandlers.GetBy(element.Name).From(element).Raise(nameof(FrameworkElement.DataContextChanged));
         }
 
         void IWpfControllerExtension.Detach(FrameworkElement element, object controller)
