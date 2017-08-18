@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016 Fievus
+﻿// Copyright (C) 2016-2017 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace Fievus.Windows.Mvc
@@ -61,20 +62,12 @@ namespace Fievus.Windows.Mvc
         /// <summary>
         /// Registers routed event handlers to the element.
         /// </summary>
-        public void RegisterRoutedEventHandler()
-        {
-            items.Where(i => i.Element != null && i.RoutedEvent != null && i.Handler != null)
-                .ForEach(i => i.Element.AddHandler(i.RoutedEvent, i.Handler, i.HandledEventsToo));
-        }
+        public void RegisterRoutedEventHandler() => items.ForEach(i => i.RegisterRoutedEventHandler());
 
         /// <summary>
         /// Unregisters routed event handlers from the element.
         /// </summary>
-        public void UnregisterRoutedEventHandler()
-        {
-            items.Where(i => i.Element != null && i.RoutedEvent != null && i.Handler != null)
-                .ForEach(i => i.Element.RemoveHandler(i.RoutedEvent, i.Handler));
-        }
+        public void UnregisterRoutedEventHandler() => items.ForEach(i => i.UnregisterRoutedEventHandler());
 
         /// <summary>
         /// Provides routed events execution functions.
@@ -129,24 +122,18 @@ namespace Fievus.Windows.Mvc
             /// Raises the routed event of the specified name.
             /// </summary>
             /// <param name="routedEventName">The name of the routed event.</param>
-            public void Raise(string routedEventName)
+            public void Raise(string routedEventName) => items.ForEach(i => i.Raise(routedEventName, sender, e));
+
+            /// <summary>
+            /// Raises the routed event of the specified name asynchronously.
+            /// </summary>
+            /// <param name="routedEventName">The name of the routed event.</param>
+            public async Task RaiseAsync(string routedEventName)
             {
-                items.Where(i => i.RoutedEventName == routedEventName && i.Handler != null)
-                    .ForEach(i =>
-                    {
-                        switch (i.Handler.Method.GetParameters().Length)
-                        {
-                            case 0:
-                                i.Handler.DynamicInvoke();
-                                break;
-                            case 1:
-                                i.Handler.DynamicInvoke(new object[] { e });
-                                break;
-                            case 2:
-                                i.Handler.DynamicInvoke(new object[] { sender, e });
-                                break;
-                        }
-                    });
+                foreach (var item in items)
+                {
+                    await item.RaiseAsync(routedEventName, sender, e);
+                }
             }
         }
 
@@ -194,6 +181,71 @@ namespace Fievus.Windows.Mvc
                 RoutedEvent = routedEvent;
                 Handler = handler;
                 HandledEventsToo = handledEventsToo;
+            }
+
+            /// <summary>
+            /// Registers the routed event handler to the element.
+            /// </summary>
+            public void RegisterRoutedEventHandler()
+            {
+                if (Element == null || RoutedEvent == null || Handler == null) { return; }
+
+                Element.AddHandler(RoutedEvent, Handler, HandledEventsToo);
+            }
+
+            /// <summary>
+            /// Unregisters the routed event handler from the element.
+            /// </summary>
+            public void UnregisterRoutedEventHandler()
+            {
+                if (Element == null || RoutedEvent == null || Handler == null) { return; }
+
+                Element.RemoveHandler(RoutedEvent, Handler);
+            }
+
+            /// <summary>
+            /// Raises the routed event of the specified name.
+            /// </summary>
+            /// <param name="routedEventName">The name of the routed event.</param>
+            /// <param name="sender">The object where the routed event handler is attached.</param>
+            /// <param name="e">The event data.</param>
+            public void Raise(string routedEventName, object sender, RoutedEventArgs e)
+            {
+                if (RoutedEventName != routedEventName || Handler == null) { return; }
+
+                switch (Handler.Method.GetParameters().Length)
+                {
+                    case 0:
+                        Handler.DynamicInvoke();
+                        break;
+                    case 1:
+                        Handler.DynamicInvoke(new object[] { e });
+                        break;
+                    case 2:
+                        Handler.DynamicInvoke(new object[] { sender, e });
+                        break;
+                }
+            }
+
+            /// <summary>
+            /// Raises the routed event of the specified name asynchronously.
+            /// </summary>
+            /// <param name="routedEventName">The name of the routed event.</param>
+            /// <param name="sender">The object where the routed event handler is attached.</param>
+            /// <param name="e">The event data.</param>
+            /// <returns>A task that represents the asynchronous raise operation.</returns>
+            public async Task RaiseAsync(string routedEventName, object sender, RoutedEventArgs e)
+            {
+                if (RoutedEventName != routedEventName || Handler == null) { return; }
+
+                var action = Handler.Target as RoutedEventHandlerExtension.RoutedEventHandlerAction;
+                if (action == null) { return; }
+
+                var task = action.Handle(sender, e) as Task;
+                if (task != null)
+                {
+                    await task;
+                }
             }
         }
     }

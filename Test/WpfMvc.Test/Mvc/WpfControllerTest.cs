@@ -3,6 +3,7 @@
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
 using System;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -765,6 +766,20 @@ namespace Fievus.Windows.Mvc.WpfControllerTest
             WpfController.RetrieveRoutedEventHandlers(controller)
                 .GetBy("Element")
                 .Raise("Loaded");
+
+            assertionHandler.AssertWasCalled(h => h.Invoke());
+        }
+
+        [Test]
+        public async Task RetrievesRoutedEventHandlersAndExecutesThemThatAreAsyncHandlerWhenElementIsNotAttached()
+        {
+            var controller = new TestWpfControllers.TestWpfControllerAsync();
+            var assertionHandler = MockRepository.GenerateMock<Action>();
+            controller.AssertionHandler = assertionHandler;
+
+            await WpfController.RetrieveRoutedEventHandlers(controller)
+                .GetBy("Element")
+                .RaiseAsync("Loaded");
 
             assertionHandler.AssertWasCalled(h => h.Invoke());
         }

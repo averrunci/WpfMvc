@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016 Fievus
+﻿// Copyright (C) 2016-2017 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
@@ -13,7 +13,7 @@ namespace Fievus.Windows.Mvc
     /// <summary>
     /// Represents an extension to handle a routed event.
     /// </summary>
-    public sealed class RoutedEventHandlerExtension : IWpfControllerExtension
+    internal sealed class RoutedEventHandlerExtension : IWpfControllerExtension
     {
         private static readonly BindingFlags routedEventHandlerBindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
         private static readonly BindingFlags routedEventBindingFlags = BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy;
@@ -83,16 +83,43 @@ namespace Fievus.Windows.Mvc
         {
             if (method == null) { return null; }
 
-            switch (method.GetParameters().Length)
+            var action = new RoutedEventHandlerAction(method, target);
+            return action?.GetType()
+                .GetMethod(nameof(RoutedEventHandlerAction.OnHandled))
+                .CreateDelegate(routedEvent?.HandlerType ?? typeof(Handler), action);
+        }
+
+        private delegate void Handler(object sender, RoutedEventArgs e);
+
+        public class RoutedEventHandlerAction
+        {
+            private MethodInfo Method { get; }
+            private object Target { get; }
+
+            public RoutedEventHandlerAction(MethodInfo method, object target)
             {
-                case 0:
-                    return new RoutedEventHandler((s, e) => method.Invoke(target, null));
-                case 1:
-                    return new RoutedEventHandler((s, e) => method.Invoke(target, new object[] { e }));
-                case 2:
-                    return routedEvent == null ? new RoutedEventHandler((s, e) => method.Invoke(target, new object[] { s, e })) : Delegate.CreateDelegate(routedEvent.HandlerType, target, method.Name);
-                default:
-                    throw new InvalidOperationException("The length of the method parameters must be less than 3.");
+                Target = target;
+                Method = method;
+            }
+
+            public void OnHandled(object sender, RoutedEventArgs e)
+            {
+                Handle(sender, e);
+            }
+
+            public object Handle(object sender, RoutedEventArgs e)
+            {
+                switch (Method.GetParameters().Length)
+                {
+                    case 0:
+                        return Method.Invoke(Target, null);
+                    case 1:
+                        return Method.Invoke(Target, new object[] { e });
+                    case 2:
+                        return Method.Invoke(Target, new object[] { sender, e });
+                    default:
+                        throw new InvalidOperationException("The length of the method parameters must be less than 3.");
+                }
             }
         }
 

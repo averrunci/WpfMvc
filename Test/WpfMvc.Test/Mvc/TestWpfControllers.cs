@@ -1,8 +1,9 @@
-﻿// Copyright (C) 2016 Fievus
+﻿// Copyright (C) 2016-2017 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
 using System;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
@@ -44,6 +45,43 @@ namespace Fievus.Windows.Mvc
             public Action CanExecuteAssertionHandler { get; set; }
 
             public TestWpfController() { }
+        }
+
+        public class TestWpfControllerAsync
+        {
+            [DataContext]
+            public object Context { get; set; }
+
+            [Element]
+            public FrameworkElement Element { get; set; }
+
+            [RoutedEventHandler(ElementName = "Element", RoutedEvent = "Loaded")]
+            private async Task Element_Loaded()
+            {
+                await Task.Run(() => AssertionHandler?.Invoke());
+            }
+
+            [CommandHandler(CommandName = "TestCommand")]
+            private async Task TestCommand_Executed(ExecutedRoutedEventArgs e)
+            {
+                await Task.Run(() => ExecutedAssertionHandler?.Invoke());
+            }
+
+            [CommandHandler(CommandName = "TestCommand")]
+            private async Task TestCommand_CanExecute(CanExecuteRoutedEventArgs e)
+            {
+                await Task.Run(() =>
+                {
+                    CanExecuteAssertionHandler?.Invoke();
+                    e.CanExecute = true;
+                });
+            }
+
+            public Action AssertionHandler { get; set; }
+            public Action ExecutedAssertionHandler { get; set; }
+            public Action CanExecuteAssertionHandler { get; set; }
+
+            public TestWpfControllerAsync() { }
         }
 
         public class AttributedToField
