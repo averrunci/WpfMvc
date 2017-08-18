@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016 Fievus
+﻿// Copyright (C) 2016-2017 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
@@ -69,29 +70,17 @@ namespace Fievus.Windows.Mvc
         /// <returns>
         /// <see cref="Executor"/> that raises command event.
         /// </returns>
-        //public Executor GetBy(string commandName) => new Executor(items.Where(i => i.CommandName == commandName));
-        public Executor GetBy(string commandName)
-        {
-            return new Executor(items.Where(i => i.CommandName == commandName));
-        }
+        public Executor GetBy(string commandName) => new Executor(items.Where(i => i.CommandName == commandName));
 
         /// <summary>
         /// Registers command handlers to the element.
         /// </summary>
-        public void RegisterCommandHandler()
-        {
-            items.Where(i => i.Element != null && i.CommandBinding != null)
-                .ForEach(i => i.Element.CommandBindings.Add(i.CommandBinding));
-        }
+        public void RegisterCommandHandler() => items.ForEach(i => i.RegisterCommandHandler());
 
         /// <summary>
         /// Unregisters command handlers from the element.
         /// </summary>
-        public void UnregisterCommandHandler()
-        {
-            items.Where(i => i.Element != null)
-                .ForEach(i => i.Element.CommandBindings.Remove(i.CommandBinding));
-        }
+        public void UnregisterCommandHandler() => items.ForEach(i => i.UnregisterCommandHandler());
 
         /// <summary>
         /// Provides command events execution functions.
@@ -145,13 +134,7 @@ namespace Fievus.Windows.Mvc
             /// Raises the command Executed event using the specified parameter.
             /// </summary>
             /// <param name="parameter">The parameter of the command.</param>
-            public void RaiseExecuted(object parameter)
-            {
-                items.Where(item => item.ExecutedHandler != null)
-                    .ForEach(item =>
-                        item.ExecutedHandler(sender, CreateEventArgs<ExecutedRoutedEventArgs>(item, parameter))
-                    );
-            }
+            public void RaiseExecuted(object parameter) => items.ForEach(i => i.RaiseExecuted(command, sender, parameter));
 
             /// <summary>
             /// Raises the command CanExecute event using the specified parameter.
@@ -161,24 +144,41 @@ namespace Fievus.Windows.Mvc
             public IEnumerable<CanExecuteRoutedEventArgs> RaiseCanExecute(object parameter)
             {
                 var args = new List<CanExecuteRoutedEventArgs>();
-                items.Where(item => item.CanExecuteHandler != null)
-                    .ForEach(item =>
-                    {
-                        var e = CreateEventArgs<CanExecuteRoutedEventArgs>(item, parameter);
-                        item.CanExecuteHandler(sender, e);
-                        args.Add(e);
-                    });
+                items.ForEach(item =>
+                {
+                    var e = item.RaiseCanExecute(command, sender, parameter);
+                    if (e != null) { args.Add(e); }
+                });
                 return args.AsReadOnly();
             }
 
-            private T CreateEventArgs<T>(Item item, object parameter)
+            /// <summary>
+            /// Raises the command Executed event using the specified parameter asynchronously.
+            /// </summary>
+            /// <param name="parameter">The parameter of the command.</param>
+            /// <returns>A task that represents the asynchronous raise operation.</returns>
+            public async Task RaiseExecutedAsync(object parameter)
             {
-                return (T)typeof(T).Assembly
-                    .CreateInstance(
-                        typeof(T).FullName, false,
-                        BindingFlags.NonPublic | BindingFlags.Instance,
-                        null, new[] { command ?? item.Command, parameter }, null, null
-                    );
+                foreach (var item in items)
+                {
+                    await item.RaiseExecutedAsync(command, sender, parameter);
+                }
+            }
+
+            /// <summary>
+            /// Raises the command CanExecute event using the specified parameter asynchronously.
+            /// </summary>
+            /// <param name="parameter">The parameter of the command.</param>
+            /// <returns>A task that represents the asynchronous raise operation.</returns>
+            public async Task<IEnumerable<CanExecuteRoutedEventArgs>> RaiseCanExecuteAsync(object parameter)
+            {
+                var args = new List<CanExecuteRoutedEventArgs>();
+                foreach (var item in items)
+                {
+                    var e = await item.RaiseCanExecuteAsync(command, sender, parameter);
+                    if (e != null) { args.Add(e); }
+                }
+                return args.AsReadOnly();
             }
         }
 
@@ -240,6 +240,110 @@ namespace Fievus.Windows.Mvc
                 Element = element;
                 ExecutedHandler = executedHandler;
                 CanExecuteHandler = canExecuteHandler;
+            }
+
+            /// <summary>
+            /// Registers the command handler to the element.
+            /// </summary>
+            public void RegisterCommandHandler()
+            {
+                if (Element == null || CommandBinding == null) { return; }
+
+                Element.CommandBindings.Add(CommandBinding);
+            }
+
+            /// <summary>
+            /// Unregisters the command handler from the element.
+            /// </summary>
+            public void UnregisterCommandHandler()
+            {
+                if (Element == null) { return; }
+
+                Element.CommandBindings.Remove(CommandBinding);
+            }
+
+            /// <summary>
+            /// Raises the command Executed event using the specified parameter.
+            /// </summary>
+            /// <param name="command">The command that is executed.</param>
+            /// <param name="sender">The object where the event handler is attached.</param>
+            /// <param name="parameter">The parameter of the command.</param>
+            public void RaiseExecuted(ICommand command, object sender, object parameter)
+            {
+                if (ExecutedHandler == null) { return; }
+
+                ExecutedHandler(sender, CreateEventArgs<ExecutedRoutedEventArgs>(command, parameter));
+            }
+
+            /// <summary>
+            /// Raises the command CanExecute event using the specified parameter.
+            /// </summary>
+            /// <param name="command">The command that is executed.</param>
+            /// <param name="sender">The object where the event handler is attached.</param>
+            /// <param name="parameter">The parameter of the command.</param>
+            /// <returns><see cref="CanExecuteRoutedEventArgs"/> used to raise the CanExecute event.</returns>
+            public CanExecuteRoutedEventArgs RaiseCanExecute(ICommand command, object sender, object parameter)
+            {
+                if (CanExecuteHandler == null) { return null; }
+
+                var e = CreateEventArgs<CanExecuteRoutedEventArgs>(command, parameter);
+                CanExecuteHandler(sender, e);
+
+                return e;
+            }
+
+            /// <summary>
+            /// Raises the command Executed event using the specified parameter asynchronously.
+            /// </summary>
+            /// <param name="command">The command that is executed.</param>
+            /// <param name="sender">The object where the event handler is attached.</param>
+            /// <param name="parameter">The parameter of the command.</param>
+            /// <returns>A task that represents the asynchronous raise operation.</returns>
+            public async Task RaiseExecutedAsync(ICommand command, object sender, object parameter)
+            {
+                if (ExecutedHandler == null) { return; }
+
+                var action = ExecutedHandler.Target as CommandHandlerExtension.RoutedEventHandlerAction<ExecutedRoutedEventArgs>;
+                if (action == null) { return; }
+
+                var task = action.Handle(sender, CreateEventArgs<ExecutedRoutedEventArgs>(command, parameter)) as Task;
+                if (task != null)
+                {
+                    await task;
+                }
+            }
+
+            /// <summary>
+            /// Raises the command CanExecute event using the specified parameter asynchronously.
+            /// </summary>
+            /// <param name="command">The command that is executed.</param>
+            /// <param name="sender">The object where the event handler is attached.</param>
+            /// <param name="parameter">The parameter of the command.</param>
+            /// <returns>A task that represents the asynchronous raise operation.</returns>
+            public async Task<CanExecuteRoutedEventArgs> RaiseCanExecuteAsync(ICommand command, object sender, object parameter)
+            {
+                if (CanExecuteHandler == null) { return null; }
+
+                var action = CanExecuteHandler.Target as CommandHandlerExtension.RoutedEventHandlerAction<CanExecuteRoutedEventArgs>;
+                if (action == null) { return null; }
+
+                var e = CreateEventArgs<CanExecuteRoutedEventArgs>(command, parameter);
+                var task = action.Handle(sender, e) as Task;
+                if (task != null)
+                {
+                    await task;
+                }
+                return e;
+            }
+
+            private T CreateEventArgs<T>(ICommand command, object parameter)
+            {
+                return (T)typeof(T).Assembly
+                    .CreateInstance(
+                        typeof(T).FullName, false,
+                        BindingFlags.NonPublic | BindingFlags.Instance,
+                        null, new[] { command ?? Command, parameter }, null, null
+                    );
             }
         }
     }

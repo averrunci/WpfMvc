@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016 Fievus
+﻿// Copyright (C) 2016-2017 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
@@ -14,7 +14,7 @@ namespace Fievus.Windows.Mvc
     /// <summary>
     /// Represents an extension to handle a command event.
     /// </summary>
-    public sealed class CommandHandlerExtension : IWpfControllerExtension
+    internal sealed class CommandHandlerExtension : IWpfControllerExtension
     {
         private static readonly BindingFlags commandHandlerBindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
 
@@ -89,11 +89,11 @@ namespace Fievus.Windows.Mvc
                 case 1:
                     if (paramters[0].ParameterType == typeof(ExecutedRoutedEventArgs))
                     {
-                        return new ExecutedRoutedEventHandler((s, e) => method.Invoke(target, new object[] { e }));
+                        return CreateCommandHandler<ExecutedRoutedEventArgs, ExecutedRoutedEventHandler>(method, target);
                     }
                     else if (paramters[0].ParameterType == typeof(CanExecuteRoutedEventArgs))
                     {
-                        return new CanExecuteRoutedEventHandler((s, e) => method.Invoke(target, new object[] { e }));
+                        return CreateCommandHandler<CanExecuteRoutedEventArgs, CanExecuteRoutedEventHandler>(method, target);
                     }
                     else
                     {
@@ -102,11 +102,11 @@ namespace Fievus.Windows.Mvc
                 case 2:
                     if (paramters[1].ParameterType == typeof(ExecutedRoutedEventArgs))
                     {
-                        return new ExecutedRoutedEventHandler((s, e) => method.Invoke(target, new object[] { s, e }));
+                        return CreateCommandHandler<ExecutedRoutedEventArgs, ExecutedRoutedEventHandler>(method, target);
                     }
                     else if (paramters[1].ParameterType == typeof(CanExecuteRoutedEventArgs))
                     {
-                        return new CanExecuteRoutedEventHandler((s, e) => method.Invoke(target, new object[] { s, e }));
+                        return CreateCommandHandler<CanExecuteRoutedEventArgs, CanExecuteRoutedEventHandler>(method, target);
                     }
                     else
                     {
@@ -114,6 +114,41 @@ namespace Fievus.Windows.Mvc
                     }
                 default:
                     throw new InvalidOperationException("The length of the method parameters must be 1 or 2.");
+            }
+        }
+        
+        private Delegate CreateCommandHandler<E, H>(MethodInfo method, object target) where E : RoutedEventArgs
+        {
+            var action = new RoutedEventHandlerAction<E>(method, target);
+            return action?.GetType()
+                .GetMethod(nameof(RoutedEventHandlerAction<E>.OnHandled))
+                .CreateDelegate(typeof(H), action);
+        }
+
+        public class RoutedEventHandlerAction<T> where T : RoutedEventArgs
+        {
+            private MethodInfo Method { get; }
+            private object Target { get; }
+
+            public RoutedEventHandlerAction(MethodInfo method, object target)
+            {
+                Target = target;
+                Method = method;
+            }
+
+            public void OnHandled(object sender, T e) => Handle(sender, e);
+
+            public object Handle(object sender, T e)
+            {
+                switch (Method.GetParameters().Length)
+                {
+                    case 1:
+                        return Method.Invoke(Target, new object[] { e });
+                    case 2:
+                        return Method.Invoke(Target, new object[] { sender, e });
+                    default:
+                        throw new InvalidOperationException("The length of the method parameters must be 1 or 2.");
+                }
             }
         }
 

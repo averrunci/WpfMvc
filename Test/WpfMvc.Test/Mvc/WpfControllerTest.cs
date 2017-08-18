@@ -809,6 +809,32 @@ namespace Fievus.Windows.Mvc.WpfControllerTest
 
             canExecuteAssertionHandler.AssertWasCalled(h => h.Invoke());
         }
+
+        [Test]
+        public async Task RetrievesCommandHandlersAndExecutesThemThatAreAsyncHnalderWhenElementIsNotAttached()
+        {
+            var controller = new TestWpfControllers.TestWpfControllerAsync();
+            var executedAssertionHandler = MockRepository.GenerateMock<Action>();
+            var canExecuteAssertionHandler = MockRepository.GenerateMock<Action>();
+            controller.ExecutedAssertionHandler = executedAssertionHandler;
+            controller.CanExecuteAssertionHandler = canExecuteAssertionHandler;
+
+            var command = TestWpfControllers.TestCommand;
+            var parameter = new object();
+            await WpfController.RetrieveCommandHandlers(controller)
+                .GetBy("TestCommand")
+                .With(command)
+                .RaiseExecutedAsync(parameter);
+
+            executedAssertionHandler.AssertWasCalled(h => h.Invoke());
+
+            await WpfController.RetrieveCommandHandlers(controller)
+                .GetBy("TestCommand")
+                .With(command)
+                .RaiseCanExecuteAsync(parameter);
+
+            canExecuteAssertionHandler.AssertWasCalled(h => h.Invoke());
+        }
     }
 
     [TestFixture]
