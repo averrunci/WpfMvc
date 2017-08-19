@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016 Fievus
+﻿// Copyright (C) 2016-2017 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
@@ -54,8 +54,7 @@ namespace Fievus.Windows.Mvc.Bindings
         private string displayName;
         private bool cancelValueChangedIfInvalid;
 
-        private WeakReference observable;
-        private PropertyChangedEventHandler propertyChangedHandler;
+        private readonly List<BindingSourceContext> bindingSources = new List<BindingSourceContext>();
 
         /// <summary>
         /// Gets or sets the property value.
@@ -202,10 +201,10 @@ namespace Fievus.Windows.Mvc.Bindings
         /// the observed property value.
         /// </summary>
         /// <typeparam name="E">The type of the value of the observable property.</typeparam>
-        /// <param name="observable">The observable property that is bound.</param>
+        /// <param name="source">The observable property that is bound.</param>
         /// <param name="converter">The converter that converts the property value.</param>
         /// <exception cref="ArgumentNullException">
-        /// <paramref name="observable"/> is <c>null</c>.
+        /// <paramref name="source"/> is <c>null</c>.
         /// </exception>
         /// <exception cref="ArgumentNullException">
         /// <paramref name="converter"/> is <c>null</c>.
@@ -213,23 +212,53 @@ namespace Fievus.Windows.Mvc.Bindings
         /// <exception cref="InvalidOperationException">
         /// The property has already bound another property.
         /// </exception>
-        public void Bind<E>(ObservableProperty<E> observable, Func<E, T> converter)
+        public void Bind<E>(ObservableProperty<E> source, Func<E, T> converter)
         {
-            observable.RequireNonNull(nameof(observable));
+            source.RequireNonNull(nameof(source));
             converter.RequireNonNull(nameof(converter));
-            if (this.observable != null && this.observable.IsAlive) { throw new InvalidOperationException(); }
+            if (bindingSources.Any(s => s.IsAlive)) { throw new InvalidOperationException(); }
 
-            this.observable = new WeakReference(observable);
-            propertyChangedHandler = (s, e) =>
+            bindingSources.Add(new BindingSourceContext(source, (s, e) =>
             {
                 var sourceProperty = s as ObservableProperty<E>;
                 if (sourceProperty == null) { return; }
                 if (e.PropertyName != valueChangedEventArgs.PropertyName) { return; }
 
                 Value = converter(sourceProperty.Value);
-            };
-            PropertyChangedEventManager.AddListener(observable, this);
-            Value = converter(observable.Value);
+            }));
+            bindingSources.ForEach(s => s.Register(this));
+            Value = converter(source.Value);
+        }
+
+        /// <summary>
+        /// Binds the specified observable properties with the specified converter
+        /// that converts the property value from the source observable property values to
+        /// the target observable property value.
+        /// </summary>
+        /// <param name="converter">The converter that converts the property values.</param>
+        /// <param name="sources">The observable properties that are bound.</param>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="converter"/> is <c>null</c>.
+        /// </exception>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="sources"/> is <c>null</c>.
+        /// </exception>
+        public void Bind(Func<MultiBindingContext, T> converter, params INotifyPropertyChanged[] sources)
+        {
+            converter.RequireNonNull(nameof(converter));
+            sources.RequireNonNull(nameof(sources));
+            if (bindingSources.Any()) { throw new InvalidOperationException(); }
+
+            var context = new MultiBindingContext(sources);
+            bindingSources.AddRange(sources.Select(observable => new BindingSourceContext(observable, (s, e) =>
+            {
+                if (e.PropertyName != valueChangedEventArgs.PropertyName) { return; }
+
+                Value = converter(context);
+            })));
+
+            bindingSources.ForEach(source => source.Register(this));
+            Value = converter(context);
         }
 
         /// <summary>
@@ -240,52 +269,48 @@ namespace Fievus.Windows.Mvc.Bindings
         /// </exception>
         public void Unbind()
         {
-            if (observable == null) { throw new InvalidOperationException(); }
+            if (!bindingSources.Any()) { throw new InvalidOperationException(); }
 
-            if (observable.IsAlive)
-            {
-                PropertyChangedEventManager.RemoveListener(observable.Target as INotifyPropertyChanged, this);
-            }
-            observable = null;
-            propertyChangedHandler = null;
+            bindingSources.ForEach(source => source.Unregister(this));
+            bindingSources.Clear();
         }
 
         /// <summary>
         /// Binds the specified observable property to update the other when
         /// either the property value is changed.
         /// </summary>
-        /// <param name="observable">The observable property that is boud.</param>
+        /// <param name="source">The observable property that is boud.</param>
         /// <exception cref="ArgumentNullException">
-        /// <paramref name="observable"/> is <c>null</c>.
+        /// <paramref name="source"/> is <c>null</c>.
         /// </exception>
         /// <exception cref="InvalidOperationException">
         /// The property has already bound another property.
         /// </exception>
-        public void BindTwoWay(ObservableProperty<T> observable)
+        public void BindTwoWay(ObservableProperty<T> source)
         {
-            observable.RequireNonNull(nameof(observable));
-            if (this.observable != null && this.observable.IsAlive) { throw new InvalidOperationException(); }
+            source.RequireNonNull(nameof(source));
+            if (bindingSources.Any(s => s.IsAlive)) { throw new InvalidOperationException(); }
 
-            Bind(observable);
-            observable.Bind(this);
+            Bind(source);
+            source.Bind(this);
         }
 
         /// <summary>
         /// Unbinds the specified observable property.
         /// </summary>
-        /// <param name="observable">The observable property that is unbound.</param>
+        /// <param name="source">The observable property that is unbound.</param>
         /// <exception cref="ArgumentNullException">
-        /// <paramref name="observable"/> is <c>null</c>.
+        /// <paramref name="source"/> is <c>null</c>.
         /// </exception>
         /// <exception cref="InvalidOperationException">
         /// The property has not bound a property yet.
         /// </exception>
-        public void UnbindTwoWay(ObservableProperty<T> observable)
+        public void UnbindTwoWay(ObservableProperty<T> source)
         {
-            observable.RequireNonNull(nameof(observable));
-            if (this.observable == null) { throw new InvalidOperationException(); }
+            source.RequireNonNull(nameof(source));
+            if (!bindingSources.Any()) { throw new InvalidOperationException(); }
 
-            observable.Unbind();
+            source.Unbind();
             Unbind();
         }
 
@@ -429,6 +454,24 @@ namespace Fievus.Windows.Mvc.Bindings
             ErrorsChanged?.Invoke(this, e);
         }
 
+        /// <summary>
+        /// Receives events from the centralized event manager.
+        /// </summary>
+        /// <param name="managerType">Tye type of the <see cref="WeakEventManager"/> calling this method.</param>
+        /// <param name="sender">The object that originated the event.</param>
+        /// <param name="e">The event data.</param>
+        /// <returns>
+        /// <c>true</c> if the listener handled the event. It is considered an error by the
+        /// <see cref="WeakEventManager"/> handling in WPF to register a listener for an event
+        /// that the listener does not handle. Regardless, the method should return <c>false</c>
+        /// if it receives an event that it does not recognize or handle.
+        /// </returns>
+        protected virtual bool ReceiveWeakEvent(Type managerType, object sender, EventArgs e)
+        {
+            bindingSources.ForEach(source => source.RaisePropertyChanged(sender, (PropertyChangedEventArgs)e));
+            return true;
+        }
+
         private void OnPropertyValueValidate(object sender, PropertyValueValidateEventArgs<T> e)
         {
             var results = new Collection<ValidationResult>();
@@ -445,11 +488,7 @@ namespace Fievus.Windows.Mvc.Bindings
 
         IEnumerable INotifyDataErrorInfo.GetErrors(string propertyName) => GetErrors(propertyName);
 
-        bool IWeakEventListener.ReceiveWeakEvent(Type managerType, object sender, EventArgs e)
-        {
-            propertyChangedHandler(sender, (PropertyChangedEventArgs)e);
-            return true;
-        }
+        bool IWeakEventListener.ReceiveWeakEvent(Type managerType, object sender, EventArgs e) => ReceiveWeakEvent(managerType, sender, e);
 
         /// <summary>
         /// Represents a state of a validation for the property value.
@@ -499,6 +538,74 @@ namespace Fievus.Windows.Mvc.Bindings
             {
                 IsValidated = true;
             }
+        }
+
+        /// <summary>
+        /// Represents a context of the binding source.
+        /// </summary>
+        protected class BindingSourceContext
+        {
+            /// <summary>
+            /// Gets a value that indicates where the source has been garbage collected.
+            /// </summary>
+            public bool IsAlive => Source.IsAlive;
+
+            /// <summary>
+            /// Gets a binding source.
+            /// </summary>
+            protected WeakReference Source { get; }
+
+            /// <summary>
+            /// Gets <see cref="PropertyChangedEventHandler"/> of the binding source.
+            /// </summary>
+            protected PropertyChangedEventHandler PropertyChangedHandler { get; }
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="BindingSourceContext"/> class
+            /// with the specified binding source and <see cref="PropertyChangedEventHandler"/>.
+            /// </summary>
+            /// <param name="source">The binding source.</param>
+            /// <param name="propertyChangedHandler"><see cref="PropertyChangedEventHandler"/> of the binding source.</param>
+            /// <exception cref="ArgumentNullException">
+            /// <paramref name="source"/> is <c>null</c>.
+            /// </exception>
+            /// <exception cref="ArgumentNullException">
+            /// <paramref name="propertyChangedHandler"/> is <c>null</c>.
+            /// </exception>
+            public BindingSourceContext(INotifyPropertyChanged source, PropertyChangedEventHandler propertyChangedHandler)
+            {
+                Source = new WeakReference(source.RequireNonNull(nameof(source)));
+                PropertyChangedHandler = propertyChangedHandler.RequireNonNull(nameof(propertyChangedHandler));
+            }
+
+            /// <summary>
+            /// Registers <see cref="PropertyChangedEventHandler"/> to the binding source.
+            /// </summary>
+            /// <param name="listener">The object to register as a listener.</param>
+            public void Register(IWeakEventListener listener)
+            {
+                if (!Source.IsAlive) { return; }
+
+                PropertyChangedEventManager.AddListener(Source.Target as INotifyPropertyChanged, listener);
+            }
+
+            /// <summary>
+            /// Unregisters <see cref="PropertyChangedEventHandler"/> from the binding source.
+            /// </summary>
+            /// <param name="listener">The listener to unregister.</param>
+            public void Unregister(IWeakEventListener listener)
+            {
+                if (!Source.IsAlive) { return; }
+
+                PropertyChangedEventManager.RemoveListener(Source.Target as INotifyPropertyChanged, listener);
+            }
+
+            /// <summary>
+            /// Raises the PropertyChanged event.
+            /// </summary>
+            /// <param name="sender">The source of the event.</param>
+            /// <param name="e">The event data.</param>
+            public void RaisePropertyChanged(object sender, PropertyChangedEventArgs e) => PropertyChangedHandler(sender, e);
         }
     }
 

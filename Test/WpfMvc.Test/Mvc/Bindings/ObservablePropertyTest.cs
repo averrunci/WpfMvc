@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016 Fievus
+﻿// Copyright (C) 2016-2017 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
@@ -209,6 +209,151 @@ namespace Fievus.Windows.Mvc.Bindings.ObservablePropertyTest
                 property1.Bind(property2, t => t.ToString());
 
                 Assert.Throws<InvalidOperationException>(() => property1.Bind(property2, t => t.ToString()));
+            }
+        }
+
+        [TestFixture]
+        public class MultiBinding
+        {
+            [Test]
+            public void BindsSpecifiedObservableProperties()
+            {
+                var property = ObservableProperty<string>.Of("Test1");
+                var property1 = ObservableProperty<int>.Of(1);
+                var property2 = ObservableProperty<int>.Of(2);
+                var property3 = ObservableProperty<int>.Of(3);
+
+                property.Bind(
+                    c => (c.GetValueAt<int>(0) + c.GetValueAt<int>(1) + c.GetValueAt<int>(2)).ToString(),
+                    property1, property2, property3
+                );
+                Assert.That(property.Value, Is.EqualTo("6"));
+                Assert.That(property1.Value, Is.EqualTo(1));
+                Assert.That(property2.Value, Is.EqualTo(2));
+                Assert.That(property3.Value, Is.EqualTo(3));
+
+                property1.Value = 7;
+                Assert.That(property.Value, Is.EqualTo("12"));
+                Assert.That(property1.Value, Is.EqualTo(7));
+                Assert.That(property2.Value, Is.EqualTo(2));
+                Assert.That(property3.Value, Is.EqualTo(3));
+
+                property2.Value = 8;
+                Assert.That(property.Value, Is.EqualTo("18"));
+                Assert.That(property1.Value, Is.EqualTo(7));
+                Assert.That(property2.Value, Is.EqualTo(8));
+                Assert.That(property3.Value, Is.EqualTo(3));
+
+                property3.Value = 9;
+                Assert.That(property.Value, Is.EqualTo("24"));
+                Assert.That(property1.Value, Is.EqualTo(7));
+                Assert.That(property2.Value, Is.EqualTo(8));
+                Assert.That(property3.Value, Is.EqualTo(9));
+
+                property.Value = "Test";
+                Assert.That(property.Value, Is.EqualTo("Test"));
+                Assert.That(property1.Value, Is.EqualTo(7));
+                Assert.That(property2.Value, Is.EqualTo(8));
+                Assert.That(property3.Value, Is.EqualTo(9));
+            }
+
+            [Test]
+            public void UnbindsBoundObservableProperties()
+            {
+                var property = ObservableProperty<string>.Of("Test1");
+                var property1 = ObservableProperty<int>.Of(1);
+                var property2 = ObservableProperty<int>.Of(2);
+                var property3 = ObservableProperty<int>.Of(3);
+
+                property.Bind(
+                    c => (c.GetValueAt<int>(0) + c.GetValueAt<int>(1) + c.GetValueAt<int>(2)).ToString(),
+                    property1, property2, property3
+                );
+                Assert.That(property.Value, Is.EqualTo("6"));
+                Assert.That(property1.Value, Is.EqualTo(1));
+                Assert.That(property2.Value, Is.EqualTo(2));
+                Assert.That(property3.Value, Is.EqualTo(3));
+
+                property.Unbind();
+
+                property1.Value = 7;
+                Assert.That(property.Value, Is.EqualTo("6"));
+                Assert.That(property1.Value, Is.EqualTo(7));
+                Assert.That(property2.Value, Is.EqualTo(2));
+                Assert.That(property3.Value, Is.EqualTo(3));
+
+                property2.Value = 8;
+                Assert.That(property.Value, Is.EqualTo("6"));
+                Assert.That(property1.Value, Is.EqualTo(7));
+                Assert.That(property2.Value, Is.EqualTo(8));
+                Assert.That(property3.Value, Is.EqualTo(3));
+
+                property3.Value = 9;
+                Assert.That(property.Value, Is.EqualTo("6"));
+                Assert.That(property1.Value, Is.EqualTo(7));
+                Assert.That(property2.Value, Is.EqualTo(8));
+                Assert.That(property3.Value, Is.EqualTo(9));
+            }
+
+            [Test]
+            public void ThrowsExceptionWhenObservablePropertyWhichIsBoundBinds()
+            {
+                var property = ObservableProperty<string>.Of("Test1");
+                var property1 = ObservableProperty<int>.Of(1);
+                var property2 = ObservableProperty<int>.Of(2);
+                var property3 = ObservableProperty<int>.Of(3);
+
+                property.Bind(
+                    c => (c.GetValueAt<int>(0) + c.GetValueAt<int>(1) + c.GetValueAt<int>(2)).ToString(),
+                    property1, property2, property3
+                );
+
+                Assert.Throws<InvalidOperationException>(() => property.Bind(
+                    c => (c.GetValueAt<int>(0) + c.GetValueAt<int>(1) + c.GetValueAt<int>(2)).ToString(),
+                    property1, property2, property3
+                ));
+            }
+
+            [Test]
+            public void BindsSpecifiedObservablePropertiesWithDifferenceValueType()
+            {
+                var property = ObservableProperty<string>.Of("Test1");
+                var property1 = ObservableProperty<int>.Of(1);
+                var property2 = ObservableProperty<string>.Of("#");
+                var property3 = ObservableProperty<bool>.Of(false);
+
+                property.Bind(
+                    c => c.GetValueAt<bool>(2) ? $"[{c.GetValueAt<string>(1)}{c.GetValueAt<int>(0)}]" : $"{c.GetValueAt<string>(1)}{c.GetValueAt<int>(0)}",
+                    property1, property2, property3
+                );
+                Assert.That(property.Value, Is.EqualTo("#1"));
+                Assert.That(property1.Value, Is.EqualTo(1));
+                Assert.That(property2.Value, Is.EqualTo("#"));
+                Assert.That(property3.Value, Is.EqualTo(false));
+
+                property1.Value = 7;
+                Assert.That(property.Value, Is.EqualTo("#7"));
+                Assert.That(property1.Value, Is.EqualTo(7));
+                Assert.That(property2.Value, Is.EqualTo("#"));
+                Assert.That(property3.Value, Is.EqualTo(false));
+
+                property2.Value = "## ";
+                Assert.That(property.Value, Is.EqualTo("## 7"));
+                Assert.That(property1.Value, Is.EqualTo(7));
+                Assert.That(property2.Value, Is.EqualTo("## "));
+                Assert.That(property3.Value, Is.EqualTo(false));
+
+                property3.Value = true;
+                Assert.That(property.Value, Is.EqualTo("[## 7]"));
+                Assert.That(property1.Value, Is.EqualTo(7));
+                Assert.That(property2.Value, Is.EqualTo("## "));
+                Assert.That(property3.Value, Is.EqualTo(true));
+
+                property.Value = "Test";
+                Assert.That(property.Value, Is.EqualTo("Test"));
+                Assert.That(property1.Value, Is.EqualTo(7));
+                Assert.That(property2.Value, Is.EqualTo("## "));
+                Assert.That(property3.Value, Is.EqualTo(true));
             }
         }
 
