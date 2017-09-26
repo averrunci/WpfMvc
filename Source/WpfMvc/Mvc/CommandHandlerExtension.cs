@@ -162,7 +162,7 @@ namespace Fievus.Windows.Mvc
                     rootElement.IfAbsent(() =>
                         AddCommandHandler(commandHandler.CommandName, null, rootElement, handler, commandHandlers));
                     rootElement.IfPresent(_ =>
-                        FindCommand(rootElement).ForEach(command =>
+                        FindCommand(rootElement, commandHandler.CommandName).ForEach(command =>
                             AddCommandHandler(commandHandler.CommandName, command, rootElement, handler, commandHandlers)
                         ));
                 });
@@ -176,7 +176,7 @@ namespace Fievus.Windows.Mvc
                 commandHandlers.Add(commandName, command, rootElement, canExecuteHandler));
         }
 
-        private IEnumerable<ICommand> FindCommand(DependencyObject element)
+        private IEnumerable<ICommand> FindCommand(DependencyObject element, string commandName)
         {
             if (element == null) { yield break; }
 
@@ -188,11 +188,11 @@ namespace Fievus.Windows.Mvc
                 var commandProperty = childElement.GetType().GetProperties().Where(p => typeof(ICommand).IsAssignableFrom(p.PropertyType)).FirstOrDefault();
                 if (commandProperty != null)
                 {
-                    var command = commandProperty.GetValue(child) as ICommand;
-                    if (command != null) { yield return command; }
+                    var command = commandProperty.GetValue(child) as RoutedCommand;
+                    if (command != null && command.Name == commandName) { yield return command; }
                 }
 
-                foreach (var command in FindCommand(childElement))
+                foreach (var command in FindCommand(childElement, commandName))
                 {
                     yield return command;
                 }

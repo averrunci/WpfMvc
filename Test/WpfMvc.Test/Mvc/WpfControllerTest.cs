@@ -407,6 +407,39 @@ namespace Fievus.Windows.Mvc.WpfControllerTest
             }
 
             [Test]
+            public void AddsSomeCommandHandlersOfExecutedEventAndCanExecuteEventThatHasOneArgument()
+            {
+                WpfApplicationRunner.Start<Application>().Run(application =>
+                {
+                    var context = new object();
+                    var testButton1 = new Button { Name = "testButton1", Command = TestWpfControllers.TestCommand };
+                    var testButton2 = new Button { Name = "testButton2", Command = TestWpfControllers.AnotherTestCommand };
+                    var panel = new Grid();
+                    panel.Children.Add(testButton1);
+                    panel.Children.Add(testButton2);
+                    var element = new TestElement { Name = "element", Content = panel, DataContext = context };
+
+                    var executedAssertionHandler1 = MockRepository.GenerateMock<Action<ExecutedRoutedEventArgs>>();
+                    var canExecuteAssertionHandler1 = MockRepository.GenerateMock<Action<CanExecuteRoutedEventArgs>>();
+                    var executedAssertionHandler2 = MockRepository.GenerateMock<Action<ExecutedRoutedEventArgs>>();
+                    var canExecuteAssertionHandler2 = MockRepository.GenerateMock<Action<CanExecuteRoutedEventArgs>>();
+                    var controller = new TestWpfControllers.AttributedToField.OneArgumentExecutedAndCanExecuteHandlerController(executedAssertionHandler1, canExecuteAssertionHandler1, executedAssertionHandler2, canExecuteAssertionHandler2);
+                    WpfController.GetControllers(element).Add(controller);
+
+                    element.RaiseInitialized();
+
+                    var parameter = new object();
+                    (testButton1.Command as RoutedCommand).Execute(parameter, element);
+                    (testButton2.Command as RoutedCommand).Execute(parameter, element);
+
+                    canExecuteAssertionHandler1.AssertWasCalled(h => h.Invoke(Arg<CanExecuteRoutedEventArgs>.Matches(e => e.Parameter == parameter)), options => options.Repeat.Once());
+                    executedAssertionHandler1.AssertWasCalled(h => h.Invoke(Arg<ExecutedRoutedEventArgs>.Matches(e => e.Parameter == parameter)), options => options.Repeat.Once());
+                    canExecuteAssertionHandler2.AssertWasCalled(h => h.Invoke(Arg<CanExecuteRoutedEventArgs>.Matches(e => e.Parameter == parameter)), options => options.Repeat.Once());
+                    executedAssertionHandler2.AssertWasCalled(h => h.Invoke(Arg<ExecutedRoutedEventArgs>.Matches(e => e.Parameter == parameter)), options => options.Repeat.Once());
+                }).Shutdown();
+            }
+
+            [Test]
             public void AddsCommandHandlerOfExecutedEventThaIsExecutedRoutedEventHandler()
             {
                 WpfApplicationRunner.Start<Application>().Run(application =>
@@ -445,11 +478,43 @@ namespace Fievus.Windows.Mvc.WpfControllerTest
                     element.RaiseInitialized();
 
                     var parameter = new object();
-                    (testButton.Command as RoutedCommand).CanExecute(parameter, element);
                     (testButton.Command as RoutedCommand).Execute(parameter, element);
 
                     canExecuteAssertionHandler.AssertWasCalled(h => h.Invoke(Arg<object>.Is.Equal(element), Arg<CanExecuteRoutedEventArgs>.Matches(e => e.Parameter == parameter)));
                     executedAssertionHandler.AssertWasCalled(h => h.Invoke(Arg<object>.Is.Equal(element), Arg<ExecutedRoutedEventArgs>.Matches(e => e.Parameter == parameter)));
+                }).Shutdown();
+            }
+
+            [Test]
+            public void AddsSomeCommandHandlersOfExecutedEventAndCanExecuteEventThaIsExecutedRoutedEventHandler()
+            {
+                WpfApplicationRunner.Start<Application>().Run(application =>
+                {
+                    var context = new object();
+                    var testButton1 = new Button { Name = "testButton1", Command = TestWpfControllers.TestCommand };
+                    var testButton2 = new Button { Name = "testButton2", Command = TestWpfControllers.AnotherTestCommand };
+                    var panel = new Grid();
+                    panel.Children.Add(testButton1);
+                    panel.Children.Add(testButton2);
+                    var element = new TestElement { Name = "element", Content = panel, DataContext = context };
+
+                    var executedAssertionHandler1 = MockRepository.GenerateMock<ExecutedRoutedEventHandler>();
+                    var canExecuteAssertionHandler1 = MockRepository.GenerateMock<CanExecuteRoutedEventHandler>();
+                    var executedAssertionHandler2 = MockRepository.GenerateMock<ExecutedRoutedEventHandler>();
+                    var canExecuteAssertionHandler2 = MockRepository.GenerateMock<CanExecuteRoutedEventHandler>();
+                    var controller = new TestWpfControllers.AttributedToField.ExecutedAndCanExecuteHandlerController(executedAssertionHandler1, canExecuteAssertionHandler1, executedAssertionHandler2, canExecuteAssertionHandler2);
+                    WpfController.GetControllers(element).Add(controller);
+
+                    element.RaiseInitialized();
+
+                    var parameter = new object();
+                    (testButton1.Command as RoutedCommand).Execute(parameter, element);
+                    (testButton2.Command as RoutedCommand).Execute(parameter, element);
+
+                    canExecuteAssertionHandler1.AssertWasCalled(h => h.Invoke(Arg<object>.Is.Equal(element), Arg<CanExecuteRoutedEventArgs>.Matches(e => e.Parameter == parameter)), options => options.Repeat.Once());
+                    executedAssertionHandler1.AssertWasCalled(h => h.Invoke(Arg<object>.Is.Equal(element), Arg<ExecutedRoutedEventArgs>.Matches(e => e.Parameter == parameter)), options => options.Repeat.Once());
+                    canExecuteAssertionHandler2.AssertWasCalled(h => h.Invoke(Arg<object>.Is.Equal(element), Arg<CanExecuteRoutedEventArgs>.Matches(e => e.Parameter == parameter)), options => options.Repeat.Once());
+                    executedAssertionHandler2.AssertWasCalled(h => h.Invoke(Arg<object>.Is.Equal(element), Arg<ExecutedRoutedEventArgs>.Matches(e => e.Parameter == parameter)), options => options.Repeat.Once());
                 }).Shutdown();
             }
         }
@@ -504,6 +569,39 @@ namespace Fievus.Windows.Mvc.WpfControllerTest
             }
 
             [Test]
+            public void AddsSomeCommandHandlersOfExecutedEventAndCanExecuteEventThatHasOneArgument()
+            {
+                WpfApplicationRunner.Start<Application>().Run(application =>
+                {
+                    var context = new object();
+                    var testButton1 = new Button { Name = "testButton1", Command = TestWpfControllers.TestCommand };
+                    var testButton2 = new Button { Name = "testButton2", Command = TestWpfControllers.AnotherTestCommand };
+                    var panel = new Grid();
+                    panel.Children.Add(testButton1);
+                    panel.Children.Add(testButton2);
+                    var element = new TestElement { Name = "element", Content = panel, DataContext = context };
+
+                    var executedAssertionHandler1 = MockRepository.GenerateMock<Action<ExecutedRoutedEventArgs>>();
+                    var canExecuteAssertionHandler1 = MockRepository.GenerateMock<Action<CanExecuteRoutedEventArgs>>();
+                    var executedAssertionHandler2 = MockRepository.GenerateMock<Action<ExecutedRoutedEventArgs>>();
+                    var canExecuteAssertionHandler2 = MockRepository.GenerateMock<Action<CanExecuteRoutedEventArgs>>();
+                    var controller = new TestWpfControllers.AttributedToProperty.OneArgumentExecutedAndCanExecuteHandlerController(executedAssertionHandler1, canExecuteAssertionHandler1, executedAssertionHandler2, canExecuteAssertionHandler2);
+                    WpfController.GetControllers(element).Add(controller);
+
+                    element.RaiseInitialized();
+
+                    var parameter = new object();
+                    (testButton1.Command as RoutedCommand).Execute(parameter, element);
+                    (testButton2.Command as RoutedCommand).Execute(parameter, element);
+
+                    canExecuteAssertionHandler1.AssertWasCalled(h => h.Invoke(Arg<CanExecuteRoutedEventArgs>.Matches(e => e.Parameter == parameter)), options => options.Repeat.Once());
+                    executedAssertionHandler1.AssertWasCalled(h => h.Invoke(Arg<ExecutedRoutedEventArgs>.Matches(e => e.Parameter == parameter)), options => options.Repeat.Once());
+                    canExecuteAssertionHandler2.AssertWasCalled(h => h.Invoke(Arg<CanExecuteRoutedEventArgs>.Matches(e => e.Parameter == parameter)), options => options.Repeat.Once());
+                    executedAssertionHandler2.AssertWasCalled(h => h.Invoke(Arg<ExecutedRoutedEventArgs>.Matches(e => e.Parameter == parameter)), options => options.Repeat.Once());
+                }).Shutdown();
+            }
+
+            [Test]
             public void AddsCommandHandlerOfExecutedEventThaIsExecutedRoutedEventHandler()
             {
                 WpfApplicationRunner.Start<Application>().Run(application =>
@@ -542,11 +640,43 @@ namespace Fievus.Windows.Mvc.WpfControllerTest
                     element.RaiseInitialized();
 
                     var parameter = new object();
-                    (testButton.Command as RoutedCommand).CanExecute(parameter, element);
                     (testButton.Command as RoutedCommand).Execute(parameter, element);
 
                     canExecuteAssertionHandler.AssertWasCalled(h => h.Invoke(Arg<object>.Is.Equal(element), Arg<CanExecuteRoutedEventArgs>.Matches(e => e.Parameter == parameter)));
                     executedAssertionHandler.AssertWasCalled(h => h.Invoke(Arg<object>.Is.Equal(element), Arg<ExecutedRoutedEventArgs>.Matches(e => e.Parameter == parameter)));
+                }).Shutdown();
+            }
+
+            [Test]
+            public void AddsSomeCommandHandlersOfExecutedEventAndCanExecuteEventThaIsExecutedRoutedEventHandler()
+            {
+                WpfApplicationRunner.Start<Application>().Run(application =>
+                {
+                    var context = new object();
+                    var testButton1 = new Button { Name = "testButton1", Command = TestWpfControllers.TestCommand };
+                    var testButton2 = new Button { Name = "testButton2", Command = TestWpfControllers.AnotherTestCommand };
+                    var panel = new Grid();
+                    panel.Children.Add(testButton1);
+                    panel.Children.Add(testButton2);
+                    var element = new TestElement { Name = "element", Content = panel, DataContext = context };
+
+                    var executedAssertionHandler1 = MockRepository.GenerateMock<ExecutedRoutedEventHandler>();
+                    var canExecuteAssertionHandler1 = MockRepository.GenerateMock<CanExecuteRoutedEventHandler>();
+                    var executedAssertionHandler2 = MockRepository.GenerateMock<ExecutedRoutedEventHandler>();
+                    var canExecuteAssertionHandler2 = MockRepository.GenerateMock<CanExecuteRoutedEventHandler>();
+                    var controller = new TestWpfControllers.AttributedToProperty.ExecutedAndCanExecuteHandlerController(executedAssertionHandler1, canExecuteAssertionHandler1, executedAssertionHandler2, canExecuteAssertionHandler2);
+                    WpfController.GetControllers(element).Add(controller);
+
+                    element.RaiseInitialized();
+
+                    var parameter = new object();
+                    (testButton1.Command as RoutedCommand).Execute(parameter, element);
+                    (testButton2.Command as RoutedCommand).Execute(parameter, element);
+
+                    canExecuteAssertionHandler1.AssertWasCalled(h => h.Invoke(Arg<object>.Is.Equal(element), Arg<CanExecuteRoutedEventArgs>.Matches(e => e.Parameter == parameter)), options => options.Repeat.Once());
+                    executedAssertionHandler1.AssertWasCalled(h => h.Invoke(Arg<object>.Is.Equal(element), Arg<ExecutedRoutedEventArgs>.Matches(e => e.Parameter == parameter)), options => options.Repeat.Once());
+                    canExecuteAssertionHandler2.AssertWasCalled(h => h.Invoke(Arg<object>.Is.Equal(element), Arg<CanExecuteRoutedEventArgs>.Matches(e => e.Parameter == parameter)), options => options.Repeat.Once());
+                    executedAssertionHandler2.AssertWasCalled(h => h.Invoke(Arg<object>.Is.Equal(element), Arg<ExecutedRoutedEventArgs>.Matches(e => e.Parameter == parameter)), options => options.Repeat.Once());
                 }).Shutdown();
             }
         }
@@ -601,6 +731,39 @@ namespace Fievus.Windows.Mvc.WpfControllerTest
             }
 
             [Test]
+            public void AddsSomeCommandHandlersOfExecutedEventAndCanExecuteEventThatHasOneArgument()
+            {
+                WpfApplicationRunner.Start<Application>().Run(application =>
+                {
+                    var context = new object();
+                    var testButton1 = new Button { Name = "testButton1", Command = TestWpfControllers.TestCommand };
+                    var testButton2 = new Button { Name = "testButton2", Command = TestWpfControllers.AnotherTestCommand };
+                    var panel = new Grid();
+                    panel.Children.Add(testButton1);
+                    panel.Children.Add(testButton2);
+                    var element = new TestElement { Name = "element", Content = panel, DataContext = context };
+
+                    var executedAssertionHandler1 = MockRepository.GenerateMock<Action<ExecutedRoutedEventArgs>>();
+                    var canExecuteAssertionHandler1 = MockRepository.GenerateMock<Action<CanExecuteRoutedEventArgs>>();
+                    var executedAssertionHandler2 = MockRepository.GenerateMock<Action<ExecutedRoutedEventArgs>>();
+                    var canExecuteAssertionHandler2 = MockRepository.GenerateMock<Action<CanExecuteRoutedEventArgs>>();
+                    var controller = new TestWpfControllers.AttributedToMethod.OneArgumentExecutedAndCanExecuteHandlerController(executedAssertionHandler1, canExecuteAssertionHandler1, executedAssertionHandler2, canExecuteAssertionHandler2);
+                    WpfController.GetControllers(element).Add(controller);
+
+                    element.RaiseInitialized();
+
+                    var parameter = new object();
+                    (testButton1.Command as RoutedCommand).Execute(parameter, element);
+                    (testButton2.Command as RoutedCommand).Execute(parameter, element);
+
+                    canExecuteAssertionHandler1.AssertWasCalled(h => h.Invoke(Arg<CanExecuteRoutedEventArgs>.Matches(e => e.Parameter == parameter)), options => options.Repeat.Once());
+                    executedAssertionHandler1.AssertWasCalled(h => h.Invoke(Arg<ExecutedRoutedEventArgs>.Matches(e => e.Parameter == parameter)), options => options.Repeat.Once());
+                    canExecuteAssertionHandler2.AssertWasCalled(h => h.Invoke(Arg<CanExecuteRoutedEventArgs>.Matches(e => e.Parameter == parameter)), options => options.Repeat.Once());
+                    executedAssertionHandler2.AssertWasCalled(h => h.Invoke(Arg<ExecutedRoutedEventArgs>.Matches(e => e.Parameter == parameter)), options => options.Repeat.Once());
+                }).Shutdown();
+            }
+
+            [Test]
             public void AddsCommandHandlerOfExecutedEventThaIsExecutedRoutedEventHandler()
             {
                 WpfApplicationRunner.Start<Application>().Run(application =>
@@ -639,11 +802,43 @@ namespace Fievus.Windows.Mvc.WpfControllerTest
                     element.RaiseInitialized();
 
                     var parameter = new object();
-                    (testButton.Command as RoutedCommand).CanExecute(parameter, element);
                     (testButton.Command as RoutedCommand).Execute(parameter, element);
 
                     canExecuteAssertionHandler.AssertWasCalled(h => h.Invoke(Arg<object>.Is.Equal(element), Arg<CanExecuteRoutedEventArgs>.Matches(e => e.Parameter == parameter)));
                     executedAssertionHandler.AssertWasCalled(h => h.Invoke(Arg<object>.Is.Equal(element), Arg<ExecutedRoutedEventArgs>.Matches(e => e.Parameter == parameter)));
+                }).Shutdown();
+            }
+
+            [Test]
+            public void AddsSomeCommandHandlersOfExecutedEventAndCanExecuteEventThaIsExecutedRoutedEventHandler()
+            {
+                WpfApplicationRunner.Start<Application>().Run(application =>
+                {
+                    var context = new object();
+                    var testButton1 = new Button { Name = "testButton1", Command = TestWpfControllers.TestCommand };
+                    var testButton2 = new Button { Name = "testButton2", Command = TestWpfControllers.AnotherTestCommand };
+                    var panel = new Grid();
+                    panel.Children.Add(testButton1);
+                    panel.Children.Add(testButton2);
+                    var element = new TestElement { Name = "element", Content = panel, DataContext = context };
+
+                    var executedAssertionHandler1 = MockRepository.GenerateMock<ExecutedRoutedEventHandler>();
+                    var canExecuteAssertionHandler1 = MockRepository.GenerateMock<CanExecuteRoutedEventHandler>();
+                    var executedAssertionHandler2 = MockRepository.GenerateMock<ExecutedRoutedEventHandler>();
+                    var canExecuteAssertionHandler2 = MockRepository.GenerateMock<CanExecuteRoutedEventHandler>();
+                    var controller = new TestWpfControllers.AttributedToMethod.ExecutedAndCanExecuteHandlerController(executedAssertionHandler1, canExecuteAssertionHandler1, executedAssertionHandler2, canExecuteAssertionHandler2);
+                    WpfController.GetControllers(element).Add(controller);
+
+                    element.RaiseInitialized();
+
+                    var parameter = new object();
+                    (testButton1.Command as RoutedCommand).Execute(parameter, element);
+                    (testButton2.Command as RoutedCommand).Execute(parameter, element);
+
+                    canExecuteAssertionHandler1.AssertWasCalled(h => h.Invoke(Arg<object>.Is.Equal(element), Arg<CanExecuteRoutedEventArgs>.Matches(e => e.Parameter == parameter)), options => options.Repeat.Once());
+                    executedAssertionHandler1.AssertWasCalled(h => h.Invoke(Arg<object>.Is.Equal(element), Arg<ExecutedRoutedEventArgs>.Matches(e => e.Parameter == parameter)), options => options.Repeat.Once());
+                    canExecuteAssertionHandler2.AssertWasCalled(h => h.Invoke(Arg<object>.Is.Equal(element), Arg<CanExecuteRoutedEventArgs>.Matches(e => e.Parameter == parameter)), options => options.Repeat.Once());
+                    executedAssertionHandler2.AssertWasCalled(h => h.Invoke(Arg<object>.Is.Equal(element), Arg<ExecutedRoutedEventArgs>.Matches(e => e.Parameter == parameter)), options => options.Repeat.Once());
                 }).Shutdown();
             }
         }

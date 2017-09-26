@@ -12,6 +12,7 @@ namespace Fievus.Windows.Mvc
     internal class TestWpfControllers
     {
         public static readonly RoutedUICommand TestCommand = new RoutedUICommand("Test", "TestCommand", typeof(TestWpfControllers));
+        public static readonly RoutedUICommand AnotherTestCommand = new RoutedUICommand("Another Test", "AnotherTestCommand", typeof(TestWpfControllers));
 
         public class TestWpfController
         {
@@ -200,12 +201,29 @@ namespace Fievus.Windows.Mvc
                 [CommandHandler(CommandName = "TestCommand")]
                 private Action<CanExecuteRoutedEventArgs> canExecuteHandler;
 
-                public OneArgumentExecutedAndCanExecuteHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler, Action<CanExecuteRoutedEventArgs> canExecuteAssertionHandler)
+                [CommandHandler(CommandName = "AnotherTestCommand")]
+                private Action<ExecutedRoutedEventArgs> anotherExecutedHandler;
+
+                [CommandHandler(CommandName = "AnotherTestCommand")]
+                private Action<CanExecuteRoutedEventArgs> anotherCanExecuteHandler;
+
+                public OneArgumentExecutedAndCanExecuteHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler, Action<CanExecuteRoutedEventArgs> canExecuteAssertionHandler) : this(executedAssertionHandler, canExecuteAssertionHandler, null, null)
+                {
+                }
+
+                public OneArgumentExecutedAndCanExecuteHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler, Action<CanExecuteRoutedEventArgs> canExecuteAssertionHandler, Action<ExecutedRoutedEventArgs> anotherExecutedAssertionHandler, Action<CanExecuteRoutedEventArgs> anotherCanExecuteAssertionHandler)
                 {
                     executedHandler = e => executedAssertionHandler(e);
                     canExecuteHandler = e =>
                     {
                         canExecuteAssertionHandler(e);
+                        e.CanExecute = true;
+                    };
+
+                    anotherExecutedHandler = e => anotherExecutedAssertionHandler?.Invoke(e);
+                    anotherCanExecuteHandler = e =>
+                    {
+                        anotherCanExecuteAssertionHandler?.Invoke(e);
                         e.CanExecute = true;
                     };
                 }
@@ -230,12 +248,29 @@ namespace Fievus.Windows.Mvc
                 [CommandHandler(CommandName = "TestCommand")]
                 private CanExecuteRoutedEventHandler canExecuteHandler;
 
-                public ExecutedAndCanExecuteHandlerController(ExecutedRoutedEventHandler executedAssertionHandler, CanExecuteRoutedEventHandler canExecuteAssertionHandler)
+                [CommandHandler(CommandName = "AnotherTestCommand")]
+                private ExecutedRoutedEventHandler anotherExecutedHandler;
+
+                [CommandHandler(CommandName = "AnotherTestCommand")]
+                private CanExecuteRoutedEventHandler anotherCanExecuteHandler;
+
+                public ExecutedAndCanExecuteHandlerController(ExecutedRoutedEventHandler executedAssertionHandler, CanExecuteRoutedEventHandler canExecuteAssertionHandler) : this(executedAssertionHandler, canExecuteAssertionHandler, null, null)
+                {
+                }
+
+                public ExecutedAndCanExecuteHandlerController(ExecutedRoutedEventHandler executedAssertionHandler, CanExecuteRoutedEventHandler canExecuteAssertionHandler, ExecutedRoutedEventHandler anotherExecutedAssertionHandler, CanExecuteRoutedEventHandler anotherCanExecuteAssertionHandler)
                 {
                     executedHandler = (s, e) => executedAssertionHandler(s, e);
                     canExecuteHandler = (s, e) =>
                     {
                         canExecuteAssertionHandler(s, e);
+                        e.CanExecute = true;
+                    };
+
+                    anotherExecutedHandler = (s, e) => anotherExecutedAssertionHandler?.Invoke(s, e);
+                    anotherCanExecuteHandler = (s, e) =>
+                    {
+                        anotherCanExecuteAssertionHandler?.Invoke(s, e);
                         e.CanExecute = true;
                     };
                 }
@@ -323,12 +358,29 @@ namespace Fievus.Windows.Mvc
                 [CommandHandler(CommandName = "TestCommand")]
                 private Action<CanExecuteRoutedEventArgs> CanExecuteHandler { get; set; }
 
-                public OneArgumentExecutedAndCanExecuteHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler, Action<CanExecuteRoutedEventArgs> canExecuteAssertionHandler)
+                [CommandHandler(CommandName = "AnotherTestCommand")]
+                private Action<ExecutedRoutedEventArgs> AnotherExecutedHandler { get; set; }
+
+                [CommandHandler(CommandName = "AnotherTestCommand")]
+                private Action<CanExecuteRoutedEventArgs> AnotherCanExecuteHandler { get; set; }
+
+                public OneArgumentExecutedAndCanExecuteHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler, Action<CanExecuteRoutedEventArgs> canExecuteAssertionHandler) : this(executedAssertionHandler, canExecuteAssertionHandler, null, null)
+                {
+                }
+
+                public OneArgumentExecutedAndCanExecuteHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler, Action<CanExecuteRoutedEventArgs> canExecuteAssertionHandler, Action<ExecutedRoutedEventArgs> anotherExecutedAssertionHandler, Action<CanExecuteRoutedEventArgs> anotherCanExecuteAssertionHandler)
                 {
                     ExecutedHandler = e => executedAssertionHandler(e);
                     CanExecuteHandler = e =>
                     {
                         canExecuteAssertionHandler(e);
+                        e.CanExecute = true;
+                    };
+
+                    AnotherExecutedHandler = e => anotherExecutedAssertionHandler?.Invoke(e);
+                    AnotherCanExecuteHandler = e =>
+                    {
+                        anotherCanExecuteAssertionHandler?.Invoke(e);
                         e.CanExecute = true;
                     };
                 }
@@ -353,12 +405,29 @@ namespace Fievus.Windows.Mvc
                 [CommandHandler(CommandName = "TestCommand")]
                 private CanExecuteRoutedEventHandler CanExecuteHandler { get; set; }
 
-                public ExecutedAndCanExecuteHandlerController(ExecutedRoutedEventHandler executedAssertionHandler, CanExecuteRoutedEventHandler canExecuteAssertionHandler)
+                [CommandHandler(CommandName = "AnotherTestCommand")]
+                private ExecutedRoutedEventHandler AnotherExecutedHandler { get; set; }
+
+                [CommandHandler(CommandName = "AnotherTestCommand")]
+                private CanExecuteRoutedEventHandler AnotherCanExecuteHandler { get; set; }
+
+                public ExecutedAndCanExecuteHandlerController(ExecutedRoutedEventHandler executedAssertionHandler, CanExecuteRoutedEventHandler canExecuteAssertionHandler) : this(executedAssertionHandler, canExecuteAssertionHandler, null, null)
+                {
+                }
+
+                public ExecutedAndCanExecuteHandlerController(ExecutedRoutedEventHandler executedAssertionHandler, CanExecuteRoutedEventHandler canExecuteAssertionHandler, ExecutedRoutedEventHandler anotherExecutedAssertionHandler, CanExecuteRoutedEventHandler anotherCanExecuteAssertionHandler)
                 {
                     ExecutedHandler = (s, e) => executedAssertionHandler(s, e);
                     CanExecuteHandler = (s, e) =>
                     {
                         canExecuteAssertionHandler(s, e);
+                        e.CanExecute = true;
+                    };
+
+                    AnotherExecutedHandler = (s, e) => anotherExecutedAssertionHandler?.Invoke(s, e);
+                    AnotherCanExecuteHandler = (s, e) =>
+                    {
+                        anotherCanExecuteAssertionHandler?.Invoke(s, e);
                         e.CanExecute = true;
                     };
                 }
@@ -480,10 +549,32 @@ namespace Fievus.Windows.Mvc
                 }
                 private Action<CanExecuteRoutedEventArgs> canExecuteHandler { get; set; }
 
-                public OneArgumentExecutedAndCanExecuteHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler, Action<CanExecuteRoutedEventArgs> canExecuteAssertionHandler)
+                [CommandHandler(CommandName = "AnotherTestCommand")]
+                public void AnotherTestCommand_Executed(ExecutedRoutedEventArgs e)
+                {
+                    anotherExecutedHandler?.Invoke(e);
+                }
+                private Action<ExecutedRoutedEventArgs> anotherExecutedHandler { get; set; }
+
+                [CommandHandler(CommandName = "AnotherTestCommand")]
+                public void AnotherTestCommand_CanExecute(CanExecuteRoutedEventArgs e)
+                {
+                    anotherCanExecuteHandler?.Invoke(e);
+                    e.CanExecute = true;
+                }
+                private Action<CanExecuteRoutedEventArgs> anotherCanExecuteHandler { get; set; }
+
+                public OneArgumentExecutedAndCanExecuteHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler, Action<CanExecuteRoutedEventArgs> canExecuteAssertionHandler) : this(executedAssertionHandler, canExecuteAssertionHandler, null, null)
+                {
+                }
+
+                public OneArgumentExecutedAndCanExecuteHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler, Action<CanExecuteRoutedEventArgs> canExecuteAssertionHandler, Action<ExecutedRoutedEventArgs> anotherExecutedAssertionHandler, Action<CanExecuteRoutedEventArgs> anotherCanExecuteAssertionHandler)
                 {
                     executedHandler = e => executedAssertionHandler(e);
                     canExecuteHandler = e => canExecuteAssertionHandler(e);
+
+                    anotherExecutedHandler = e => anotherExecutedAssertionHandler?.Invoke(e);
+                    anotherCanExecuteHandler = e => anotherCanExecuteAssertionHandler?.Invoke(e);
                 }
             }
 
@@ -519,10 +610,32 @@ namespace Fievus.Windows.Mvc
                 }
                 private CanExecuteRoutedEventHandler canExecuteHandler { get; set; }
 
-                public ExecutedAndCanExecuteHandlerController(ExecutedRoutedEventHandler executedAssertionHandler, CanExecuteRoutedEventHandler canExecuteAssertionHandler)
+                [CommandHandler(CommandName = "AnotherTestCommand")]
+                public void AnotherTestCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+                {
+                    anotherExecutedHandler?.Invoke(sender, e);
+                }
+                private ExecutedRoutedEventHandler anotherExecutedHandler { get; set; }
+
+                [CommandHandler(CommandName = "AnotherTestCommand")]
+                public void AnotherTestCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+                {
+                    anotherCanExecuteHandler?.Invoke(sender, e);
+                    e.CanExecute = true;
+                }
+                private CanExecuteRoutedEventHandler anotherCanExecuteHandler { get; set; }
+
+                public ExecutedAndCanExecuteHandlerController(ExecutedRoutedEventHandler executedAssertionHandler, CanExecuteRoutedEventHandler canExecuteAssertionHandler) : this(executedAssertionHandler, canExecuteAssertionHandler, null, null)
+                {
+                }
+
+                public ExecutedAndCanExecuteHandlerController(ExecutedRoutedEventHandler executedAssertionHandler, CanExecuteRoutedEventHandler canExecuteAssertionHandler, ExecutedRoutedEventHandler anotherExecutedAssertionHandler, CanExecuteRoutedEventHandler anotherCanExecuteAssertionHandler)
                 {
                     executedHandler = (s, e) => executedAssertionHandler(s, e);
                     canExecuteHandler = (s, e) => canExecuteAssertionHandler(s, e);
+
+                    anotherExecutedHandler = (s, e) => anotherExecutedAssertionHandler?.Invoke(s, e);
+                    anotherCanExecuteHandler = (s, e) => anotherCanExecuteAssertionHandler?.Invoke(s, e);
                 }
             }
         }
