@@ -161,7 +161,7 @@ namespace Fievus.Windows.Mvc.Bindings
             Validation.Enable();
             validations = property.GetCustomAttributes<ValidationAttribute>(true);
             assignedPropertyName = property.Name;
-            displayName = property.GetCustomAttributes<DisplayAttribute>(true).FirstOrDefault()?.Name ?? assignedPropertyName;
+            displayName = property.GetCustomAttributes<DisplayAttribute>(true).FirstOrDefault()?.GetName() ?? assignedPropertyName;
             this.cancelValueChangedIfInvalid = cancelValueChangedIfInvalid;
             PropertyValueValidate += OnPropertyValueValidate;
             return this;

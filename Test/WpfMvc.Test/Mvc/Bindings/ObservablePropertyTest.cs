@@ -5,6 +5,7 @@
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 
 using NUnit.Framework;
 
@@ -495,6 +496,11 @@ namespace Fievus.Windows.Mvc.Bindings.ObservablePropertyTest
         public ObservableProperty<string> RequiredProperty { get { return requiredProperty; } }
         private ObservableProperty<string> requiredProperty;
 
+        [Display(Name = nameof(Resources.LocalizablePropertyName), ResourceType = typeof(Resources))]
+        [StringLength(10, ErrorMessageResourceName = nameof(Resources.StringLengthErrorMessage), ErrorMessageResourceType = typeof(Resources))]
+        public ObservableProperty<string> LocalizablePropertyAnnotatedValidation { get { return localizablePropertyAnnotatedValidation; } }
+        private ObservableProperty<string> localizablePropertyAnnotatedValidation;
+
         private readonly PropertyValueValidateEventHandler<string> propertyValueValidate = (s, e) =>
         {
             if (e.Value != "Correct")
@@ -522,11 +528,13 @@ namespace Fievus.Windows.Mvc.Bindings.ObservablePropertyTest
             propertyAnnotatedValidation = new ObservableProperty<string>();
             propertyAnnotatedMultiValidations = new ObservableProperty<string>();
             requiredProperty = new ObservableProperty<string>();
+            localizablePropertyAnnotatedValidation = new ObservableProperty<string>();
 
             PropertyNotAnnotatedValidation.EnableValidation(() => PropertyNotAnnotatedValidation);
             PropertyAnnotatedValidation.EnableValidation(() => PropertyAnnotatedValidation);
             PropertyAnnotatedMultiValidations.EnableValidation(() => PropertyAnnotatedMultiValidations);
             RequiredProperty.EnableValidation(() => RequiredProperty);
+            LocalizablePropertyAnnotatedValidation.EnableValidation(() => LocalizablePropertyAnnotatedValidation);
         }
 
         [TearDown]
@@ -536,6 +544,7 @@ namespace Fievus.Windows.Mvc.Bindings.ObservablePropertyTest
             PropertyAnnotatedValidation.DisableValidation();
             PropertyAnnotatedMultiValidations.DisableValidation();
             RequiredProperty.DisableValidation();
+            LocalizablePropertyAnnotatedValidation.DisableValidation();
         }
 
         private void SetValue<T>(T value, ObservableProperty<T> property)
@@ -582,6 +591,32 @@ namespace Fievus.Windows.Mvc.Bindings.ObservablePropertyTest
                 PropertyAnnotatedValidation,
                 "Please enter String Expression within 10 characters."
             );
+            Assert.That(errorsChangedOccurred, Is.True);
+        }
+
+        [Test]
+        [SetUICulture("en-US")]
+        public void GetsErrorMessageForInvalidPropertyWhenValidationAttributeThatIsLocalizableIsAnnotated()
+        {
+            SetValue("ABCDEFGHIJK", LocalizablePropertyAnnotatedValidation);
+
+            AssertValidationError(
+                LocalizablePropertyAnnotatedValidation,
+                "Please enter Localizable Property within 10 characters."
+            );
+            Assert.That(errorsChangedOccurred, Is.True);
+        }
+
+        [Test]
+        [SetUICulture("ja-JP")]
+        public void GetsLocalizedErrorMessageForInvalidPropertyWhenValidationAttributeThatIsLocalizableIsAnnotated()
+        {
+            SetValue("ABCDEFGHIJK", LocalizablePropertyAnnotatedValidation);
+
+            AssertValidationError(
+                    LocalizablePropertyAnnotatedValidation,
+                    "ローカライズ可能なプロパティは10文字以内で入力してください。"
+                );
             Assert.That(errorsChangedOccurred, Is.True);
         }
 
