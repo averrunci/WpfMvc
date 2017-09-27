@@ -145,17 +145,40 @@ namespace Fievus.Windows.Mvc
         private RoutedEvent RetrieveRoutedEvent(FrameworkElement element, string name)
         {
             if (element == null) { return null; }
+            if (string.IsNullOrWhiteSpace(name)) { return null; }
 
-            return element.GetType()
-                .GetFields(routedEventBindingFlags)
-                .Where(field => field.Name == EnsureRoutedEventName(name))
-                .Select(field => field.GetValue(element))
-                .FirstOrDefault() as RoutedEvent;
+            return name.Contains(attachedEventSeparator) ? RetrieveRoutedEvent(name) : RetrieveRoutedEvent(element.GetType(), name);
         }
 
         private string EnsureRoutedEventName(string routedEventName)
         {
             return routedEventName != null && !routedEventName.EndsWith("Event") ? string.Format("{0}Event", routedEventName) : routedEventName;
+        }
+
+        private const char attachedEventSeparator = '.';
+
+        private RoutedEvent RetrieveRoutedEvent(string name)
+        {
+            var fields = name.Split(attachedEventSeparator);
+            if (fields.Length != 2) { return null; }
+
+            var elementName = fields[0];
+            var routedEventName = fields[1];
+
+            var elementType = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(a => a.GetTypes())
+                .Where(t => t.Name == elementName)
+                .FirstOrDefault();
+
+            return RetrieveRoutedEvent(elementType, routedEventName);
+        }
+
+        private RoutedEvent RetrieveRoutedEvent(Type elementType, string name)
+        {
+            return elementType?.GetFields(routedEventBindingFlags)
+                .Where(field => field.Name == EnsureRoutedEventName(name))
+                .Select(field => field.GetValue(null))
+                .FirstOrDefault() as RoutedEvent;
         }
     }
 }

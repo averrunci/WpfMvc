@@ -28,6 +28,12 @@ namespace Fievus.Windows.Mvc
                 AssertionHandler?.Invoke();
             }
 
+            [RoutedEventHandler(ElementName = "Element", RoutedEvent = "Button.Click")]
+            private void ChildElement_ButtonClick()
+            {
+                AssertionHandler?.Invoke();
+            }
+
             [CommandHandler(CommandName = "TestCommand")]
             private void TestCommand_Executed(ExecutedRoutedEventArgs e)
             {

@@ -1226,4 +1226,31 @@ namespace Fievus.Windows.Mvc.WpfControllerTest
             Assert.Throws<ArgumentNullException>(() => WpfController.Factory = null);
         }
     }
+
+    [TestFixture]
+    public class RoutedEventHandlerInjectionForAttachedEvent
+    {
+        [Test]
+        public void AddsEventHandlerForAttachedEvent()
+        {
+            WpfApplicationRunner.Start<Application>().Run(application =>
+            {
+                var context = new object();
+                var button = new Button();
+                var childElement = new ContentControl { Content = button };
+                var element = new TestElement { Name = "Element", Content = childElement, DataContext = context };
+
+                var assertionHandler = MockRepository.GenerateMock<Action>();
+                var controller = new TestWpfControllers.TestWpfController();
+                controller.AssertionHandler = assertionHandler;
+                WpfController.GetControllers(element).Add(controller);
+
+                element.RaiseInitialized();
+
+                button.RaiseEvent(new RoutedEventArgs(Button.ClickEvent) { Source = button});
+
+                assertionHandler.AssertWasCalled(h => h.Invoke());
+            }).Shutdown();
+        }
+    }
 }
