@@ -1,5 +1,16 @@
 # Release note
 
+## v1.3.1
+
+### Changes
+
+- Change the way to find RoutedEvent so that an attached event can be handled.
+
+### Bug fix
+
+- Fixed the name value of DisplayNameAttribute when it is retrieved from a resource.
+- Fixed the condition to find Command when CommandHandlerAttribute is specified.
+
 ## v1.3.0
 
 ### Add
