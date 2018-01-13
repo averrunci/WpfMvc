@@ -5,7 +5,6 @@
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Globalization;
 
 using NUnit.Framework;
 
@@ -92,10 +91,10 @@ namespace Fievus.Windows.Mvc.Bindings.ObservablePropertyTest
         public void RaisesPropertyChangedEventWhenNotNullValueIsSetToItWhoseValueIsNull()
         {
             var propertyChangedOccurred = false;
-            var property = ObservableProperty<string>.Of("Changed");
+            var property = ObservableProperty<string>.Of(null);
             property.PropertyChanged += (s, e) => propertyChangedOccurred = (e.PropertyName == "Value");
 
-            property.Value = null;
+            property.Value = "Changed";
 
             Assert.That(propertyChangedOccurred, Is.True);
         }
@@ -419,7 +418,7 @@ namespace Fievus.Windows.Mvc.Bindings.ObservablePropertyTest
         }
     }
 
-    namespace ChanginChangedHandler
+    namespace ChangingChangedHandler
     {
         [TestFixture]
         public class Changing
