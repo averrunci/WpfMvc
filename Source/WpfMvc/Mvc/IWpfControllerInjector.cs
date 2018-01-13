@@ -13,7 +13,7 @@ namespace Fievus.Windows.Mvc
         /// <summary>
         /// Injects dependency components to the specified WPF controller.
         /// </summary>
-        /// <param name="controller">The WPF controller injected dependency components.</param>
+        /// <param name="controller">The WPF controller to inject dependency components.</param>
         void Inject(object controller);
     }
 }

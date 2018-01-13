@@ -32,7 +32,7 @@ namespace Fievus.Windows.Mvc.Bindings
         public event PropertyValueChangingEventHandler<T> PropertyValueChanging;
 
         /// <summary>
-        /// Occurs after a propert value changes.
+        /// Occurs after a property value changes.
         /// </summary>
         public event PropertyValueChangedEventHandler<T> PropertyValueChanged;
 
@@ -47,6 +47,9 @@ namespace Fievus.Windows.Mvc.Bindings
         public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
 
         private static readonly PropertyChangedEventArgs valueChangedEventArgs = new PropertyChangedEventArgs(nameof(Value));
+        private static readonly PropertyChangedEventArgs hasErrorsChangedEventArgs = new PropertyChangedEventArgs(nameof(HasErrors));
+        private static readonly PropertyChangedEventArgs errorChangedEventArgs = new PropertyChangedEventArgs(nameof(Error));
+        private static readonly PropertyChangedEventArgs errorsChangedEventArgs = new PropertyChangedEventArgs(nameof(Errors));
 
         private IEnumerable<string> validationErrors = Enumerable.Empty<string>();
         private IEnumerable<ValidationAttribute> validations = Enumerable.Empty<ValidationAttribute>();
@@ -98,10 +101,15 @@ namespace Fievus.Windows.Mvc.Bindings
         public virtual string Error => string.Join(Environment.NewLine, validationErrors.ToList());
 
         /// <summary>
+        /// Gets an enumerable of error messages indicating what is wrong with this object.
+        /// </summary>
+        public virtual IEnumerable<string> Errors => new ReadOnlyCollection<string>(validationErrors.ToList());
+
+        /// <summary>
         /// Gets the error message for the property with the given name.
         /// </summary>
         /// <param name="columnName">The name of the property whose error message to get.</param>
-        /// <returns>The error message for the property. The default is an empty string.</returns>
+        /// <returns>The error message for the property. The default value is an empty string.</returns>
         protected virtual string this[string columnName] => Error;
 
         /// <summary>
@@ -134,6 +142,9 @@ namespace Fievus.Windows.Mvc.Bindings
         /// </summary>
         /// <param name="selector">The selector of the property to validate.</param>
         /// <returns>The instance of the <see cref="ObservableProperty{T}"/> class.</returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="selector"/> is <c>null</c>.
+        /// </exception>
         public ObservableProperty<T> EnableValidation(Expression<Func<ObservableProperty<T>>> selector)
             => EnableValidation(selector.RequireNonNull(nameof(selector)), false);
 
@@ -142,7 +153,7 @@ namespace Fievus.Windows.Mvc.Bindings
         /// </summary>
         /// <param name="selector">The selector of the property to validate.</param>
         /// <param name="cancelValueChangedIfInvalid">
-        /// <c>true</c> if the change of the proprty value is cancelled; otherwise <c>false</c>.
+        /// <c>true</c> if the change of the property value is cancelled; otherwise <c>false</c>.
         /// </param>
         /// <returns>The instance of the <see cref="ObservableProperty{T}"/> class.</returns>
         /// <exception cref="ArgumentNullException">
@@ -150,13 +161,15 @@ namespace Fievus.Windows.Mvc.Bindings
         /// </exception>
         public ObservableProperty<T> EnableValidation(Expression<Func<ObservableProperty<T>>> selector, bool cancelValueChangedIfInvalid)
         {
+            selector.RequireNonNull(nameof(selector));
+
             DisableValidation();
 
-            var memberExpression = selector.RequireNonNull(nameof(selector)).Body as MemberExpression;
-            if (memberExpression == null) { throw new ArgumentException(); }
+            var memberExpression = selector.Body as MemberExpression;
+            if (memberExpression == null) { throw new ArgumentException("The body of the selector must be MemberExpression."); }
 
             var property = memberExpression.Member as PropertyInfo;
-            if (property == null) { throw new ArgumentException(); }
+            if (property == null) { throw new ArgumentException("The member of the body of the selector must be PropertyInfo."); }
 
             Validation.Enable();
             validations = property.GetCustomAttributes<ValidationAttribute>(true);
@@ -174,7 +187,7 @@ namespace Fievus.Windows.Mvc.Bindings
         public ObservableProperty<T> DisableValidation()
         {
             PropertyValueValidate -= OnPropertyValueValidate;
-            validationErrors = Enumerable.Empty<string>();
+            ClearValidationErrors();
             validations = Enumerable.Empty<ValidationAttribute>();
             assignedPropertyName = null;
             displayName = null;
@@ -216,7 +229,7 @@ namespace Fievus.Windows.Mvc.Bindings
         {
             source.RequireNonNull(nameof(source));
             converter.RequireNonNull(nameof(converter));
-            if (bindingSources.Any(s => s.IsAlive)) { throw new InvalidOperationException(); }
+            if (bindingSources.Any(s => s.IsAlive)) { throw new InvalidOperationException("The property has already bound another property."); }
 
             bindingSources.Add(new BindingSourceContext(source, (s, e) =>
             {
@@ -243,11 +256,14 @@ namespace Fievus.Windows.Mvc.Bindings
         /// <exception cref="ArgumentNullException">
         /// <paramref name="sources"/> is <c>null</c>.
         /// </exception>
+        /// <exception cref="InvalidOperationException">
+        /// The property has already bound another property.
+        /// </exception>
         public void Bind(Func<MultiBindingContext, T> converter, params INotifyPropertyChanged[] sources)
         {
             converter.RequireNonNull(nameof(converter));
             sources.RequireNonNull(nameof(sources));
-            if (bindingSources.Any()) { throw new InvalidOperationException(); }
+            if (bindingSources.Any()) { throw new InvalidOperationException("The property has already bound another property."); }
 
             var context = new MultiBindingContext(sources);
             bindingSources.AddRange(sources.Select(observable => new BindingSourceContext(observable, (s, e) =>
@@ -269,7 +285,7 @@ namespace Fievus.Windows.Mvc.Bindings
         /// </exception>
         public void Unbind()
         {
-            if (!bindingSources.Any()) { throw new InvalidOperationException(); }
+            if (!bindingSources.Any()) { throw new InvalidOperationException("The property has not bound a property yet."); }
 
             bindingSources.ForEach(source => source.Unregister(this));
             bindingSources.Clear();
@@ -277,9 +293,9 @@ namespace Fievus.Windows.Mvc.Bindings
 
         /// <summary>
         /// Binds the specified observable property to update the other when
-        /// either the property value is changed.
+        /// either property value is changed.
         /// </summary>
-        /// <param name="source">The observable property that is boud.</param>
+        /// <param name="source">The observable property that is bound.</param>
         /// <exception cref="ArgumentNullException">
         /// <paramref name="source"/> is <c>null</c>.
         /// </exception>
@@ -289,7 +305,7 @@ namespace Fievus.Windows.Mvc.Bindings
         public void BindTwoWay(ObservableProperty<T> source)
         {
             source.RequireNonNull(nameof(source));
-            if (bindingSources.Any(s => s.IsAlive)) { throw new InvalidOperationException(); }
+            if (bindingSources.Any(s => s.IsAlive)) { throw new InvalidOperationException("The property has already bound another property."); }
 
             Bind(source);
             source.Bind(this);
@@ -308,7 +324,7 @@ namespace Fievus.Windows.Mvc.Bindings
         public void UnbindTwoWay(ObservableProperty<T> source)
         {
             source.RequireNonNull(nameof(source));
-            if (!bindingSources.Any()) { throw new InvalidOperationException(); }
+            if (!bindingSources.Any()) { throw new InvalidOperationException("The property has not bound a property yet."); }
 
             source.Unbind();
             Unbind();
@@ -372,11 +388,11 @@ namespace Fievus.Windows.Mvc.Bindings
 
             if (validationErrors.IsEmpty())
             {
-                ClearValiationError();
+                ClearValidationErrors();
             }
             else
             {
-                SetValidationError(validationErrors);
+                SetValidationErrors(validationErrors);
             }
         }
 
@@ -384,23 +400,29 @@ namespace Fievus.Windows.Mvc.Bindings
         /// Sets the specified validation errors.
         /// </summary>
         /// <param name="validationErrors">The validation errors to set.</param>
-        protected virtual void SetValidationError(IEnumerable<string> validationErrors)
+        protected virtual void SetValidationErrors(IEnumerable<string> validationErrors)
         {
             this.validationErrors = validationErrors;
             OnErrorsChanged(new DataErrorsChangedEventArgs(valueChangedEventArgs.PropertyName));
+            OnPropertyChanged(hasErrorsChangedEventArgs);
+            OnPropertyChanged(errorChangedEventArgs);
+            OnPropertyChanged(errorsChangedEventArgs);
         }
 
         /// <summary>
         /// Clears validation errors.
         /// </summary>
-        protected virtual void ClearValiationError()
+        protected virtual void ClearValidationErrors()
         {
             validationErrors = Enumerable.Empty<string>();
             OnErrorsChanged(new DataErrorsChangedEventArgs(valueChangedEventArgs.PropertyName));
+            OnPropertyChanged(hasErrorsChangedEventArgs);
+            OnPropertyChanged(errorChangedEventArgs);
+            OnPropertyChanged(errorsChangedEventArgs);
         }
 
         /// <summary>
-        /// Gets the validation errors for a specified property.
+        /// Gets the validation errors for the specified property.
         /// </summary>
         /// <param name="propertyName">
         /// The name of the property to retrieve validation errors for; or <c>null</c> or

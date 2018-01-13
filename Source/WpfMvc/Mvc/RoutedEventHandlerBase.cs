@@ -51,11 +51,11 @@ namespace Fievus.Windows.Mvc
         }
 
         /// <summary>
-        /// Gets event handlers by the specified name of the element.
+        /// Gets an executor that raises a routed event for the specified name of the element.
         /// </summary>
-        /// <param name="elementName">The name of the element that has event handlers.</param>
+        /// <param name="elementName">The name of the element that has routed event handlers.</param>
         /// <returns>
-        /// <see cref="Executor"/> that raises routed event.
+        /// <see cref="Executor"/> that raises a routed event.
         /// </returns>
         public Executor GetBy(string elementName) => new Executor(items.Where(i => i.Has(elementName)));
 
@@ -70,7 +70,7 @@ namespace Fievus.Windows.Mvc
         public void UnregisterRoutedEventHandler() => items.ForEach(i => i.UnregisterRoutedEventHandler());
 
         /// <summary>
-        /// Provides routed events execution functions.
+        /// Provides a routed event execution.
         /// </summary>
         public sealed class Executor
         {
@@ -92,9 +92,9 @@ namespace Fievus.Windows.Mvc
             }
 
             /// <summary>
-            /// Sets the object where the event handler is attached.
+            /// Sets the object where the routed event handler is attached.
             /// </summary>
-            /// <param name="sender">The object where the event handler is attached.</param>
+            /// <param name="sender">The object where the routed event handler is attached.</param>
             /// <returns>
             /// The instance of the <see cref="Executor"/> class.
             /// </returns>
@@ -128,6 +128,7 @@ namespace Fievus.Windows.Mvc
             /// Raises the routed event of the specified name asynchronously.
             /// </summary>
             /// <param name="routedEventName">The name of the routed event.</param>
+            /// <returns>A task that represents the asynchronous raise operation.</returns>
             public async Task RaiseAsync(string routedEventName)
             {
                 foreach (var item in items)

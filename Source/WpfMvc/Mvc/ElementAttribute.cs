@@ -7,7 +7,7 @@ using System;
 namespace Fievus.Windows.Mvc
 {
     /// <summary>
-    /// Specifies the target to inject an element
+    /// Specifies the target to inject an element.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
     public class ElementAttribute : Attribute

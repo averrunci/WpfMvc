@@ -225,7 +225,8 @@ namespace Fievus.Windows.Mvc
                 .Where(t => t.Attribute != null)
                 .ForEach(t => {
                     var element = rootElement.FindElement<object>(t.Attribute.Name ?? t.Field.Name);
-                    if (!foundElementOnly || element != null) {
+                    if (!foundElementOnly || element != null)
+                    {
                         t.Field.SetValue(controller, element);
                     }
                 });
