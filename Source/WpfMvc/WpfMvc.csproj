@@ -50,6 +50,7 @@
     <Compile Include="Mvc\CommandHandlerExtension.cs" />
     <Compile Include="Mvc\DataContextAttribute.cs" />
     <Compile Include="Mvc\ElementAttribute.cs" />
+    <Compile Include="Mvc\RoutedEventHandlerAction.cs" />
     <Compile Include="Mvc\FrameworkElements.cs" />
     <Compile Include="Mvc\IWpfControllerExtension.cs" />
     <Compile Include="Mvc\IWpfControllerFactory.cs" />
