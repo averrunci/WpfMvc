@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016-2017 Fievus
+﻿// Copyright (C) 2016-2018 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
@@ -412,6 +412,72 @@ namespace Fievus.Windows.Mvc.Bindings.ObservablePropertyTest
             {
                 var property1 = ObservableProperty<string>.Of("Test1");
                 var property2 = ObservableProperty<string>.Of("Test2");
+
+                Assert.Throws<InvalidOperationException>(() => property1.UnbindTwoWay(property2));
+            }
+        }
+
+        [TestFixture]
+        public class TwoWayWithConverter
+        {
+            [Test]
+            public void BindsSpecifiedObservablePropertyWithConverterAsTwoWay()
+            {
+                var property1 = ObservableProperty<string>.Of("8");
+                var property2 = ObservableProperty<int>.Of(3);
+
+                property1.BindTwoWay(property2, p => p.ToString(), p => int.Parse(p));
+                Assert.That(property1.Value, Is.EqualTo("3"));
+                Assert.That(property2.Value, Is.EqualTo(3));
+
+                property2.Value = 7;
+                Assert.That(property1.Value, Is.EqualTo("7"));
+                Assert.That(property2.Value, Is.EqualTo(7));
+
+                property1.Value = "10";
+                Assert.That(property1.Value, Is.EqualTo("10"));
+                Assert.That(property2.Value, Is.EqualTo(10));
+            }
+
+            [Test]
+            public void UnbindsBoundObservablePropertyWithConverterAsTwoWay()
+            {
+                var property1 = ObservableProperty<string>.Of("8");
+                var property2 = ObservableProperty<int>.Of(3);
+
+                property1.BindTwoWay(property2, p => p.ToString(), p => int.Parse(p));
+                Assert.That(property1.Value, Is.EqualTo("3"));
+                Assert.That(property2.Value, Is.EqualTo(3));
+
+                property1.UnbindTwoWay(property2);
+
+                property2.Value = 7;
+                Assert.That(property1.Value, Is.EqualTo("3"));
+                Assert.That(property2.Value, Is.EqualTo(7));
+
+                property1.Value = "Test";
+                Assert.That(property1.Value, Is.EqualTo("Test"));
+                Assert.That(property2.Value, Is.EqualTo(7));
+            }
+
+            [Test]
+            public void ThrowsExceptionWhenObservablePropertyWhichIsBoundBindWithConverterAsTwoWay()
+            {
+                var property1 = ObservableProperty<string>.Of("8");
+                var property2 = ObservableProperty<int>.Of(3);
+
+                property1.BindTwoWay(property2, p => p.ToString(), p => int.Parse(p));
+
+                Assert.Throws<InvalidOperationException>(() =>
+                    property1.BindTwoWay(ObservableProperty<int>.Of(8), p => p.ToString(), p => int.Parse(p))
+                );
+            }
+
+            [Test]
+            public void ThrowsExceptionWhenObservablePropertyWhichIsNotBoundUnbindWithConverterAsTwoWay()
+            {
+                var property1 = ObservableProperty<string>.Of("8");
+                var property2 = ObservableProperty<int>.Of(3);
 
                 Assert.Throws<InvalidOperationException>(() => property1.UnbindTwoWay(property2));
             }

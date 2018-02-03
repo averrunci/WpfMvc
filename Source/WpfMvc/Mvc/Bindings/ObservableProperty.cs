@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016-2017 Fievus
+﻿// Copyright (C) 2016-2018 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
@@ -312,8 +312,43 @@ namespace Fievus.Windows.Mvc.Bindings
         }
 
         /// <summary>
+        /// Binds the specified observable property to update the other when
+        /// either property value is changed with the specified converter
+        /// that converts the property value from the source observable property value to
+        /// the target observable property value and converts it from the target observable
+        /// property value back to the source observable property value.
+        /// </summary>
+        /// <typeparam name="E">The type of the value of the observable property.</typeparam>
+        /// <param name="source">The observable property that is bound.</param>
+        /// <param name="converter">The converter that converts the source property value to the target property value.</param>
+        /// <param name="backConverter">The converter that converts the target value back to the source property value.</param>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="source"/> is <c>null</c>.
+        /// </exception>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="converter"/> is <c>null</c>.
+        /// </exception>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="backConverter"/> is <c>null</c>.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">
+        /// The property has already bound another property.
+        /// </exception>
+        public void BindTwoWay<E>(ObservableProperty<E> source, Func<E, T> converter, Func<T, E> backConverter)
+        {
+            source.RequireNonNull(nameof(source));
+            converter.RequireNonNull(nameof(converter));
+            backConverter.RequireNonNull(nameof(backConverter));
+            if (bindingSources.Any()) { throw new InvalidOperationException("The property has already bound another property."); }
+
+            Bind(source, converter);
+            source.Bind(this, backConverter);
+        }
+
+        /// <summary>
         /// Unbinds the specified observable property.
         /// </summary>
+        /// <typeparam name="E">The type of the value of the observable property.</typeparam>
         /// <param name="source">The observable property that is unbound.</param>
         /// <exception cref="ArgumentNullException">
         /// <paramref name="source"/> is <c>null</c>.
@@ -321,7 +356,7 @@ namespace Fievus.Windows.Mvc.Bindings
         /// <exception cref="InvalidOperationException">
         /// The property has not bound a property yet.
         /// </exception>
-        public void UnbindTwoWay(ObservableProperty<T> source)
+        public void UnbindTwoWay<E>(ObservableProperty<E> source)
         {
             source.RequireNonNull(nameof(source));
             if (!bindingSources.Any()) { throw new InvalidOperationException("The property has not bound a property yet."); }
