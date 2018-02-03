@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016-2017 Fievus
+﻿// Copyright (C) 2016-2018 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
@@ -36,6 +36,11 @@ namespace Fievus.Windows.Mvc
             set { factory = value.RequireNonNull(nameof(value)); }
         }
         private static IWpfControllerFactory factory = new SimpleWpfControllerFactory();
+
+        /// <summary>
+        /// Gets or sets the injector of elements.
+        /// </summary>
+        public static IElementInjector ElementInjector { get; set; } = new ElementInjector();
 
         /// <summary>
         /// Gets or sets the type of WPF controller.
@@ -217,48 +222,8 @@ namespace Fievus.Windows.Mvc
         /// </param>
         public static void SetElement(FrameworkElement rootElement, object controller, bool foundElementOnly = false)
         {
-            if (controller == null) { return; }
-
-            controller.GetType()
-                .GetFields(contextBindingFlags)
-                .Select(Field => new { Field, Attribute = Field.GetCustomAttribute<ElementAttribute>(true) })
-                .Where(t => t.Attribute != null)
-                .ForEach(t => {
-                    var element = rootElement.FindElement<object>(t.Attribute.Name ?? t.Field.Name);
-                    if (!foundElementOnly || element != null)
-                    {
-                        t.Field.SetValue(controller, element);
-                    }
-                });
-            controller.GetType()
-                .GetProperties(contextBindingFlags)
-                .Select(Property => new { Property, Attribute = Property.GetCustomAttribute<ElementAttribute>(true) })
-                .Where(t => t.Attribute != null)
-                .ForEach(t =>
-                {
-                    var element = rootElement.FindElement<object>(t.Attribute.Name ?? t.Property.Name);
-                    if (!foundElementOnly || element != null)
-                    {
-                        t.Property.SetValue(controller, element, null);
-                    }
-                });
-            controller.GetType()
-                .GetMethods(contextBindingFlags)
-                .Select(Method => new { Method, Attribute = Method.GetCustomAttribute<ElementAttribute>(true) })
-                .Where(t => t.Attribute != null)
-                .ForEach(t =>
-                {
-                    var element = rootElement.FindElement<object>(ResolveElementMethodName(t.Method, t.Attribute));
-                    if (!foundElementOnly || element != null)
-                    {
-                        t.Method.Invoke(controller, new object[] { element });
-                    }
-                });
+            ElementInjector?.Inject(rootElement, controller, foundElementOnly);
         }
-
-        private static string ResolveElementMethodName(MethodInfo m, ElementAttribute a)
-            => a.Name ?? (m.Name.StartsWith("Set") ? m.Name.Substring(3) : m.Name);
-
 
         private static void ElementOnInitialized(object sender, EventArgs e)
         {
