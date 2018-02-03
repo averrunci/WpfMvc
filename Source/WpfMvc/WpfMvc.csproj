@@ -51,6 +51,7 @@
     <Compile Include="Mvc\DataContextAttribute.cs" />
     <Compile Include="Mvc\DataContextInjector.cs" />
     <Compile Include="Mvc\ElementAttribute.cs" />
+    <Compile Include="Mvc\ElementInjectionException.cs" />
     <Compile Include="Mvc\ElementInjector.cs" />
     <Compile Include="Mvc\IDataContextInjector.cs" />
     <Compile Include="Mvc\IElementInjector.cs" />

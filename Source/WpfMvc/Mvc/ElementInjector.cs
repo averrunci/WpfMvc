@@ -3,6 +3,7 @@
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
 
+using System;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
@@ -35,10 +36,11 @@ namespace Fievus.Windows.Mvc
                 .Where(t => t.Attribute != null)
                 .ForEach(t =>
                 {
-                    var element = rootElement.FindElement<object>(t.Attribute.Name ?? t.Field.Name);
+                    var elementName = t.Attribute.Name ?? t.Field.Name;
+                    var element = FindElement<object>(rootElement, elementName);
                     if (!foundElementOnly || element != null)
                     {
-                        t.Field.SetValue(controller, element);
+                        SetElement(elementName, controller, () => t.Field.SetValue(controller, element));
                     }
                 });
 
@@ -59,10 +61,11 @@ namespace Fievus.Windows.Mvc
                 .Where(t => t.Attribute != null)
                 .ForEach(t =>
                 {
-                    var element = rootElement.FindElement<object>(t.Attribute.Name ?? t.Property.Name);
+                    var elementName = t.Attribute.Name ?? t.Property.Name;
+                    var element = FindElement<object>(rootElement, elementName);
                     if (!foundElementOnly || element != null)
                     {
-                        t.Property.SetValue(controller, element, null);
+                        SetElement(elementName, controller, () => t.Property.SetValue(controller, element, null));
                     }
                 });
         }
@@ -84,10 +87,11 @@ namespace Fievus.Windows.Mvc
                 .Where(t => t.Attribute != null)
                 .ForEach(t =>
                 {
-                    var element = FindElement<object>(rootElement, ResolveElementMethodName(t.Method, t.Attribute));
+                    var elementName = ResolveElementMethodName(t.Method, t.Attribute);
+                    var element = FindElement<object>(rootElement, elementName);
                     if (!foundElementOnly || element != null)
                     {
-                        t.Method.Invoke(controller, new object[] { element });
+                        SetElement(elementName, controller, () => t.Method.Invoke(controller, new object[] { element }));
                     }
                 });
         }
@@ -115,6 +119,24 @@ namespace Fievus.Windows.Mvc
         /// </returns>
         protected virtual string ResolveElementMethodName(MethodInfo m, ElementAttribute a)
             => a.Name ?? (m.Name.StartsWith("Set") ? m.Name.Substring(3) : m.Name);
+
+        /// <summary>
+        /// Sets the element of the specified name using the specified action.
+        /// </summary>
+        /// <param name="elementName">The name of the element.</param>
+        /// <param name="controller">The WPF controller to inject the element.</param>
+        /// <param name="action">The action that set the element.</param>
+        protected void SetElement(string elementName, object controller, Action action)
+        {
+            try
+            {
+                action();
+            }
+            catch (Exception exc)
+            {
+                throw new ElementInjectionException($"The injetion of {elementName} to {controller.GetType()} is failed.", exc);
+            }
+        }
 
         void IElementInjector.Inject(FrameworkElement rootElement, object controller, bool foundElementOnly)
         {
