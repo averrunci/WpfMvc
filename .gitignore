@@ -3,3 +3,4 @@ Binary/
 bin/
 obj/
 packages/
+*.nupkg
