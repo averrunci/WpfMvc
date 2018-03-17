@@ -1,5 +1,19 @@
 # Release note
 
+## V1.4.0
+
+### Add
+
+ - Add BindTwoWay method with converters that convert the value from/to the source value.
+ - Add IElementInjector that injects elements in a target element to the WPF controller.
+ - Add IDataContextInjector that injects a data context to the WPF controller.
+ - Add ElementInjectionException that is thrown when an element injection is failed.
+ - Add DataContextInjectionException that is thrown when a data context injection is failed.
+
+### Changes
+
+- Change RoutedEventHandlerAction class from a nested class to an independent class.
+
 ## v1.3.1
 
 ### Changes
