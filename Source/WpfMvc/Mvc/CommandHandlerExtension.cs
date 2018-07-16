@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016-2017 Fievus
+﻿// Copyright (C) 2018 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
@@ -9,7 +9,7 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
 
-namespace Fievus.Windows.Mvc
+namespace Charites.Windows.Mvc
 {
     /// <summary>
     /// Represents an extension to handle a command event.
@@ -22,24 +22,22 @@ namespace Fievus.Windows.Mvc
             "ShadowCommandHandlerBases", typeof(IDictionary<object, CommandHandlerBase>), typeof(CommandHandlerExtension), new PropertyMetadata(null)
         );
 
-        void IWpfControllerExtension.Attach(FrameworkElement element, object controller)
+        void IControllerExtension<FrameworkElement>.Attach(object controller, FrameworkElement element)
         {
-            if (element == null || controller == null) { return; }
+            if (element == null || controller == null) return;
 
-            RetrieveCommandHandlers(element, controller).RegisterCommandHandler();
+            RetrieveCommandHandlers(element, controller).AddCommandHandler();
         }
 
-        void IWpfControllerExtension.Detach(FrameworkElement element, object controller)
+        void IControllerExtension<FrameworkElement>.Detach(object controller, FrameworkElement element)
         {
-            if (element == null || controller == null) { return; }
+            if (element == null || controller == null) return;
 
-            RetrieveCommandHandlers(element, controller).UnregisterCommandHandler();
+            RetrieveCommandHandlers(element, controller).RemoveCommandHandler();
         }
 
-        object IWpfControllerExtension.Retrieve(object controller)
-        {
-            return controller == null ? new CommandHandlerBase() : RetrieveCommandHandlers(null, controller);
-        }
+        object IControllerExtension<FrameworkElement>.Retrieve(object controller)
+            => controller == null ? new CommandHandlerBase() : RetrieveCommandHandlers(null, controller);
 
         private CommandHandlerBase RetrieveCommandHandlers(FrameworkElement rootElement, object controller)
         {
@@ -66,8 +64,7 @@ namespace Fievus.Windows.Mvc
         {
             if (rootElement == null) { return new Dictionary<object, CommandHandlerBase>(); }
 
-            var commandHandlerBases = rootElement.GetValue(CommandHandlerBasesProperty) as IDictionary<object, CommandHandlerBase>;
-            if (commandHandlerBases != null) { return commandHandlerBases; }
+            if (rootElement.GetValue(CommandHandlerBasesProperty) is IDictionary<object, CommandHandlerBase> commandHandlerBases) return commandHandlerBases;
 
             commandHandlerBases = new Dictionary<object, CommandHandlerBase>();
             rootElement.SetValue(CommandHandlerBasesProperty, commandHandlerBases);
@@ -75,23 +72,21 @@ namespace Fievus.Windows.Mvc
         }
 
         private Delegate CreateCommandHandler(Delegate @delegate)
-        {
-            return @delegate == null ? null : CreateCommandHandler(@delegate.Method, @delegate.Target);
-        }
+            => @delegate == null ? null : CreateCommandHandler(@delegate.Method, @delegate.Target);
 
         private Delegate CreateCommandHandler(MethodInfo method, object target)
         {
-            if (method == null) { return null; }
+            if (method == null) return null;
 
-            var paramters = method.GetParameters();
-            switch (paramters.Length)
+            var parameters = method.GetParameters();
+            switch (parameters.Length)
             {
                 case 1:
-                    if (paramters[0].ParameterType == typeof(ExecutedRoutedEventArgs))
+                    if (parameters[0].ParameterType == typeof(ExecutedRoutedEventArgs))
                     {
                         return CreateCommandHandler<ExecutedRoutedEventArgs, ExecutedRoutedEventHandler>(method, target);
                     }
-                    else if (paramters[0].ParameterType == typeof(CanExecuteRoutedEventArgs))
+                    else if (parameters[0].ParameterType == typeof(CanExecuteRoutedEventArgs))
                     {
                         return CreateCommandHandler<CanExecuteRoutedEventArgs, CanExecuteRoutedEventHandler>(method, target);
                     }
@@ -100,11 +95,11 @@ namespace Fievus.Windows.Mvc
                         throw new InvalidOperationException($"The type of the parameter must be {typeof(ExecutedRoutedEventArgs)} or {typeof(CanExecuteRoutedEventArgs)}.");
                     }
                 case 2:
-                    if (paramters[1].ParameterType == typeof(ExecutedRoutedEventArgs))
+                    if (parameters[1].ParameterType == typeof(ExecutedRoutedEventArgs))
                     {
                         return CreateCommandHandler<ExecutedRoutedEventArgs, ExecutedRoutedEventHandler>(method, target);
                     }
-                    else if (paramters[1].ParameterType == typeof(CanExecuteRoutedEventArgs))
+                    else if (parameters[1].ParameterType == typeof(CanExecuteRoutedEventArgs))
                     {
                         return CreateCommandHandler<CanExecuteRoutedEventArgs, CanExecuteRoutedEventHandler>(method, target);
                     }
@@ -117,44 +112,41 @@ namespace Fievus.Windows.Mvc
             }
         }
         
-        private Delegate CreateCommandHandler<E, H>(MethodInfo method, object target) where E : RoutedEventArgs
+        private Delegate CreateCommandHandler<TRoutedEventArgs, THandler>(MethodInfo method, object target) where TRoutedEventArgs : RoutedEventArgs
         {
-            var action = new RoutedEventHandlerAction<E>(method, target);
-            return action?.GetType()
-                .GetMethod(nameof(RoutedEventHandlerAction<E>.OnHandled))
-                .CreateDelegate(typeof(H), action);
+            var action = new RoutedEventHandlerAction<TRoutedEventArgs>(method, target);
+            return action.GetType()
+                .GetMethod(nameof(RoutedEventHandlerAction<TRoutedEventArgs>.OnHandled))
+                ?.CreateDelegate(typeof(THandler), action);
         }
 
         public class RoutedEventHandlerAction<T> where T : RoutedEventArgs
         {
-            private MethodInfo Method { get; }
-            private object Target { get; }
+            private readonly MethodInfo method;
+            private readonly object target;
 
             public RoutedEventHandlerAction(MethodInfo method, object target)
             {
-                Target = target;
-                Method = method;
+                this.target = target;
+                this.method = method;
             }
 
             public void OnHandled(object sender, T e) => Handle(sender, e);
 
             public object Handle(object sender, T e)
             {
-                switch (Method.GetParameters().Length)
+                switch (method.GetParameters().Length)
                 {
-                    case 1:
-                        return Method.Invoke(Target, new object[] { e });
-                    case 2:
-                        return Method.Invoke(Target, new object[] { sender, e });
-                    default:
-                        throw new InvalidOperationException("The length of the method parameters must be 1 or 2.");
+                    case 1: return method.Invoke(target, new object[] { e });
+                    case 2: return method.Invoke(target, new[] { sender, e });
+                    default: throw new InvalidOperationException("The length of the method parameters must be 1 or 2.");
                 }
             }
         }
 
         private void AddCommandHandlers(MemberInfo member, FrameworkElement rootElement, Delegate handler, CommandHandlerBase commandHandlers)
         {
-            if (commandHandlers == null) { return; }
+            if (commandHandlers == null) return;
 
             member.GetCustomAttributes<CommandHandlerAttribute>(true)
                 .ForEach(commandHandler =>
@@ -170,27 +162,21 @@ namespace Fievus.Windows.Mvc
 
         private void AddCommandHandler(string commandName, ICommand command, FrameworkElement rootElement, Delegate handler, CommandHandlerBase commandHandlers)
         {
-            (handler as ExecutedRoutedEventHandler).IfPresent(executedHandler =>
-                commandHandlers.Add(commandName, command, rootElement, executedHandler));
-            (handler as CanExecuteRoutedEventHandler).IfPresent(canExecuteHandler =>
-                commandHandlers.Add(commandName, command, rootElement, canExecuteHandler));
+            (handler as ExecutedRoutedEventHandler).IfPresent(executedHandler => commandHandlers.Add(commandName, command, rootElement, executedHandler));
+            (handler as CanExecuteRoutedEventHandler).IfPresent(canExecuteHandler => commandHandlers.Add(commandName, command, rootElement, canExecuteHandler));
         }
 
         private IEnumerable<ICommand> FindCommand(DependencyObject element, string commandName)
         {
-            if (element == null) { yield break; }
+            if (element == null) yield break;
 
             foreach (var child in LogicalTreeHelper.GetChildren(element))
             {
                 var childElement = child as DependencyObject;
                 if (childElement == null) { yield break; }
 
-                var commandProperty = childElement.GetType().GetProperties().Where(p => typeof(ICommand).IsAssignableFrom(p.PropertyType)).FirstOrDefault();
-                if (commandProperty != null)
-                {
-                    var command = commandProperty.GetValue(child) as RoutedCommand;
-                    if (command != null && command.Name == commandName) { yield return command; }
-                }
+                var commandProperty = childElement.GetType().GetProperties().FirstOrDefault(p => typeof(ICommand).IsAssignableFrom(p.PropertyType));
+                if (commandProperty != null && commandProperty.GetValue(child) is RoutedCommand routedCommand && routedCommand.Name == commandName) yield return routedCommand;
 
                 foreach (var command in FindCommand(childElement, commandName))
                 {

@@ -1,15 +1,14 @@
-﻿// Copyright (C) 2016 Fievus
+﻿// Copyright (C) 2018 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Windows.Threading;
 
-namespace Fievus.Windows.Mvc.Bindings
+namespace Charites.Windows.Mvc.Bindings
 {
     /// <summary>
     /// Represents a synchronization dynamic data collection that provides notifications
@@ -57,14 +56,13 @@ namespace Fievus.Windows.Mvc.Bindings
             using (BlockReentrancy())
             {
                 var eventHandler = CollectionChanged;
-                if (eventHandler == null) { return; }
+                if (eventHandler == null) return;
 
                 eventHandler.GetInvocationList()
                     .OfType<NotifyCollectionChangedEventHandler>()
                     .ForEach(handler =>
                     {
-                        var dispatcherObject = handler.Target as DispatcherObject;
-                        if (dispatcherObject == null || dispatcherObject.CheckAccess())
+                        if (!(handler.Target is DispatcherObject dispatcherObject) || dispatcherObject.CheckAccess())
                         {
                             handler(this, e);
                         }

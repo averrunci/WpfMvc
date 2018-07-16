@@ -1,14 +1,13 @@
-// Copyright (C) 2017 Fievus
+// Copyright (C) 2018 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Charites.Windows.Mvc.Bindings;
 
-using Fievus.Windows.Mvc.Bindings;
-
-namespace Fievus.Windows.Samples.SimpleTodo.Contents
+namespace Charites.Windows.Samples.SimpleTodo.Contents
 {
     public class MainContent
     {
@@ -18,7 +17,7 @@ namespace Fievus.Windows.Samples.SimpleTodo.Contents
         public ObservableProperty<string> TodoContent { get; } = string.Empty.ToObservableProperty();
 
         public SynchronizationObservableCollection<TodoItem> TodoItems { get; } = new SynchronizationObservableCollection<TodoItem>();
-        private List<TodoItem> todoItems = new List<TodoItem>();
+        private readonly List<TodoItem> todoItems = new List<TodoItem>();
 
         public ObservableProperty<string> ItemsLeftMessage { get; } = string.Empty.ToObservableProperty();
 
@@ -59,8 +58,7 @@ namespace Fievus.Windows.Samples.SimpleTodo.Contents
 
         private void OnTodoItemRemoveRequested(object sender, EventArgs e)
         {
-            var removedTodoItem = sender as TodoItem;
-            if (removedTodoItem == null) { return; }
+            if (!(sender is TodoItem removedTodoItem)) return;
 
             removedTodoItem.RemoveRequested -= OnTodoItemRemoveRequested;
             removedTodoItem.State.PropertyValueChanged -= OnTodoItemStateChanged;
@@ -77,7 +75,7 @@ namespace Fievus.Windows.Samples.SimpleTodo.Contents
 
         private void UpdateAllTodoItemsState()
         {
-            if (!AllCompleted.Value.HasValue) { return; }
+            if (!AllCompleted.Value.HasValue) return;
 
             foreach (var item in todoItems)
             {
@@ -127,7 +125,7 @@ namespace Fievus.Windows.Samples.SimpleTodo.Contents
 
         private void UpdateItemsLeftMessage()
         {
-            var activeCount = todoItems.Where(i => i.State.Value == TodoItemState.Active).Count();
+            var activeCount = todoItems.Count(i => i.State.Value == TodoItemState.Active);
             ItemsLeftMessage.Value = $"{activeCount} item{(activeCount == 1 ? string.Empty : "s")} left";
         }
 

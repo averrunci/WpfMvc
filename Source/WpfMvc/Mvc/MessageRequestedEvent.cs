@@ -1,11 +1,11 @@
-﻿// Copyright (C) 2016 Fievus
+﻿// Copyright (C) 2018 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
 using System;
 using System.Windows;
 
-namespace Fievus.Windows.Mvc
+namespace Charites.Windows.Mvc
 {
     /// <summary>
     /// Raises a <see cref="FrameworkElements.MessageRequestedEvent"/> routed event.
@@ -74,11 +74,11 @@ namespace Fievus.Windows.Mvc
         }
 
         /// <summary>
-        /// Sets the <see cref="RoutedEvent"/> assosiated with the
+        /// Sets the <see cref="RoutedEvent"/> associated with the
         /// <see cref="RoutedEventArgs"/> instance.
         /// </summary>
         /// <param name="routedEvent">
-        /// The <see cref="RoutedEvent"/> assosiated with the
+        /// The <see cref="RoutedEvent"/> associated with the
         /// <see cref="RoutedEventArgs"/> instance.
         /// </param>
         /// <returns>
@@ -258,7 +258,7 @@ namespace Fievus.Windows.Mvc
 
         /// <summary>
         /// Sets the <see cref="MessageBoxResult.Cancel"/> value
-        /// taht is the default result of the message box.
+        /// that is the default result of the message box.
         /// </summary>
         /// <returns>
         /// The instance of the <see cref="MessageRequestedEvent"/> class.
@@ -336,7 +336,7 @@ namespace Fievus.Windows.Mvc
 
         /// <summary>
         /// Sets the <see cref="MessageBoxOptions.ServiceNotification"/> value
-        /// that is the special diaplay option for a message box.
+        /// that is the special display option for a message box.
         /// </summary>
         /// <returns>
         /// The instance of the <see cref="MessageRequestedEvent"/> class.

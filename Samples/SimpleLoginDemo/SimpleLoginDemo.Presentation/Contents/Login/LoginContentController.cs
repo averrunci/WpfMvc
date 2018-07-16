@@ -1,63 +1,64 @@
-﻿// Copyright (C) 2016 Fievus
+﻿// Copyright (C) 2018 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
-using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Charites.Windows.Samples.SimpleLoginDemo.Presentation.Properties;
+using Charites.Windows.Mvc;
 
-using Fievus.Windows.Mvc;
-
-using Ninject;
-
-using Fievus.Windows.Samples.SimpleLoginDemo.Presentation.Properties;
-
-namespace Fievus.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login
+namespace Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login
 {
+    [View(Key = nameof(LoginContent))]
     public class LoginContentController
     {
-        [Inject]
-        public IUserAuthentication UserAuthentication { get; set; }
+        private readonly IUserAuthentication userAuthentication;
 
         [DataContext]
-        public LoginContent Context { get; set; }
+        private LoginContent Content { get; set; }
 
         [Element]
-        public PasswordBox PasswordBox { get; set; }
+        private PasswordBox PasswordBox { get; set; }
 
-        [RoutedEventHandler(RoutedEvent = "Loaded")]
+        public LoginContentController(IUserAuthentication userAuthentication)
+        {
+            this.userAuthentication = userAuthentication;
+        }
+
+        [EventHandler(Event = nameof(FrameworkElement.Loaded))]
         private void Initialize()
         {
-            PasswordBox.PasswordChanged += (s, e) => { Context.Password.Value = PasswordBox.Password; };
+            PasswordBox.PasswordChanged += (s, e) => { Content.Password.Value = PasswordBox.Password; };
         }
 
-        [CommandHandler(CommandName = "Login")]
+        [CommandHandler(CommandName = nameof(SimpleLoginCommands.Login))]
         private void CanExecuteLogin(CanExecuteRoutedEventArgs e)
         {
-            e.CanExecute = !string.IsNullOrEmpty(Context.UserId.Value) && !string.IsNullOrEmpty(Context.Password.Value);
+            e.CanExecute = !string.IsNullOrEmpty(Content.UserId.Value) && !string.IsNullOrEmpty(Content.Password.Value);
         }
 
-        [CommandHandler(CommandName = "Login")]
+        [CommandHandler(CommandName = nameof(SimpleLoginCommands.Login))]
         private void ExecuteLogin(ExecutedRoutedEventArgs e)
         {
-            Context.Message.Value = string.Empty;
+            Content.Message.Value = string.Empty;
 
-            if (UserAuthentication == null)
+            if (userAuthentication == null)
             {
-                Context.Message.Value = Resources.LoginNotAvailable;
+                Content.Message.Value = Resources.LoginNotAvailable;
                 return;
             }
 
-            if (!Context.IsValid) { return; }
-
-            var result = UserAuthentication.Authenticate(Context.UserId.Value, Context.Password.Value);
+            if (!Content.IsValid) return;
+           
+            var result = userAuthentication.Authenticate(Content.UserId.Value, Content.Password.Value);
             if (result.Success)
             {
-                Context.Login();
+                Content.Login();
             }
             else
             {
-                Context.Message.Value = Resources.LoginFailureMessage;
+                Content.Message.Value = Resources.LoginFailureMessage;
             }
         }
     }

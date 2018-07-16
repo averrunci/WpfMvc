@@ -1,15 +1,13 @@
-﻿// Copyright (C) 2016 Fievus
+﻿// Copyright (C) 2018 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
 using System;
 using System.ComponentModel.DataAnnotations;
+using Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents.User;
+using Charites.Windows.Mvc.Bindings;
 
-using Fievus.Windows.Mvc.Bindings;
-
-using Fievus.Windows.Samples.SimpleLoginDemo.Presentation.Contents.User;
-
-namespace Fievus.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login
+namespace Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login
 {
     public class LoginContent : ILoginDemoContent
     {
@@ -44,7 +42,7 @@ namespace Fievus.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login
 
         public void Login()
         {
-            if (!IsValid) { return; }
+            if (!IsValid) return;
 
             OnContentChanging(new ContentChangingEventArgs(new UserContent(UserId.Value)));
         }

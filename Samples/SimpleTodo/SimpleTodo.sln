@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2035
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfMvc", "..\..\Source\WpfMvc\WpfMvc.csproj", "{711952B7-2B12-44F2-936A-BB7679E4EE72}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleTodo", "SimpleTodo\SimpleTodo.csproj", "{23C7A80E-B3BD-4510-9D44-EBFFA7211F21}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleTodo.Test", "SimpleTodo.Test\SimpleTodo.Test.csproj", "{FD2C55AF-E663-49B4-98CE-4542D05CCF4C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleTodo.Spec", "SimpleTodo.Spec\SimpleTodo.Spec.csproj", "{18D788A5-F269-418B-BD5C-A6EDF1D7437A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,8 +29,15 @@ Global
 		{FD2C55AF-E663-49B4-98CE-4542D05CCF4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FD2C55AF-E663-49B4-98CE-4542D05CCF4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FD2C55AF-E663-49B4-98CE-4542D05CCF4C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18D788A5-F269-418B-BD5C-A6EDF1D7437A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18D788A5-F269-418B-BD5C-A6EDF1D7437A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18D788A5-F269-418B-BD5C-A6EDF1D7437A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18D788A5-F269-418B-BD5C-A6EDF1D7437A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {676849EB-71C4-4B4A-8801-67E78FF688C4}
 	EndGlobalSection
 EndGlobal

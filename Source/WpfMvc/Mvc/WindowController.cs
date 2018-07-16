@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016 Fievus
+﻿// Copyright (C) 2018 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
@@ -6,29 +6,28 @@ using System;
 using System.Windows;
 using System.Windows.Media;
 
-namespace Fievus.Windows.Mvc
+namespace Charites.Windows.Mvc
 {
     /// <summary>
     /// Handles the <see cref="FrameworkElements.MessageRequestedEvent"/> and
     /// <see cref="FrameworkElements.WindowRequestedEvent"/> routed events.
     /// </summary>
+    [View(ViewType = typeof(Window))]
     public sealed class WindowController
     {
-        [RoutedEventHandler(RoutedEvent = "Loaded")]
+        [EventHandler(Event = "Loaded")]
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            var element = sender as FrameworkElement;
-            if (element == null) { return; }
+            if (!(sender is FrameworkElement element)) return;
 
             element.AddHandler(FrameworkElements.MessageRequestedEvent, new MessageRequestedEventHandler(OnMessageRequested));
             element.AddHandler(FrameworkElements.WindowRequestedEvent, new WindowRequestedEventHandler(OnWindowRequested));
         }
 
-        [RoutedEventHandler(RoutedEvent = "Unloaded")]
+        [EventHandler(Event = "Unloaded")]
         private void OnUnloaded(object sender, RoutedEventArgs e)
         {
-            var element = sender as FrameworkElement;
-            if (element == null) { return; }
+            if (!(sender is FrameworkElement element)) return;
 
             element.RemoveHandler(FrameworkElements.MessageRequestedEvent, new MessageRequestedEventHandler(OnMessageRequested));
             element.RemoveHandler(FrameworkElements.WindowRequestedEvent, new WindowRequestedEventHandler(OnWindowRequested));
@@ -37,7 +36,7 @@ namespace Fievus.Windows.Mvc
         private void OnMessageRequested(object sender, MessageRequestedEventArgs e)
         {
             var ownerWindow = FindWindowFrom(sender);
-            if (ownerWindow == null) { return; }
+            if (ownerWindow == null) return;
 
             e.Result = MessageBox.Show(ownerWindow, e.Message, e.Caption, e.Button, e.Icon, e.DefaultButton, e.Options);
         }
@@ -46,12 +45,11 @@ namespace Fievus.Windows.Mvc
         {
             var ownerWindow = FindWindowFrom(sender);
 
-            var window = Activator.CreateInstance(e.WindowType ?? (ownerWindow == null ? typeof(Window) : ownerWindow.GetType())) as Window;
-            if (window == null) { throw new InvalidOperationException(); }
+            if (!(Activator.CreateInstance(e.WindowType ?? (ownerWindow == null ? typeof(Window) : ownerWindow.GetType())) is Window window)) throw new InvalidOperationException();
 
             window.Content = e.Content;
             window.DataContext = e.DataContext;
-            if (e.OwnedWindow) { window.Owner = ownerWindow; }
+            if (e.OwnedWindow) window.Owner = ownerWindow;
             window.Style = e.Style;
             window.WindowStartupLocation = e.WindowStartupLocation;
             if (window.WindowStartupLocation == WindowStartupLocation.Manual)
@@ -76,8 +74,7 @@ namespace Fievus.Windows.Mvc
             var element = sender as DependencyObject;
             while (element != null)
             {
-                var ownerWindow = element as Window;
-                if (ownerWindow != null) { return ownerWindow; }
+                if (element is Window ownerWindow) return ownerWindow;
 
                 element = VisualTreeHelper.GetParent(element);
             }

@@ -1,4 +1,4 @@
-// Copyright (C) 2016-2017 Fievus
+// Copyright (C) 2018 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
@@ -6,13 +6,11 @@ using System;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Threading;
+using Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents;
+using Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login;
+using Charites.Windows.Mvc;
 
-using Fievus.Windows.Mvc;
-
-using Fievus.Windows.Samples.SimpleLoginDemo.Presentation.Contents;
-using Fievus.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login;
-
-namespace Fievus.Windows.Samples.SimpleLoginDemo
+namespace Charites.Windows.Samples.SimpleLoginDemo
 {
     public class SimpleLoginDemo : Application
     {
@@ -34,10 +32,7 @@ namespace Fievus.Windows.Samples.SimpleLoginDemo
         {
             Resources.MergedDictionaries.Add(new ResourceDictionary
             {
-                Source = new Uri(
-                    string.Format("/{0};component/Resources/{1}", Assembly.GetAssembly(typeof(MainContent)).FullName, resourceFileName),
-                    UriKind.Relative
-                )
+                Source = new Uri($"/{Assembly.GetAssembly(typeof(MainContent)).FullName};component/Resources/{resourceFileName}", UriKind.Relative)
             });
         }
 
@@ -49,12 +44,14 @@ namespace Fievus.Windows.Samples.SimpleLoginDemo
 
         private void SimpleLoginDemo_Startup(object sender, StartupEventArgs e)
         {
-            WpfController.Factory = new SimpleLoginDemoControllerFactory();
+            WpfController.ControllerFactory = new SimpleLoginDemoControllerFactory();
 
-            MainWindow = new Window();
-            MainWindow.Style = FindResource("MainWindowStyle") as Style;
-            MainWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-            MainWindow.DataContext = new MainContent(new LoginContent());
+            MainWindow = new Window
+            {
+                Style = FindResource("MainWindowStyle") as Style,
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                DataContext = new MainContent(new LoginContent())
+            };
             MainWindow.Show();
         }
     }

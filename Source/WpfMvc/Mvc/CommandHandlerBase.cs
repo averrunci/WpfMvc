@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016-2017 Fievus
+﻿// Copyright (C) 2018 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
-namespace Fievus.Windows.Mvc
+namespace Charites.Windows.Mvc
 {
     /// <summary>
     /// Represents the base of command handlers.
@@ -36,7 +36,7 @@ namespace Fievus.Windows.Mvc
         /// <param name="executedHandler">The command Executed handler.</param>
         public void Add(string commandName, ICommand command, FrameworkElement element, ExecutedRoutedEventHandler executedHandler)
         {
-            var item = items.Where(i => i.CommandName == commandName && i.Element == element).FirstOrDefault();
+            var item = items.FirstOrDefault(i => i.CommandName == commandName && i.Element == element);
             item.IfAbsent(() => items.Add(new Item(commandName, command, element, executedHandler)));
             item.IfPresent(_ => item.ExecutedHandler = executedHandler);
         }
@@ -50,7 +50,7 @@ namespace Fievus.Windows.Mvc
         /// <param name="canExecuteHandler">The command CanExecute handler.</param>
         public void Add(string commandName, ICommand command, FrameworkElement element, CanExecuteRoutedEventHandler canExecuteHandler)
         {
-            var item = items.Where(i => i.CommandName == commandName && i.Element == element).FirstOrDefault();
+            var item = items.FirstOrDefault(i => i.CommandName == commandName && i.Element == element);
             item.IfAbsent(() => items.Add(new Item(commandName, command, element, canExecuteHandler)));
             item.IfPresent(_ => item.CanExecuteHandler = canExecuteHandler);
         }
@@ -73,14 +73,14 @@ namespace Fievus.Windows.Mvc
         public Executor GetBy(string commandName) => new Executor(items.Where(i => i.CommandName == commandName));
 
         /// <summary>
-        /// Registers command handlers to the element.
+        /// Adds command handlers to the element.
         /// </summary>
-        public void RegisterCommandHandler() => items.ForEach(i => i.RegisterCommandHandler());
+        public void AddCommandHandler() => items.ForEach(i => i.AddCommandHandler());
 
         /// <summary>
-        /// Unregisters command handlers from the element.
+        /// Removes command handlers from the element.
         /// </summary>
-        public void UnregisterCommandHandler() => items.ForEach(i => i.UnregisterCommandHandler());
+        public void RemoveCommandHandler() => items.ForEach(i => i.RemoveCommandHandler());
 
         /// <summary>
         /// Provides command events execution functions.
@@ -147,7 +147,7 @@ namespace Fievus.Windows.Mvc
                 items.ForEach(item =>
                 {
                     var e = item.RaiseCanExecute(command, sender, parameter);
-                    if (e != null) { args.Add(e); }
+                    if (e != null) args.Add(e);
                 });
                 return args.AsReadOnly();
             }
@@ -176,7 +176,7 @@ namespace Fievus.Windows.Mvc
                 foreach (var item in items)
                 {
                     var e = await item.RaiseCanExecuteAsync(command, sender, parameter);
-                    if (e != null) { args.Add(e); }
+                    if (e != null) args.Add(e);
                 }
                 return args.AsReadOnly();
             }
@@ -243,21 +243,21 @@ namespace Fievus.Windows.Mvc
             }
 
             /// <summary>
-            /// Registers the command handler to the element.
+            /// Adds the command handler to the element.
             /// </summary>
-            public void RegisterCommandHandler()
+            public void AddCommandHandler()
             {
-                if (Element == null || CommandBinding == null) { return; }
+                if (Element == null || CommandBinding == null) return;
 
                 Element.CommandBindings.Add(CommandBinding);
             }
 
             /// <summary>
-            /// Unregisters the command handler from the element.
+            /// Removes the command handler from the element.
             /// </summary>
-            public void UnregisterCommandHandler()
+            public void RemoveCommandHandler()
             {
-                if (Element == null) { return; }
+                if (Element == null || CommandBinding == null) return;
 
                 Element.CommandBindings.Remove(CommandBinding);
             }
@@ -270,9 +270,7 @@ namespace Fievus.Windows.Mvc
             /// <param name="parameter">The parameter of the command.</param>
             public void RaiseExecuted(ICommand command, object sender, object parameter)
             {
-                if (ExecutedHandler == null) { return; }
-
-                ExecutedHandler(sender, CreateEventArgs<ExecutedRoutedEventArgs>(command, parameter));
+                ExecutedHandler?.Invoke(sender, CreateEventArgs<ExecutedRoutedEventArgs>(command, parameter));
             }
 
             /// <summary>
@@ -284,7 +282,7 @@ namespace Fievus.Windows.Mvc
             /// <returns><see cref="CanExecuteRoutedEventArgs"/> used to raise the CanExecute event.</returns>
             public CanExecuteRoutedEventArgs RaiseCanExecute(ICommand command, object sender, object parameter)
             {
-                if (CanExecuteHandler == null) { return null; }
+                if (CanExecuteHandler == null) return null;
 
                 var e = CreateEventArgs<CanExecuteRoutedEventArgs>(command, parameter);
                 CanExecuteHandler(sender, e);
@@ -301,13 +299,9 @@ namespace Fievus.Windows.Mvc
             /// <returns>A task that represents the asynchronous raise operation.</returns>
             public async Task RaiseExecutedAsync(ICommand command, object sender, object parameter)
             {
-                if (ExecutedHandler == null) { return; }
+                if (!(ExecutedHandler?.Target is CommandHandlerExtension.RoutedEventHandlerAction<ExecutedRoutedEventArgs> action)) return;
 
-                var action = ExecutedHandler.Target as CommandHandlerExtension.RoutedEventHandlerAction<ExecutedRoutedEventArgs>;
-                if (action == null) { return; }
-
-                var task = action.Handle(sender, CreateEventArgs<ExecutedRoutedEventArgs>(command, parameter)) as Task;
-                if (task != null)
+                if (action.Handle(sender, CreateEventArgs<ExecutedRoutedEventArgs>(command, parameter)) is Task task)
                 {
                     await task;
                 }
@@ -322,14 +316,10 @@ namespace Fievus.Windows.Mvc
             /// <returns>A task that represents the asynchronous raise operation.</returns>
             public async Task<CanExecuteRoutedEventArgs> RaiseCanExecuteAsync(ICommand command, object sender, object parameter)
             {
-                if (CanExecuteHandler == null) { return null; }
-
-                var action = CanExecuteHandler.Target as CommandHandlerExtension.RoutedEventHandlerAction<CanExecuteRoutedEventArgs>;
-                if (action == null) { return null; }
+                if (!(CanExecuteHandler?.Target is CommandHandlerExtension.RoutedEventHandlerAction<CanExecuteRoutedEventArgs> action)) return null;
 
                 var e = CreateEventArgs<CanExecuteRoutedEventArgs>(command, parameter);
-                var task = action.Handle(sender, e) as Task;
-                if (task != null)
+                if (action.Handle(sender, e) is Task task)
                 {
                     await task;
                 }
@@ -337,14 +327,12 @@ namespace Fievus.Windows.Mvc
             }
 
             private T CreateEventArgs<T>(ICommand command, object parameter)
-            {
-                return (T)typeof(T).Assembly
+                => (T)typeof(T).Assembly
                     .CreateInstance(
-                        typeof(T).FullName, false,
+                        typeof(T).FullName ?? throw new InvalidOperationException(), false,
                         BindingFlags.NonPublic | BindingFlags.Instance,
                         null, new[] { command ?? Command, parameter }, null, null
                     );
-            }
         }
     }
 }

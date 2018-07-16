@@ -1,15 +1,15 @@
 ﻿<!--
-Copyright (C) 2017 Fievus
+Copyright (C) 2018 Fievus
 
 This software may be modified and distributed under the terms
 of the MIT license.  See the LICENSE file for details.
 -->
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:w="clr-namespace:Fievus.Windows.Mvc;assembly=WpfMvc"
-                    xmlns:s="clr-namespace:Fievus.Windows.Samples.SimpleTodo"
-                    xmlns:m="clr-namespace:Fievus.Windows.Samples.SimpleTodo.Contents"
-                    xmlns:c="clr-namespace:Fievus.Windows.Samples.SimpleTodo.Converters">
+                    xmlns:w="clr-namespace:Charites.Windows.Mvc;assembly=WpfMvc"
+                    xmlns:s="clr-namespace:Charites.Windows.Samples.SimpleTodo"
+                    xmlns:m="clr-namespace:Charites.Windows.Samples.SimpleTodo.Contents"
+                    xmlns:c="clr-namespace:Charites.Windows.Samples.SimpleTodo.Converters">
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="../Styles/TodoItemStyle.xaml"/>
     </ResourceDictionary.MergedDictionaries>
@@ -17,11 +17,7 @@ of the MIT license.  See the LICENSE file for details.
     <c:TodoItemStateToBooleanConverter x:Key="TodoItemStateToBooleanConverter"/>
 
     <DataTemplate DataType="{x:Type m:TodoItem}">
-        <Grid>
-            <w:WpfController.Controllers>
-                <w:WpfController ControllerType="m:TodoItemController"/>
-            </w:WpfController.Controllers>
-            
+        <Grid w:WpfController.IsEnabled="True">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>

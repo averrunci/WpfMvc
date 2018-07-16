@@ -1,12 +1,11 @@
-﻿// Copyright (C) 2017 Fievus
+﻿// Copyright (C) 2018 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
 using System;
+using Charites.Windows.Mvc.Bindings;
 
-using Fievus.Windows.Mvc.Bindings;
-
-namespace Fievus.Windows.Samples.SimpleTodo.Contents
+namespace Charites.Windows.Samples.SimpleTodo.Contents
 {
     public class TodoItem
     {

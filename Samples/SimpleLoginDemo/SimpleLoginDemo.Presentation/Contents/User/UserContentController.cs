@@ -1,20 +1,20 @@
-﻿// Copyright (C) 2016 Fievus
+﻿// Copyright (C) 2018 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
-using System;
 using System.Windows.Input;
 
-using Fievus.Windows.Mvc;
+using Charites.Windows.Mvc;
 
-namespace Fievus.Windows.Samples.SimpleLoginDemo.Presentation.Contents.User
+namespace Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents.User
 {
+    [View(Key = nameof(UserContent))]
     public class UserContentController
     {
         [DataContext]
-        public UserContent Context { get; set; }
+        private UserContent Context { get; set; }
 
-        [CommandHandler(CommandName = "Logout")]
+        [CommandHandler(CommandName = nameof(SimpleLoginCommands.Logout))]
         private void Logout(ExecutedRoutedEventArgs e)
         {
             Context.Logout();

@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016 Fievus
+﻿// Copyright (C) 2018 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
@@ -6,8 +6,9 @@ using System;
 using System.Reflection;
 using System.Security.Permissions;
 using System.Threading;
+using System.Threading.Tasks;
 
-namespace Fievus.Windows.Runners
+namespace Charites.Windows.Runners
 {
     /// <summary>
     /// Runs an action in a single thread apartment.
@@ -45,16 +46,14 @@ namespace Fievus.Windows.Runners
         /// <exception cref="ArgumentNullException">
         /// <paramref name="action"/> is <c>null</c>.
         /// </exception>
-        public static void RunAsync(Action action)
+        public static Task RunAsync(Action action)
         {
-            RunningContext.For(action).RunAsync();
+            return RunningContext.For(action.RequireNonNull(nameof(action))).RunAsync();
         }
 
         private sealed class RunningContext
         {
             private readonly Action action;
-            private Thread thread;
-            private Exception exception;
 
             private RunningContext(Action action)
             {
@@ -65,36 +64,46 @@ namespace Fievus.Windows.Runners
 
             public void Run()
             {
-                RunAsync();
-                thread.Join();
-                ThrowExceptionIfPresent();
+                try
+                {
+                    RunAsync().Wait();
+                }
+                catch (AggregateException exc)
+                {
+                    ThrowException(exc.GetBaseException());
+                }
             }
 
-            public void RunAsync()
+            public Task RunAsync()
             {
-                thread = new Thread(() =>
+                var taskCompletionSource = new TaskCompletionSource<object>();
+                var thread = new Thread(() =>
                 {
                     try
                     {
                         action();
+                        taskCompletionSource.SetResult(null);
                     }
                     catch (Exception exc)
                     {
-                        exception = exc;
+                        taskCompletionSource.SetException(exc);
                     }
-                });
-                thread.IsBackground = true;
+                })
+                {
+                    IsBackground = true
+                };
                 thread.SetApartmentState(ApartmentState.STA);
                 thread.Start();
+                return taskCompletionSource.Task;
             }
 
             [ReflectionPermission(SecurityAction.Demand)]
-            private void ThrowExceptionIfPresent()
+            private void ThrowException(Exception exception)
             {
-                if (exception == null) { return; }
+                if (exception == null) return;
 
                 typeof(Exception).GetField("_remoteStackTraceString", BindingFlags.Instance | BindingFlags.NonPublic)
-                    .SetValue(exception, exception.StackTrace + Environment.NewLine);
+                    ?.SetValue(exception, exception.StackTrace + Environment.NewLine);
                 throw exception;
             }
         }

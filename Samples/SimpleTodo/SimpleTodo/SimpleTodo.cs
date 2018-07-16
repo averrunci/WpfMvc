@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Fievus
+// Copyright (C) 2018 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
@@ -6,15 +6,14 @@ using System;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Threading;
+using Charites.Windows.Samples.SimpleTodo.Contents;
 
-using Fievus.Windows.Samples.SimpleTodo.Contents;
-
-namespace Fievus.Windows.Samples.SimpleTodo
+namespace Charites.Windows.Samples.SimpleTodo
 {
     public class SimpleTodo : Application
     {
         [STAThread]
-        static void Main()
+        private static void Main()
         {
             new SimpleTodo().Run();
         }
@@ -43,10 +42,12 @@ namespace Fievus.Windows.Samples.SimpleTodo
 
         private void OnSimpleTodoStartup(object sender, StartupEventArgs e)
         {
-            MainWindow = new Window();
-            MainWindow.Style = FindResource("MainWindowStyle") as Style;
-            MainWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-            MainWindow.DataContext = new MainContent();
+            MainWindow = new Window
+            {
+                Style = FindResource("MainWindowStyle") as Style,
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                DataContext = new MainContent()
+            };
             MainWindow.Show();
         }
     }

@@ -1,13 +1,14 @@
-﻿// Copyright (C) 2016 Fievus
+﻿// Copyright (C) 2018 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Windows;
 using System.Windows.Threading;
 
-namespace Fievus.Windows.Runners
+namespace Charites.Windows.Runners
 {
     /// <summary>
     /// Starts the WPF application thread in a single thread apartment.
@@ -44,8 +45,7 @@ namespace Fievus.Windows.Runners
         /// </exception>
         public static IWpfApplicationRunner<T> Start<T>(Action<T> action) where T : Application, new()
         {
-            action.RequireNonNull(nameof(action));
-            return CreateRunner<T>().Start(action);
+            return CreateRunner<T>().Start(action.RequireNonNull(nameof(action)));
         }
 
         /// <summary>
@@ -54,14 +54,14 @@ namespace Fievus.Windows.Runners
         /// that is a main window of the application.
         /// </summary>
         /// <typeparam name="T">The type of the application.</typeparam>
-        /// <typeparam name="W">The type of the window that is a main window of the application.</typeparam>
+        /// <typeparam name="TWindow">The type of the window that is a main window of the application.</typeparam>
         /// <returns>
         /// A new instance that implements <see cref="IWpfApplicationRunner{T}"/> interface
         /// to run an action on the WPF application thread.
         /// </returns>
-        public static IWpfApplicationRunner<T> Start<T, W>() where T : Application, new() where W : Window, new()
+        public static IWpfApplicationRunner<T> Start<T, TWindow>() where T : Application, new() where TWindow : Window, new()
         {
-            return CreateRunner<T>().Start<W>(application => { });
+            return CreateRunner<T>().Start<TWindow>(application => { });
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace Fievus.Windows.Runners
         /// to run before running the application.
         /// </summary>
         /// <typeparam name="T">The type of the application.</typeparam>
-        /// <typeparam name="W">The type of the window that is a main window of the application.</typeparam>
+        /// <typeparam name="TWindow">The type of the window that is a main window of the application.</typeparam>
         /// <param name="action">The action to run before running the application.</param>
         /// <returns>
         /// A new instance that implements <see cref="IWpfApplicationRunner{T}"/> interface
@@ -80,15 +80,15 @@ namespace Fievus.Windows.Runners
         /// <exception cref="ArgumentNullException">
         /// <paramref name="action"/> is <c>null</c>.
         /// </exception>
-        public static IWpfApplicationRunner<T> Start<T, W>(Action<T> action) where T : Application, new() where W : Window, new()
+        public static IWpfApplicationRunner<T> Start<T, TWindow>(Action<T> action) where T : Application, new() where TWindow : Window, new()
         {
-            return CreateRunner<T>().Start<W>(action);
+            return CreateRunner<T>().Start<TWindow>(action.RequireNonNull(nameof(action)));
         }
 
         private static WpfApplicationRunner<T> CreateRunner<T>() where T : Application, new()
         {
             return AppDomain.CreateDomain(Guid.NewGuid().ToString(), AppDomain.CurrentDomain.Evidence, AppDomain.CurrentDomain.SetupInformation)
-                .CreateInstanceAndUnwrap(typeof(WpfApplicationRunner<T>).Assembly.FullName, typeof(WpfApplicationRunner<T>).FullName) as WpfApplicationRunner<T>;
+                .CreateInstanceAndUnwrap(typeof(WpfApplicationRunner<T>).Assembly.FullName, typeof(WpfApplicationRunner<T>).FullName ?? throw new InvalidOperationException()) as WpfApplicationRunner<T>;
         }
 
         /// <summary>
@@ -116,10 +116,23 @@ namespace Fievus.Windows.Runners
         private readonly AutoResetEvent shutdownEvent = new AutoResetEvent(false);
         private T application;
         private Dispatcher dispatcher;
+        private WpfApplicationDataContext dataContext;
 
         public IWpfApplicationRunner<T> Run(Action<T> action)
         {
-            StaActionRunner.Run(() => dispatcher.Invoke(() => action(application)));
+            StaActionRunner.Run(() => dispatcher.Invoke(() =>
+            {
+                action(application);
+            }));
+            return this;
+        }
+
+        public IWpfApplicationRunner<T> Run(Action<T, WpfApplicationDataContext> action)
+        {
+            StaActionRunner.Run(() => dispatcher.Invoke(() =>
+            {
+                action(application, dataContext);
+            }));
             return this;
         }
 
@@ -134,9 +147,9 @@ namespace Fievus.Windows.Runners
             return StartApplication(action, application => application.Run());
         }
 
-        internal WpfApplicationRunner<T> Start<W>(Action<T> action) where W : Window, new()
+        internal WpfApplicationRunner<T> Start<TWindow>(Action<T> action) where TWindow : Window, new()
         {
-            return StartApplication(action, application => application.Run(new W()));
+            return StartApplication(action, application => application.Run(new TWindow()));
         }
 
         private WpfApplicationRunner<T> StartApplication(Action<T> action, Action<T> runApplication)
@@ -147,6 +160,7 @@ namespace Fievus.Windows.Runners
             {
                 application = new T();
                 dispatcher = application.Dispatcher;
+                dataContext = new WpfApplicationDataContext();
                 action(application);
                 applicationRunEvent.Set();
 

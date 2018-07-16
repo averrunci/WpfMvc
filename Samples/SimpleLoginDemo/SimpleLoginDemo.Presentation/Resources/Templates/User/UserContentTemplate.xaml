@@ -1,25 +1,20 @@
 ﻿<!--
-Copyright (C) 2016-2017 Fievus
+Copyright (C) 2018 Fievus
 
 This software may be modified and distributed under the terms
 of the MIT license.  See the LICENSE file for details.
 -->
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:w="clr-namespace:Fievus.Windows.Mvc;assembly=WpfMvc"
-                    xmlns:l="clr-namespace:Fievus.Windows.Samples.SimpleLoginDemo.Presentation"
-                    xmlns:m="clr-namespace:Fievus.Windows.Samples.SimpleLoginDemo.Presentation.Contents.User"
-                    xmlns:p="clr-namespace:Fievus.Windows.Samples.SimpleLoginDemo.Presentation.Properties">
+                    xmlns:w="clr-namespace:Charites.Windows.Mvc;assembly=WpfMvc"
+                    xmlns:l="clr-namespace:Charites.Windows.Samples.SimpleLoginDemo.Presentation"
+                    xmlns:m="clr-namespace:Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents.User">
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="../../Styles/User/UserContentStyle.xaml"/>
     </ResourceDictionary.MergedDictionaries>
     
     <DataTemplate DataType="{x:Type m:UserContent}">
-        <DockPanel>
-            <w:WpfController.Controllers>
-                <w:WpfController ControllerType="m:UserContentController"/>
-            </w:WpfController.Controllers>
-            
+        <DockPanel w:WpfController.IsEnabled="True">
             <StackPanel DockPanel.Dock="Top">
                 <Button Style="{StaticResource LogoutButtonStyle}"
                         Command="{x:Static l:SimpleLoginCommands.Logout}" CommandParameter="{Binding}"

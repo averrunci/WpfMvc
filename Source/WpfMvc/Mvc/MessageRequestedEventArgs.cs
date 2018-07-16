@@ -1,13 +1,13 @@
-﻿// Copyright (C) 2016 Fievus
+﻿// Copyright (C) 2018 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
 using System.Windows;
 
-namespace Fievus.Windows.Mvc
+namespace Charites.Windows.Mvc
 {
     /// <summary>
-    /// Represents the method that handles the <see cref="FrameworkElements.MessageRequestedEvent"/> routed evnet.
+    /// Represents the method that handles the <see cref="FrameworkElements.MessageRequestedEvent"/> routed event.
     /// </summary>
     /// <param name="sender">The object where the event handler is attached.</param>
     /// <param name="e">The event data.</param>
