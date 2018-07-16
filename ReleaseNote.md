@@ -1,14 +1,24 @@
 # Release note
 
+## V2.0.0
+
+### Changes
+
+- Move bindings properties to the Charites.Bindings assembly.
+- Move attributes and base implementations to the Charites assembly.
+- Remove the Controllers attached property of the UwpController. The controller is specified using the ViewAttribute.
+- Change the namespace from Fievus to Charites.
+- Change the testing framework from NUnit to Carna.
+
 ## V1.4.0
 
 ### Add
 
- - Add BindTwoWay method with converters that convert the value from/to the source value.
- - Add IElementInjector that injects elements in a target element to the WPF controller.
- - Add IDataContextInjector that injects a data context to the WPF controller.
- - Add ElementInjectionException that is thrown when an element injection is failed.
- - Add DataContextInjectionException that is thrown when a data context injection is failed.
+- Add BindTwoWay method with converters that convert the value from/to the source value.
+- Add IElementInjector that injects elements in a target element to the WPF controller.
+- Add IDataContextInjector that injects a data context to the WPF controller.
+- Add ElementInjectionException that is thrown when an element injection is failed.
+- Add DataContextInjectionException that is thrown when a data context injection is failed.
 
 ### Changes
 

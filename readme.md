@@ -35,32 +35,42 @@ The basic flow is as follows;
 
 ## Features
 
-This library provides a feature to specify a controller with an attached property to the target element.
+This library provides a feature to specify a controller to handle events that occur on the view using the ViewAttribute.
 
 ```
-<Grid xmlns:w="clr-namespace:Fievus.Windows.Mvc;assembly=WpfMvc">
-    <w:WpfController.Controllers>
-        <local:Controller/>
-    </w:WpfController.Controllers>
-</Grid>
+[View]
+class Controller {...}
 ```
 
-A controller can be created with a factory that implements IWpfControllerFactory. If a factory is not specified, a default factory that creates a controller with Activator.CreateInstance method is used.
+The view to which the controller is attached is specified using the following properties.
+
+- ViewType
+
+  The type of the view to which the controller is attached is specified.
+
+- Key
+
+  The key of the view to which the controller is attached is specified. The name of the data context type can also be specified as the key.
+
+The condition to search the controller is as follows:
+
+1. whether the value of the ViewType is equal to the type of the view if the ViewType is specified. If the ViewType is not specified, the controller is the target.
+1. whether the value of the Key is equal to the key of the view if the Key is specified. If the Key is not specified, the controller is the target. If the Key is not equal to the key of the view, search whether the Key is equal to:
+
+   1. the name of the data context type.
+   1. the full name of the data context type.
+   1. the full name of the data context type without parameters if its type is generics.
+   1. the name of the base type of the data context.
+   1. the name of the interface that is implemented by the data context.
+
+A controller can be created with a factory that implements IUwpControllerFactory. If a factory is not specified, a default factory that creates a controller with Activator.CreateInstance method is used.
 
 ```
 class ControllerFactory : IWpfControllerFactory {...}
 ```
 
 ```
-WpfController.Factory = new ControllerFactory();
-```
-
-```
-<Grid xmlns:w="clr-namespace:Fievus.Windows.Mvc;assembly=WpfMvc">
-    <w:WpfController.Controllers>
-        <w:WpfController ControllerType="local:Controller"/>
-    </w:WpfController.Controllers>
-</Grid>
+WpfController.ControllerFactory = new ControllerFactory();
 ```
 
 This library also provides features to inject routed event handlers, command event handlers, a data context, and visual elements to the controller using attributes.
@@ -193,6 +203,10 @@ public void SetElement(UIElement element)
 private UIElement element;
 ```
 
-## LICENCE
+## NuGet
+
+[WpfMvc](https://www.nuget.org/packages/WpfMvc/)
+
+## LICENSE
 
 This software is released under the MIT License, see LICENSE.
