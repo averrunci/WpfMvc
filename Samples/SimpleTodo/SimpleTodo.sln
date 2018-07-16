@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfMvc", "..\..\Source\WpfM
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleTodo", "SimpleTodo\SimpleTodo.csproj", "{23C7A80E-B3BD-4510-9D44-EBFFA7211F21}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleTodo.Test", "SimpleTodo.Test\SimpleTodo.Test.csproj", "{FD2C55AF-E663-49B4-98CE-4542D05CCF4C}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleTodo.Spec", "SimpleTodo.Spec\SimpleTodo.Spec.csproj", "{18D788A5-F269-418B-BD5C-A6EDF1D7437A}"
 EndProject
 Global
@@ -25,10 +23,6 @@ Global
 		{23C7A80E-B3BD-4510-9D44-EBFFA7211F21}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{23C7A80E-B3BD-4510-9D44-EBFFA7211F21}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{23C7A80E-B3BD-4510-9D44-EBFFA7211F21}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FD2C55AF-E663-49B4-98CE-4542D05CCF4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FD2C55AF-E663-49B4-98CE-4542D05CCF4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FD2C55AF-E663-49B4-98CE-4542D05CCF4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FD2C55AF-E663-49B4-98CE-4542D05CCF4C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{18D788A5-F269-418B-BD5C-A6EDF1D7437A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{18D788A5-F269-418B-BD5C-A6EDF1D7437A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{18D788A5-F269-418B-BD5C-A6EDF1D7437A}.Release|Any CPU.ActiveCfg = Release|Any CPU
