@@ -1,5 +1,11 @@
 # Release note
 
+## V2.0.1
+
+### Bug fix
+
+Fixed to be able to handle the DataContextChanged event.
+
 ## V2.0.0
 
 ### Changes

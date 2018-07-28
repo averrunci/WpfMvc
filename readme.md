@@ -55,7 +55,7 @@ The view to which the controller is attached is specified using the following pr
 The condition to search the controller is as follows:
 
 1. whether the value of the ViewType is equal to the type of the view if the ViewType is specified. If the ViewType is not specified, the controller is the target.
-1. whether the value of the Key is equal to the key of the view if the Key is specified. If the Key is not specified, the controller is the target. If the Key is not equal to the key of the view, search whether the Key is equal to:
+1. whether the value of the Key is equal to the key of the view if the Key is specified. If the Key is not specified, the controller is the target. If the key of the view is not specified, search whether the Key is equal to:
 
    1. the name of the data context type.
    1. the full name of the data context type.
@@ -71,6 +71,21 @@ class ControllerFactory : IWpfControllerFactory {...}
 
 ``` csharp
 WpfController.ControllerFactory = new ControllerFactory();
+```
+
+This library provides a feature to specify a controller with an attached property to the target element.
+
+``` xml
+<Grid xmlns:w="using:Charites.Windows.Mvc"
+      w:WpfController.IsEnabled="True">
+</Grid>
+```
+
+If the key of the view should be specified, then the Key attached property can be used. In this case, the IsEnabled attached property is automatically set to true.
+``` xml
+<Grid xmlns:w="using:Charites.Windows.Mvc"
+      w:WpfController.Key="...">
+</Grid>
 ```
 
 This library also provides features to inject routed event handlers, command event handlers, a data context, and visual elements to the controller using attributes.
