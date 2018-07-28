@@ -31,6 +31,9 @@ namespace Charites.Windows.Mvc
             [EventHandler(ElementName = nameof(Element), Event = nameof(TestElement.Changed))]
             protected void Element_Changed() => ChangedAssertionHandler?.Invoke();
 
+            [EventHandler(Event = nameof(FrameworkElement.DataContextChanged))]
+            protected void OnDataContextChanged() { }
+
             [CommandHandler(CommandName = nameof(TestCommand))]
             protected void TestCommand_Executed(ExecutedRoutedEventArgs e) => ExecutedAssertionHandler?.Invoke();
 

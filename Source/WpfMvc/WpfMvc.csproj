@@ -53,6 +53,7 @@
     <Compile Include="Mvc\CommandHandlerAttribute.cs" />
     <Compile Include="Mvc\CommandHandlerBase.cs" />
     <Compile Include="Mvc\CommandHandlerExtension.cs" />
+    <Compile Include="Mvc\DataContextChangedEventHandlerItem.cs" />
     <Compile Include="Mvc\IWpfControllerTypeFinder.cs" />
     <Compile Include="Mvc\IWpfDataContextFinder.cs" />
     <Compile Include="Mvc\IWpfElementInjector.cs" />

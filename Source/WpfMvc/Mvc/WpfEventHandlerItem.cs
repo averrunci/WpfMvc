@@ -11,7 +11,7 @@ namespace Charites.Windows.Mvc
     /// <summary>
     /// Represents an item of an event handler.
     /// </summary>
-    public sealed class WpfEventHandlerItem : EventHandlerItem<FrameworkElement>
+    public class WpfEventHandlerItem : EventHandlerItem<FrameworkElement>
     {
         private readonly RoutedEvent routedEvent;
         private readonly EventInfo eventInfo;

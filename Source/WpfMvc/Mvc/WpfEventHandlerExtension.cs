@@ -33,6 +33,16 @@ namespace Charites.Windows.Mvc
         protected override void AddEventHandler(FrameworkElement element, EventHandlerAttribute eventHandlerAttribute, Func<Type, Delegate> handlerCreator, EventHandlerBase<FrameworkElement, WpfEventHandlerItem> eventHandlers)
         {
             var targetElement = element.FindElement<FrameworkElement>(eventHandlerAttribute.ElementName);
+
+            if (EnsureRoutedEventName(eventHandlerAttribute.Event) == EnsureRoutedEventName(nameof(FrameworkElement.DataContextChanged)))
+            {
+                eventHandlers.Add(new DataContextChangedEventHandlerItem(
+                    eventHandlerAttribute.ElementName, targetElement,
+                    eventHandlerAttribute.Event, handlerCreator(typeof(DependencyPropertyChangedEventHandler)), eventHandlerAttribute.HandledEventsToo)
+                );
+                return;
+            }
+
             var routedEvent = RetrieveRoutedEvent(targetElement, eventHandlerAttribute.Event);
             var eventInfo = RetrieveEventInfo(element, eventHandlerAttribute.Event);
             eventHandlers.Add(new WpfEventHandlerItem(
@@ -40,6 +50,18 @@ namespace Charites.Windows.Mvc
                 eventHandlerAttribute.Event, routedEvent, eventInfo,
                 handlerCreator(routedEvent?.HandlerType ?? eventInfo?.EventHandlerType), eventHandlerAttribute.HandledEventsToo
             ));
+        }
+
+        protected override Delegate CreateEventHandler(MethodInfo method, object target, Type handlerType)
+        {
+            if (handlerType != typeof(DependencyPropertyChangedEventHandler)) return base.CreateEventHandler(method, target, handlerType);
+            if (method == null) return null;
+
+            var action = new DataContextChangedEventHandlerItem.EventHandlerAction(method, target);
+            return action.GetType()
+                .GetMethod(nameof(DataContextChangedEventHandlerItem.EventHandlerAction.OnHandled))
+                ?.CreateDelegate(handlerType, action);
+
         }
 
         protected override void OnEventHandlerAdded(EventHandlerBase<FrameworkElement, WpfEventHandlerItem> eventHandlers, FrameworkElement element)
