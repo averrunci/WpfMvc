@@ -1,5 +1,11 @@
 # Release note
 
+## V2.1.0
+
+### Add
+
+- Add the UnhandledException event to the WpfController.
+
 ## V2.0.1
 
 ### Bug fix
