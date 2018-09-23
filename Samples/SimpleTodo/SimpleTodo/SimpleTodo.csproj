@@ -39,11 +39,11 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Charites, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Charites.1.0.1\lib\netstandard2.0\Charites.dll</HintPath>
+    <Reference Include="Charites, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Charites.1.1.0\lib\netstandard2.0\Charites.dll</HintPath>
     </Reference>
-    <Reference Include="Charites.Bindings, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Charites.Bindings.1.0.0\lib\netstandard2.0\Charites.Bindings.dll</HintPath>
+    <Reference Include="Charites.Bindings, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Charites.Bindings.1.1.0\lib\netstandard2.0\Charites.Bindings.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Annotations, Version=4.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
