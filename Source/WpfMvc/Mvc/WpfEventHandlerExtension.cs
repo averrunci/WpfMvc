@@ -61,8 +61,9 @@ namespace Charites.Windows.Mvc
             return action.GetType()
                 .GetMethod(nameof(DataContextChangedEventHandlerItem.EventHandlerAction.OnHandled))
                 ?.CreateDelegate(handlerType, action);
-
         }
+
+        protected override EventHandlerAction CreateEventHandlerAction(MethodInfo method, object target) => new WpfEventHandlerAction(method, target);
 
         protected override void OnEventHandlerAdded(EventHandlerBase<FrameworkElement, WpfEventHandlerItem> eventHandlers, FrameworkElement element)
         {

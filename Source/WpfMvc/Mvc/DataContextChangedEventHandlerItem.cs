@@ -4,6 +4,7 @@
 // of the MIT license.  See the LICENSE file for details.
 using System;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace Charites.Windows.Mvc
@@ -48,12 +49,42 @@ namespace Charites.Windows.Mvc
             {
                 switch (method.GetParameters().Length)
                 {
-                    case 0: return method.Invoke(target, null);
-                    case 1: return method.Invoke(target, new object[] { e });
-                    case 2: return method.Invoke(target, new[] { sender, e });
+                    case 0: return Handle(null);
+                    case 1: return Handle(new object[] { e });
+                    case 2: return Handle(new[] { sender, e });
                     default: throw new InvalidOperationException("The length of the method parameters must be less than 3.");
                 }
             }
+
+            private object Handle(object[] parameters)
+            {
+                try
+                {
+                    var returnValue = method.Invoke(target, parameters);
+                    if (returnValue is Task task) Await(task);
+                    return returnValue;
+                }
+                catch (Exception exc)
+                {
+                    if (!HandleUnhandledException(exc)) throw;
+
+                    return null;
+                }
+            }
+
+            private async void Await(Task task)
+            {
+                try
+                {
+                    await task;
+                }
+                catch (Exception exc)
+                {
+                    if (!HandleUnhandledException(exc)) throw;
+                }
+            }
+
+            private bool HandleUnhandledException(Exception exc) => WpfController.HandleUnhandledException(exc);
         }
     }
 }

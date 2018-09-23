@@ -18,6 +18,11 @@ namespace Charites.Windows.Mvc
     public class WpfController
     {
         /// <summary>
+        /// Occurs when an exception is not handled in event handlers.
+        /// </summary>
+        public static event UnhandledExceptionEventHandler UnhandledException;
+
+        /// <summary>
         /// Gets or sets the finder to find a data context in a view.
         /// </summary>
         public static IWpfDataContextFinder DataContextFinder
@@ -266,5 +271,14 @@ namespace Charites.Windows.Mvc
         /// <returns>The command handlers that the specified controller has.</returns>
         public static CommandHandlerBase CommandHandlersOf(object controller)
             => Retrieve<CommandHandlerExtension, CommandHandlerBase>(controller);
+
+        internal static bool HandleUnhandledException(Exception exc)
+        {
+            var e = new UnhandledExceptionEventArgs(exc);
+            OnUnhandledException(e);
+            return e.Handled;
+        }
+
+        private static void OnUnhandledException(UnhandledExceptionEventArgs e) => UnhandledException?.Invoke(null, e);
     }
 }

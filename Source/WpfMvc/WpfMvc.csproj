@@ -33,11 +33,11 @@
     <DocumentationFile>..\..\Binary\Release\WpfMvc.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Charites, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Charites.1.0.1\lib\netstandard2.0\Charites.dll</HintPath>
+    <Reference Include="Charites, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Charites.1.1.0\lib\netstandard2.0\Charites.dll</HintPath>
     </Reference>
-    <Reference Include="Charites.Bindings, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Charites.Bindings.1.0.0\lib\netstandard2.0\Charites.Bindings.dll</HintPath>
+    <Reference Include="Charites.Bindings, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Charites.Bindings.1.1.0\lib\netstandard2.0\Charites.Bindings.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -65,9 +65,11 @@
     <Compile Include="Mvc\MessageRequestedEventArgs.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Mvc\SimpleWpfControllerFactory.cs" />
+    <Compile Include="Mvc\UnhandledExceptionEventArgs.cs" />
     <Compile Include="Mvc\WpfControllerTypeFinder.cs" />
     <Compile Include="Mvc\WpfDataContextFinder.cs" />
     <Compile Include="Mvc\WpfElementKeyFinder.cs" />
+    <Compile Include="Mvc\WpfEventHandlerAction.cs" />
     <Compile Include="Mvc\WpfEventHandlerExtension.cs" />
     <Compile Include="Mvc\WpfEventHandlerItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

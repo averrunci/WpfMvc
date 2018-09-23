@@ -26,5 +26,8 @@ namespace Charites.Windows.Mvc
 
         [Context]
         WpfControllerSpec_RoutedEventHandlerInjectionForAttachedEvent RoutedEventHandlerInjectionForAttachedEvent { get; }
+
+        [Context]
+        WpfControllerSpec_UnhandledException UnhandledException { get; }
     }
 }

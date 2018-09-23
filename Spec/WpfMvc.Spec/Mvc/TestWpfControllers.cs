@@ -130,6 +130,15 @@ namespace Charites.Windows.Mvc
             public Action CanExecuteAssertionHandler { get; set; }
         }
 
+        public class ExceptionTestWpfController
+        {
+            [EventHandler(Event = "Changed")]
+            private void OnChanged()
+            {
+                throw new Exception();
+            }
+        }
+
         public class AttributedToField
         {
             public class NoArgumentHandlerController
