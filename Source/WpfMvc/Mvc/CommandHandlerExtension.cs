@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2018 Fievus
+﻿// Copyright (C) 2018-2019 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
 
@@ -16,7 +17,9 @@ namespace Charites.Windows.Mvc
     /// </summary>
     internal sealed class CommandHandlerExtension : IWpfControllerExtension
     {
-        private static readonly BindingFlags commandHandlerBindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+        private static readonly BindingFlags CommandHandlerBindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+
+        private static readonly Regex CommandHandlerNamingConventionRegex = new Regex("^[^_]+_(?:Executed|CanExecute)$", RegexOptions.Compiled);
 
         private static readonly DependencyProperty CommandHandlerBasesProperty = DependencyProperty.RegisterAttached(
             "ShadowCommandHandlerBases", typeof(IDictionary<object, CommandHandlerBase>), typeof(CommandHandlerExtension), new PropertyMetadata(null)
@@ -47,18 +50,44 @@ namespace Charites.Windows.Mvc
             var commandHandlers = new CommandHandlerBase();
             commandHandlerBases[controller] = commandHandlers;
 
-            controller.GetType().GetFields(commandHandlerBindingFlags)
-                .Where(field => field.GetCustomAttributes<CommandHandlerAttribute>().Any())
-                .ForEach(field => AddCommandHandlers(field, rootElement, CreateCommandHandler(field.GetValue(controller) as Delegate), commandHandlers));
-            controller.GetType().GetProperties(commandHandlerBindingFlags)
-                .Where(property => property.GetCustomAttributes<CommandHandlerAttribute>().Any())
-                .ForEach(property => AddCommandHandlers(property, rootElement, CreateCommandHandler(property.GetValue(controller, null) as Delegate), commandHandlers));
-            controller.GetType().GetMethods(commandHandlerBindingFlags)
-                .Where(method => method.GetCustomAttributes<CommandHandlerAttribute>().Any())
-                .ForEach(method => AddCommandHandlers(method, rootElement, CreateCommandHandler(method, controller), commandHandlers));
+            RetrieveCommandHandlersFromField(controller, rootElement, commandHandlers);
+            RetrieveCommandHandlersFromProperty(controller, rootElement, commandHandlers);
+            RetrieveCommandHandlersFromMethod(controller, rootElement, commandHandlers);
+            RetrieveCommandHandlersFromMethodUsingNamingConvention(controller, rootElement, commandHandlers);
 
             return commandHandlers;
         }
+
+        private void RetrieveCommandHandlersFromField(object controller, FrameworkElement rootElement, CommandHandlerBase commandHandlers)
+            => controller.GetType()
+                .GetFields(CommandHandlerBindingFlags)
+                .Where(field => field.GetCustomAttributes<CommandHandlerAttribute>().Any())
+                .ForEach(field => AddCommandHandlers(field, rootElement, CreateCommandHandler(field.GetValue(controller) as Delegate), commandHandlers));
+
+        private void RetrieveCommandHandlersFromProperty(object controller, FrameworkElement rootElement, CommandHandlerBase commandHandlers)
+            => controller.GetType()
+                .GetProperties(CommandHandlerBindingFlags)
+                .Where(property => property.GetCustomAttributes<CommandHandlerAttribute>().Any())
+                .ForEach(property => AddCommandHandlers(property, rootElement, CreateCommandHandler(property.GetValue(controller, null) as Delegate), commandHandlers));
+
+        private void RetrieveCommandHandlersFromMethod(object controller, FrameworkElement rootElement, CommandHandlerBase commandHandlers)
+            => controller.GetType()
+                .GetMethods(CommandHandlerBindingFlags)
+                .Where(method => method.GetCustomAttributes<CommandHandlerAttribute>().Any())
+                .ForEach(method => AddCommandHandlers(method, rootElement, CreateCommandHandler(method, controller), commandHandlers));
+
+        private void RetrieveCommandHandlersFromMethodUsingNamingConvention(object controller, FrameworkElement rootElement, CommandHandlerBase commandHandlers)
+            => controller.GetType()
+                .GetMethods(CommandHandlerBindingFlags)
+                .Where(method => CommandHandlerNamingConventionRegex.IsMatch(method.Name))
+                .Where(method => !method.GetCustomAttributes<CommandHandlerAttribute>(true).Any())
+                .Where(method => !method.GetCustomAttributes<EventHandlerAttribute>(true).Any())
+                .Select(method => new
+                {
+                    MethodInfo = method,
+                    CommandHandlerAttribute = new CommandHandlerAttribute { CommandName = method.Name.Substring(0, method.Name.IndexOf("_", StringComparison.Ordinal)) }
+                })
+                .ForEach(x => AddCommandHandler(x.CommandHandlerAttribute, x.MethodInfo, rootElement, CreateCommandHandler(x.MethodInfo, controller), commandHandlers));
 
         private IDictionary<object, CommandHandlerBase> EnsureCommandHandlerBases(FrameworkElement rootElement)
         {
@@ -149,15 +178,15 @@ namespace Charites.Windows.Mvc
             if (commandHandlers == null) return;
 
             member.GetCustomAttributes<CommandHandlerAttribute>(true)
-                .ForEach(commandHandler =>
-                {
-                    rootElement.IfAbsent(() =>
-                        AddCommandHandler(commandHandler.CommandName, null, rootElement, handler, commandHandlers));
-                    rootElement.IfPresent(_ =>
-                        FindCommand(rootElement, commandHandler.CommandName).ForEach(command =>
-                            AddCommandHandler(commandHandler.CommandName, command, rootElement, handler, commandHandlers)
-                        ));
-                });
+                .ForEach(commandHandler => AddCommandHandler(commandHandler, member, rootElement, handler, commandHandlers));
+        }
+
+        private void AddCommandHandler(CommandHandlerAttribute commandHandler, MemberInfo member, FrameworkElement rootElement, Delegate handler, CommandHandlerBase commandHandlers)
+        {
+            rootElement.IfAbsent(() => AddCommandHandler(commandHandler.CommandName, null, rootElement, handler, commandHandlers));
+            rootElement.IfPresent(_ => FindCommand(rootElement, commandHandler.CommandName)
+                .ForEach(command => AddCommandHandler(commandHandler.CommandName, command, rootElement, handler, commandHandlers))
+            );
         }
 
         private void AddCommandHandler(string commandName, ICommand command, FrameworkElement rootElement, Delegate handler, CommandHandlerBase commandHandlers)

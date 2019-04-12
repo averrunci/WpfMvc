@@ -66,6 +66,7 @@
     <Compile Include="Mvc\WpfControllerSpec_AttachingAndDetachingController_IsEnabledBeforeDataContextIsSet.cs" />
     <Compile Include="Mvc\WpfControllerSpec_CommandHandlerInjection.cs" />
     <Compile Include="Mvc\WpfControllerSpec_CommandHandlerInjection_AttributedToField.cs" />
+    <Compile Include="Mvc\WpfControllerSpec_CommandHandlerInjection_AttributedToMethodUsingNamingConvention.cs" />
     <Compile Include="Mvc\WpfControllerSpec_CommandHandlerInjection_AttributedToProperty.cs" />
     <Compile Include="Mvc\WpfControllerSpec_EventHandlerDataContextElementInjection.cs" />
     <Compile Include="Mvc\WpfControllerSpec_EventHandlerDataContextElementInjection_AddEventHandler.cs" />
