@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2018 Fievus
+﻿// Copyright (C) 2018-2019 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
@@ -53,6 +53,15 @@ namespace Charites.Windows.Mvc
             Given("a controller", () => WpfRunner.Run((application, context) => context.Set(ControllerKey, new TestWpfControllers.AttributedToMethod.NoArgumentHandlerController(null))));
             When("the data context is set to the controller using the WpfController", () => WpfRunner.Run((application, context) => WpfController.SetDataContext(context.Get<object>(DataContextKey), context.Get<TestWpfControllers.AttributedToMethod.NoArgumentHandlerController>(ControllerKey))));
             Then("the data context should be set to the controller", () => WpfRunner.Run((application, context) => context.Get<TestWpfControllers.AttributedToMethod.NoArgumentHandlerController>(ControllerKey).DataContext.Should().Be(context.Get<object>(DataContextKey))));
+        }
+
+        [Example("When the data context are attributed to a method using a naming convention")]
+        void Ex04()
+        {
+            Given("a data context", () => WpfRunner.Run((application, context) => context.Set(DataContextKey, new object())));
+            Given("a controller", () => WpfRunner.Run((application, context) => context.Set(ControllerKey, new TestWpfControllers.AttributedToMethodUsingNamingConvention.NoArgumentHandlerController(null))));
+            When("the data context is set to the controller using the WpfController", () => WpfRunner.Run((application, context) => WpfController.SetDataContext(context.Get<object>(DataContextKey), context.Get<TestWpfControllers.AttributedToMethodUsingNamingConvention.NoArgumentHandlerController>(ControllerKey))));
+            Then("the data context should be set to the controller", () => WpfRunner.Run((application, context) => context.Get<TestWpfControllers.AttributedToMethodUsingNamingConvention.NoArgumentHandlerController>(ControllerKey).DataContext.Should().Be(context.Get<object>(DataContextKey))));
         }
     }
 }

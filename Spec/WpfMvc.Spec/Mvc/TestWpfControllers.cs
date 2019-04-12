@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2018 Fievus
+﻿// Copyright (C) 2018-2019 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
@@ -646,6 +646,216 @@ namespace Charites.Windows.Mvc
 
                 [CommandHandler(CommandName = nameof(AnotherTestCommand))]
                 public void AnotherTestCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+                {
+                    e.CanExecute = true;
+                    AnotherCanExecuteHandler?.Invoke(sender, e);
+                }
+                private CanExecuteRoutedEventHandler AnotherCanExecuteHandler { get; }
+
+                public ExecutedAndCanExecuteHandlerController(ExecutedRoutedEventHandler executedAssertionHandler, CanExecuteRoutedEventHandler canExecuteAssertionHandler) : this(executedAssertionHandler, canExecuteAssertionHandler, null, null)
+                {
+                }
+
+                public ExecutedAndCanExecuteHandlerController(ExecutedRoutedEventHandler executedAssertionHandler, CanExecuteRoutedEventHandler canExecuteAssertionHandler, ExecutedRoutedEventHandler anotherExecutedAssertionHandler, CanExecuteRoutedEventHandler anotherCanExecuteAssertionHandler)
+                {
+                    ExecutedHandler = executedAssertionHandler;
+                    CanExecuteHandler = canExecuteAssertionHandler;
+
+                    AnotherExecutedHandler = (s, e) => anotherExecutedAssertionHandler?.Invoke(s, e);
+                    AnotherCanExecuteHandler = (s, e) => anotherCanExecuteAssertionHandler?.Invoke(s, e);
+                }
+            }
+        }
+
+        public class AttributedToMethodUsingNamingConvention
+        {
+            public class NoArgumentHandlerController
+            {
+                public void SetDataContext(object dataContext) => DataContext = dataContext;
+                public object DataContext { get; private set; }
+
+                [Element(Name = "element")]
+                public void SetElement(FrameworkElement element) => Element = element;
+                public FrameworkElement Element { get; private set; }
+
+                [Element]
+                public void SetChildElement(FrameworkElement childElement) => ChildElement = childElement;
+                public FrameworkElement ChildElement { get; private set; }
+
+                public void ChildElement_Loaded() => handler();
+                private readonly Action handler;
+
+                public NoArgumentHandlerController(Action assertionHandler)
+                {
+                    handler = assertionHandler;
+                }
+            }
+
+            public class OneArgumentHandlerController
+            {
+                public void SetDataContext(object dataContext) => DataContext = dataContext;
+                public object DataContext { get; private set; }
+
+                [Element(Name = "element")]
+                public void SetElement(FrameworkElement element) => Element = element;
+                public FrameworkElement Element { get; private set; }
+
+                [Element]
+                public void SetChildElement(FrameworkElement childElement) => ChildElement = childElement;
+                public FrameworkElement ChildElement { get; private set; }
+
+                public void ChildElement_Loaded(RoutedEventArgs e) => handler(e);
+                private readonly Action<RoutedEventArgs> handler;
+
+                public OneArgumentHandlerController(Action<RoutedEventArgs> assertionHandler)
+                {
+                    handler = assertionHandler;
+                }
+            }
+
+            public class RoutedEventHandlerController
+            {
+                public void SetDataContext(object dataContext) => DataContext = dataContext;
+                public object DataContext { get; private set; }
+
+                [Element(Name = "element")]
+                public void SetElement(FrameworkElement element) => Element = element;
+                public FrameworkElement Element { get; private set; }
+
+                [Element]
+                public void SetChildElement(FrameworkElement childElement) => ChildElement = childElement;
+                public FrameworkElement ChildElement { get; private set; }
+
+                public void ChildElement_Loaded(object sender, RoutedEventArgs e) => handler(sender, e);
+                private readonly RoutedEventHandler handler;
+
+                public RoutedEventHandlerController(RoutedEventHandler assertionHandler)
+                {
+                    handler = assertionHandler;
+                }
+            }
+
+            public class NoArgumentExecutedOnlyHandlerController
+            {
+                private void TestCommand_Executed() => ExecutedHandler();
+                private Action ExecutedHandler { get; }
+
+                public NoArgumentExecutedOnlyHandlerController(Action executedAssertionHandler)
+                {
+                    ExecutedHandler = executedAssertionHandler;
+                }
+            }
+
+            public class NoArgumentExecutedAndCanExecuteHandlerController
+            {
+                private void TestCommand_Executed() => ExecutedHandler();
+                private Action ExecutedHandler { get; }
+
+                private void TestCommand_CanExecute(CanExecuteRoutedEventArgs e)
+                {
+                    e.CanExecute = true;
+                    CanExecuteHandler?.Invoke(e);
+                }
+                private Action<CanExecuteRoutedEventArgs> CanExecuteHandler { get; }
+
+                private void AnotherTestCommand_Executed() => AnotherExecutedHandler?.Invoke();
+                private Action AnotherExecutedHandler { get; }
+
+                private void AnotherTestCommand_CanExecute(CanExecuteRoutedEventArgs e)
+                {
+                    e.CanExecute = true;
+                    AnotherCanExecuteHandler?.Invoke(e);
+                }
+                private Action<CanExecuteRoutedEventArgs> AnotherCanExecuteHandler { get; }
+
+                public NoArgumentExecutedAndCanExecuteHandlerController(Action executedAssertionHandler, Action<CanExecuteRoutedEventArgs> canExecuteAssertionHandler) : this(executedAssertionHandler, canExecuteAssertionHandler, null, null)
+                {
+                }
+
+                public NoArgumentExecutedAndCanExecuteHandlerController(Action executedAssertionHandler, Action<CanExecuteRoutedEventArgs> canExecuteAssertionHandler, Action anotherExecutedAssertionHandler, Action<CanExecuteRoutedEventArgs> anotherCanExecuteAssertionHandler)
+                {
+                    ExecutedHandler = executedAssertionHandler;
+                    CanExecuteHandler = canExecuteAssertionHandler;
+
+                    AnotherExecutedHandler = anotherExecutedAssertionHandler;
+                    AnotherCanExecuteHandler = anotherCanExecuteAssertionHandler;
+                }
+            }
+
+            public class OneArgumentExecutedOnlyHandlerController
+            {
+                private void TestCommand_Executed(ExecutedRoutedEventArgs e) => ExecutedHandler(e);
+                private Action<ExecutedRoutedEventArgs> ExecutedHandler { get; }
+
+                public OneArgumentExecutedOnlyHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler)
+                {
+                    ExecutedHandler = executedAssertionHandler;
+                }
+            }
+
+            public class OneArgumentExecutedAndCanExecuteHandlerController
+            {
+                private void TestCommand_Executed(ExecutedRoutedEventArgs e) => ExecutedHandler(e);
+                private Action<ExecutedRoutedEventArgs> ExecutedHandler { get; }
+
+                private void TestCommand_CanExecute(CanExecuteRoutedEventArgs e)
+                {
+                    e.CanExecute = true;
+                    CanExecuteHandler?.Invoke(e);
+                }
+                private Action<CanExecuteRoutedEventArgs> CanExecuteHandler { get; }
+
+                private void AnotherTestCommand_Executed(ExecutedRoutedEventArgs e) => AnotherExecutedHandler?.Invoke(e);
+                private Action<ExecutedRoutedEventArgs> AnotherExecutedHandler { get; }
+
+                private void AnotherTestCommand_CanExecute(CanExecuteRoutedEventArgs e)
+                {
+                    e.CanExecute = true;
+                    AnotherCanExecuteHandler?.Invoke(e);
+                }
+                private Action<CanExecuteRoutedEventArgs> AnotherCanExecuteHandler { get; }
+
+                public OneArgumentExecutedAndCanExecuteHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler, Action<CanExecuteRoutedEventArgs> canExecuteAssertionHandler) : this(executedAssertionHandler, canExecuteAssertionHandler, null, null)
+                {
+                }
+
+                public OneArgumentExecutedAndCanExecuteHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler, Action<CanExecuteRoutedEventArgs> canExecuteAssertionHandler, Action<ExecutedRoutedEventArgs> anotherExecutedAssertionHandler, Action<CanExecuteRoutedEventArgs> anotherCanExecuteAssertionHandler)
+                {
+                    ExecutedHandler = executedAssertionHandler;
+                    CanExecuteHandler = canExecuteAssertionHandler;
+
+                    AnotherExecutedHandler = e => anotherExecutedAssertionHandler?.Invoke(e);
+                    AnotherCanExecuteHandler = e => anotherCanExecuteAssertionHandler?.Invoke(e);
+                }
+            }
+
+            public class ExecutedOnlyHandlerController
+            {
+                private void TestCommand_Executed(object sender, ExecutedRoutedEventArgs e) => ExecutedHandler(sender, e);
+                private ExecutedRoutedEventHandler ExecutedHandler { get; }
+
+                public ExecutedOnlyHandlerController(ExecutedRoutedEventHandler executedAssertionHandler)
+                {
+                    ExecutedHandler = executedAssertionHandler;
+                }
+            }
+
+            public class ExecutedAndCanExecuteHandlerController
+            {
+                private void TestCommand_Executed(object sender, ExecutedRoutedEventArgs e) => ExecutedHandler(sender, e);
+                private ExecutedRoutedEventHandler ExecutedHandler { get; }
+
+                private void TestCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+                {
+                    e.CanExecute = true;
+                    CanExecuteHandler?.Invoke(sender, e);
+                }
+                private CanExecuteRoutedEventHandler CanExecuteHandler { get; }
+
+                private void AnotherTestCommand_Executed(object sender, ExecutedRoutedEventArgs e) => AnotherExecutedHandler?.Invoke(sender, e);
+                private ExecutedRoutedEventHandler AnotherExecutedHandler { get; }
+
+                private void AnotherTestCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
                 {
                     e.CanExecute = true;
                     AnotherCanExecuteHandler?.Invoke(sender, e);

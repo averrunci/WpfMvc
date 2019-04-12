@@ -71,6 +71,7 @@
     <Compile Include="Mvc\WpfControllerSpec_EventHandlerDataContextElementInjection_AddEventHandler.cs" />
     <Compile Include="Mvc\WpfControllerSpec_EventHandlerDataContextElementInjection_AddEventHandler_AttributedToField.cs" />
     <Compile Include="Mvc\WpfControllerSpec_EventHandlerDataContextElementInjection_AddEventHandler_AttributedToMethod.cs" />
+    <Compile Include="Mvc\WpfControllerSpec_EventHandlerDataContextElementInjection_AddEventHandler_AttributedToMethodUsingNamingConvention.cs" />
     <Compile Include="Mvc\WpfControllerSpec_EventHandlerDataContextElementInjection_AddEventHandler_AttributedToProperty.cs" />
     <Compile Include="Mvc\WpfControllerSpec_EventHandlerDataContextElementInjection_SetDataContext.cs" />
     <Compile Include="Mvc\WpfControllerSpec_EventHandlerDataContextElementInjection_SetElement.cs" />
