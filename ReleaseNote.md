@@ -1,5 +1,16 @@
 # Release note
 
+## V2.2.0
+
+### Add
+
+- Add the function to set command handlers using a naming convention (ElementName_Executed or ElementName_CanExecute).
+
+### Changes
+
+- Change Charites version to 1.2.0.
+- Change Charites.Bindings version to 1.2.0.
+
 ## V2.1.0
 
 ### Add

@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
   <metadata>
     <id>WpfMvc</id>
-    <version>2.1.0</version>
+    <version>2.2.0</version>
     <title>WPF MVC</title>
     <authors>averrunci</authors>
     <owners>averrunci</owners>
@@ -10,7 +10,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>The class library for Windows Presentation Foundation with Model View Controller</description>
     <language>en-US</language>
-    <copyright>Copyright (C) 2018 Fievus</copyright>
+    <copyright>Copyright (C) 2018-2019 Fievus</copyright>
     <tags>wpf mvc charites</tags>
     <frameworkAssemblies>
       <frameworkAssembly assemblyName="PresentationCore" targetFramework="net46"/>
@@ -21,8 +21,8 @@
       <frameworkAssembly assemblyName="WindowsBase" targetFramework="net46"/>
     </frameworkAssemblies>
     <dependencies>
-      <dependency id="Charites" version="1.1.0"/>
-      <dependency id="Charites.Bindings" version="1.1.0"/>
+      <dependency id="Charites" version="1.2.0"/>
+      <dependency id="Charites.Bindings" version="1.2.0"/>
     </dependencies>
   </metadata>
   <files>

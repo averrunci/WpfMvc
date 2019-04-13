@@ -127,6 +127,24 @@ private void ActionButton_Click(object sender, RoutedEventArgs e)
 }
 ```
 
+If the method name is "[ElementName]_[EventName]", this attribute does not have to be specified.
+``` csharp
+private void ActionButton_Click()
+{
+    // implements the action.
+}
+
+private void ActionButton_Click(RoutedEventArgs e)
+{
+    // implements the action.
+}
+
+private void ActionButton_Click(object sender, RoutedEventArgs e)
+{
+    // implements the action.
+}
+```
+
 ### CommandHandlerAttribute
 
 This attribute is specified to the method to handle a command event.
@@ -141,6 +159,7 @@ private void ActionCommand_Executed(ExecutedRoutedEVentArgs e)
 {
     // implements the action of the command Executed event.
 }
+
 [CommandHandler(CommandName = "ActionCommand")]
 private void ActionCommand_CanExecute(CanExecuteRoutedEventArgs e)
 {
@@ -163,6 +182,29 @@ private void ActionCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e
 }
 ```
 
+If the method name is "[ElementName]_Executed" or "[ElementName]_CanExecute", this attribute does not have to be specified.
+``` csharp
+private void ActionCommand_Executed(ExecutedRoutedEventArgs e)
+{
+    // implements the action of the command Executed event.
+}
+
+private void ActionCommand_CanExecute(CanExecuteRoutedEventArgs e)
+{
+    // implements the action of the command CanExecute event.
+}
+
+private void ActionCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+{
+    // implements the action of the command Executed event.
+}
+
+private void ActionCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+{
+    // implements the action of the command CanExecute event.
+}
+```
+
 ### DataContextAttribute
 
 This attribute is specified to the field, property, or method to which a DataContext is injected.
@@ -173,25 +215,34 @@ The implementation is as follows;
 
 ``` csharp
 [DataContext]
-private DataContexType context;
+private DataContexType dataContext;
 ```
 
 - Property
 
 ``` csharp
 [DataContext]
-public DataContexType Context { get; set; }
+public DataContexType DataContext { get; set; }
 ```
 
 - Method
 
 ``` csharp
 [DataContext]
-public void SetContext(DataContexType context)
+public void SetDataContext(DataContexType dataContext)
 {
-    this.context = context;
+    this.dataContext = dataContext;
 }
-private DataContexType context;
+private DataContexType dataContext;
+```
+
+If the method name is "SetDataContext", this attribute does not have to be specified.
+``` csharp
+private void SetDataContext(DataContextType dataContext)
+{
+    this.dataContext = dataContext;
+}
+private DatacontextType dataContext;
 ```
 
 ### ElementAttribute
