@@ -33,8 +33,8 @@
     <DocumentationFile>..\..\Binary\Release\WpfMvc.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Charites, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Charites.1.2.0\lib\netstandard2.0\Charites.dll</HintPath>
+    <Reference Include="Charites, Version=1.3.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Charites.1.3.0\lib\netstandard2.0\Charites.dll</HintPath>
     </Reference>
     <Reference Include="Charites.Bindings, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Charites.Bindings.1.2.0\lib\netstandard2.0\Charites.Bindings.dll</HintPath>

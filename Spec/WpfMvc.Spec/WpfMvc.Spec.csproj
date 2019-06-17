@@ -34,8 +34,8 @@
     <Reference Include="Carna, Version=1.6.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Carna.1.6.0\lib\netstandard2.0\Carna.dll</HintPath>
     </Reference>
-    <Reference Include="Charites, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Charites.1.2.0\lib\netstandard2.0\Charites.dll</HintPath>
+    <Reference Include="Charites, Version=1.3.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Charites.1.3.0\lib\netstandard2.0\Charites.dll</HintPath>
     </Reference>
     <Reference Include="FluentAssertions, Version=5.7.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\FluentAssertions.5.7.0\lib\net47\FluentAssertions.dll</HintPath>
