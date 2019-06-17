@@ -31,8 +31,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Carna, Version=1.5.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Carna.1.5.1\lib\netstandard2.0\Carna.dll</HintPath>
+    <Reference Include="Carna, Version=1.6.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Carna.1.6.0\lib\netstandard2.0\Carna.dll</HintPath>
     </Reference>
     <Reference Include="Charites, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Charites.1.2.0\lib\netstandard2.0\Charites.dll</HintPath>
