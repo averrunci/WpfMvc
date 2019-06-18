@@ -1,8 +1,9 @@
-﻿// Copyright (C) 2018 Fievus
+﻿// Copyright (C) 2018-2019 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Windows;
 
@@ -82,6 +83,16 @@ namespace Charites.Windows.Mvc
             {
                 eventInfo.RemoveMethod.Invoke(element, new object[] { handler });
             }
+        }
+
+        /// <summary>
+        /// Creates the resolver to resolve dependencies of parameters.
+        /// </summary>
+        /// <param name="dependencyResolver">The resolver to resolve dependencies of parameters.</param>
+        /// <returns>The resolver to resolve dependencies of parameters.</returns>
+        protected override IParameterDependencyResolver CreateParameterDependencyResolver(IDictionary<Type, Func<object>> dependencyResolver)
+        {
+            return new WpfParameterDependencyResolver(dependencyResolver);
         }
     }
 }

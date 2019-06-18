@@ -1,8 +1,9 @@
-﻿// Copyright (C) 2018 Fievus
+﻿// Copyright (C) 2018-2019 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
@@ -47,13 +48,12 @@ namespace Charites.Windows.Mvc
 
             public object Handle(object sender, DependencyPropertyChangedEventArgs e)
             {
-                switch (method.GetParameters().Length)
-                {
-                    case 0: return Handle(null);
-                    case 1: return Handle(new object[] { e });
-                    case 2: return Handle(new[] { sender, e });
-                    default: throw new InvalidOperationException("The length of the method parameters must be less than 3.");
-                }
+                return Handle(sender, e, null);
+            }
+
+            public object Handle(object sender, DependencyPropertyChangedEventArgs e, IDictionary<Type, Func<object>> dependencyResolver)
+            {
+                return Handle(CreateParameterDependencyResolver(dependencyResolver).Resolve(method, sender, e));
             }
 
             private object Handle(object[] parameters)
@@ -85,6 +85,11 @@ namespace Charites.Windows.Mvc
             }
 
             private bool HandleUnhandledException(Exception exc) => WpfController.HandleUnhandledException(exc);
+
+            private IParameterDependencyResolver CreateParameterDependencyResolver(IDictionary<Type, Func<object>> dependencyResolver)
+            {
+                return new WpfParameterDependencyResolver(dependencyResolver);
+            }
         }
     }
 }

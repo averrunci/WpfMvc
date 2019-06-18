@@ -84,6 +84,7 @@
     <Compile Include="Runners\WpfApplicationDataContext.cs" />
     <Compile Include="Runners\WpfApplicationRunner.cs" />
     <Compile Include="Mvc\WpfElementInjector.cs" />
+    <Compile Include="Mvc\WpfParameterDependencyResolver.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

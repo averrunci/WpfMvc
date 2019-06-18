@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
@@ -107,8 +108,8 @@ namespace Charites.Windows.Mvc
         {
             if (method == null) return null;
 
-            var parameters = method.GetParameters();
-            switch (parameters.Length)
+            var parameters = method.GetParameters().Where(parameter => parameter.GetCustomAttribute<FromDIAttribute>() == null).ToList();
+            switch (parameters.Count)
             {
                 case 1:
                     if (parameters[0].ParameterType == typeof(ExecutedRoutedEventArgs))
@@ -164,12 +165,47 @@ namespace Charites.Windows.Mvc
 
             public object Handle(object sender, T e)
             {
-                switch (method.GetParameters().Length)
+                return Handle(sender, e, null);
+            }
+
+            public object Handle(object sender, T e, IDictionary<Type, Func<object>> dependencyResolver)
+            {
+                return Handle(CreateParameterDependencyResolver(dependencyResolver).Resolve(method, sender, e));
+            }
+
+            private object Handle(object[] parameters)
+            {
+                try
                 {
-                    case 1: return method.Invoke(target, new object[] { e });
-                    case 2: return method.Invoke(target, new[] { sender, e });
-                    default: throw new InvalidOperationException("The length of the method parameters must be 1 or 2.");
+                    var returnValue = method.Invoke(target, parameters);
+                    if (returnValue is Task task) Await(task);
+                    return returnValue;
                 }
+                catch (Exception exc)
+                {
+                    if (!HandleUnhandledException(exc)) throw;
+
+                    return null;
+                }
+            }
+
+            private async void Await(Task task)
+            {
+                try
+                {
+                    await task;
+                }
+                catch (Exception exc)
+                {
+                    if (!HandleUnhandledException(exc)) throw;
+                }
+            }
+
+            private bool HandleUnhandledException(Exception exc) => WpfController.HandleUnhandledException(exc);
+
+            private IParameterDependencyResolver CreateParameterDependencyResolver(IDictionary<Type, Func<object>> dependencyResolver)
+            {
+                return new WpfParameterDependencyResolver(dependencyResolver);
             }
         }
 
