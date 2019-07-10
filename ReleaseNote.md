@@ -1,6 +1,16 @@
 # Release note
 
-## V2.2.0
+## v2.3.0
+
+### Add
+
+- Add the function to inject dependencies of parameters based on the FromDIAttribute attribute.
+
+### Changes
+
+- Change Charites version to 1.3.0.
+
+## v2.2.0
 
 ### Add
 
@@ -11,19 +21,19 @@
 - Change Charites version to 1.2.0.
 - Change Charites.Bindings version to 1.2.0.
 
-## V2.1.0
+## v2.1.0
 
 ### Add
 
 - Add the UnhandledException event to the WpfController.
 
-## V2.0.1
+## v2.0.1
 
 ### Bug fix
 
 Fixed to be able to handle the DataContextChanged event.
 
-## V2.0.0
+## v2.0.0
 
 ### Changes
 
@@ -33,7 +43,7 @@ Fixed to be able to handle the DataContextChanged event.
 - Change the namespace from Fievus to Charites.
 - Change the testing framework from NUnit to Carna.
 
-## V1.4.0
+## v1.4.0
 
 ### Add
 

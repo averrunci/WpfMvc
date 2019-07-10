@@ -205,6 +205,27 @@ private void ActionCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e
 }
 ```
 
+### FromDIAttribute
+
+This attribute is specified to the parameter. Its parameter value is injected using the dependency injection.
+
+``` csharp
+private void ActionButton_Click([FromDI] IDataLoader dataLoader)
+{
+    // implements the action.
+}
+
+private void ActionButton_Click(RoutedEventArgs e, [FromDI] IDataLoader dataLoader)
+{
+    // implements the action.
+}
+
+private void ActionButton_Click(object sender, RoutedEventArgs e, [FromDI] IDataLoader dataLoader)
+{
+    // implements the action.
+}
+```
+
 ### DataContextAttribute
 
 This attribute is specified to the field, property, or method to which a DataContext is injected.
