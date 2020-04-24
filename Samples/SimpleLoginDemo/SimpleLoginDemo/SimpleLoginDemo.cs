@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.Extensions.Hosting;
 
-namespace Charites.Windows.Samples.SimpleTodo
+namespace Charites.Windows.Samples.SimpleLoginDemo
 {
-    internal class SimpleTodo : IHostedService
+    internal class SimpleLoginDemo : IHostedService
     {
         private readonly Application application;
 
-        public SimpleTodo(Application application)
+        public SimpleLoginDemo(Application application)
         {
             this.application = application ?? throw new ArgumentNullException(nameof(application));
         }

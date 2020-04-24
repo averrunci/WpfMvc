@@ -1,124 +1,112 @@
-﻿// Copyright (C) 2018 Fievus
+﻿// Copyright (C) 2018-2020 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
-using System;
 using System.Windows;
 using Carna;
-using Charites.Windows.Runners;
-using FluentAssertions;
 
 namespace Charites.Windows.Mvc
 {
     [Context("The event handlers are attributed to fields")]
-    class WpfControllerSpec_EventHandlerDataContextElementInjection_AddEventHandler_AttributedToField : FixtureSteppable, IDisposable
+    class WpfControllerSpec_EventHandlerDataContextElementInjection_AddEventHandler_AttributedToField : FixtureSteppable
     {
-        IWpfApplicationRunner<Application> WpfRunner { get; }
+        object DataContext { get; } = new object();
+        FrameworkElement ChildElement { get; } = new FrameworkElement { Name = "childElement" };
+        TestElement Element { get; }
 
-        const string DataContextKey = "DataContext";
-        const string ChildElementKey = "ChildElement";
-        const string ElementKey = "Element";
-        const string ControllerKey = "Controller";
-        const string EventHandledKey = "EventHandled";
+        bool EventHandled { get; set; }
 
+        [Background("a data context, a child element, and an element that the child element")]
         public WpfControllerSpec_EventHandlerDataContextElementInjection_AddEventHandler_AttributedToField()
         {
-            WpfRunner = WpfApplicationRunner.Start<Application>();
-        }
-
-        public void Dispose()
-        {
-            WpfRunner.Shutdown();
+            Element = new TestElement { Name = "element", Content = ChildElement, DataContext = DataContext };
         }
 
         [Example("When an event handler has no argument")]
         void Ex01()
         {
-            Given("a data context", () => WpfRunner.Run((application, context) => context.Set(DataContextKey, new object())));
-            Given("a child element", () => WpfRunner.Run((application, context) => context.Set(ChildElementKey, new FrameworkElement { Name = "childElement" })));
-            Given("an element that has the child element", () => WpfRunner.Run((application, context) => context.Set(ElementKey, new TestElement { Name = "element", Content = context.Get<FrameworkElement>(ChildElementKey), DataContext = context.Get<object>(DataContextKey) })));
-            Given("a controller that has event handlers", () => WpfRunner.Run((application, context) =>
+            TestWpfControllers.AttributedToField.NoArgumentHandlerController controller = null;
+
+            Given("a controller that has event handlers", () =>
             {
-                void HandleEvent() => context.Set(EventHandledKey, true);
-                context.Set(ControllerKey, new TestWpfControllers.AttributedToField.NoArgumentHandlerController(HandleEvent));
-            }));
+                void HandleEvent() => EventHandled = true;
+                controller = new TestWpfControllers.AttributedToField.NoArgumentHandlerController(HandleEvent);
+            });
 
-            When("the controller is added", () => WpfRunner.Run((application, context) => WpfController.GetControllers(context.Get<TestElement>(ElementKey)).Add(context.Get<TestWpfControllers.AttributedToField.NoArgumentHandlerController>(ControllerKey))));
-            When("the controller is attached to the element", () => WpfRunner.Run((application, context) => WpfController.GetControllers(context.Get<TestElement>(ElementKey)).AttachTo(context.Get<TestElement>(ElementKey))));
+            When("the controller is added", () => WpfController.GetControllers(Element).Add(controller));
+            When("the controller is attached to the element", () => WpfController.GetControllers(Element).AttachTo(Element));
 
-            Then("the data context of the controller should be set", () => WpfRunner.Run((application, context) => context.Get<TestWpfControllers.AttributedToField.NoArgumentHandlerController>(ControllerKey).DataContext.Should().Be(context.Get<object>(DataContextKey))));
-            Then("the element of the controller should be set", () => WpfRunner.Run((application, context) => context.Get<TestWpfControllers.AttributedToField.NoArgumentHandlerController>(ControllerKey).Element.Should().Be(context.Get<TestElement>(ElementKey))));
-            Then("the child element of the controller should be set", () => WpfRunner.Run((application, context) => context.Get<TestWpfControllers.AttributedToField.NoArgumentHandlerController>(ControllerKey).ChildElement.Should().Be(context.Get<FrameworkElement>(ChildElementKey))));
+            Then("the data context of the controller should be set", () => controller.DataContext == DataContext);
+            Then("the element of the controller should be set", () => controller.Element == Element);
+            Then("the child element of the controller should be set", () => controller.ChildElement == ChildElement);
 
-            When("the Initialized event is raised", () => WpfRunner.Run((application, context) => context.Get<TestElement>(ElementKey).RaiseInitialized()));
+            When("the Initialized event is raised", () => Element.RaiseInitialized());
 
-            Then("the data context of the controller should be set", () => WpfRunner.Run((application, context) => context.Get<TestWpfControllers.AttributedToField.NoArgumentHandlerController>(ControllerKey).DataContext.Should().Be(context.Get<object>(DataContextKey))));
-            Then("the element of the controller should be set", () => WpfRunner.Run((application, context) => context.Get<TestWpfControllers.AttributedToField.NoArgumentHandlerController>(ControllerKey).Element.Should().Be(context.Get<TestElement>(ElementKey))));
-            Then("the child element of the controller should be set", () => WpfRunner.Run((application, context) => context.Get<TestWpfControllers.AttributedToField.NoArgumentHandlerController>(ControllerKey).ChildElement.Should().Be(context.Get<FrameworkElement>(ChildElementKey))));
+            Then("the data context of the controller should be set", () => controller.DataContext == DataContext);
+            Then("the element of the controller should be set", () => controller.Element == Element);
+            Then("the child element of the controller should be set", () => controller.ChildElement == ChildElement);
 
-            When("the Loaded event of the child element is raised", () => WpfRunner.Run((application, context) => context.Get<FrameworkElement>(ChildElementKey).RaiseEvent(new RoutedEventArgs(FrameworkElement.LoadedEvent) { Source = context.Get<FrameworkElement>(ChildElementKey) })));
+            When("the Loaded event of the child element is raised", () => ChildElement.RaiseEvent(new RoutedEventArgs(FrameworkElement.LoadedEvent) { Source = ChildElement }));
 
-            Then("the Loaded event should be handled", () => WpfRunner.Run((application, context) => context.Get<bool>(EventHandledKey).Should().BeTrue()));
+            Then("the Loaded event should be handled", () => EventHandled);
         }
 
         [Example("When an event handler has one argument")]
         void Ex02()
         {
-            Given("a data context", () => WpfRunner.Run((application, context) => context.Set(DataContextKey, new object())));
-            Given("a child element", () => WpfRunner.Run((application, context) => context.Set(ChildElementKey, new FrameworkElement { Name = "childElement" })));
-            Given("an element that has the child element", () => WpfRunner.Run((application, context) => context.Set(ElementKey, new TestElement { Name = "element", Content = context.Get<FrameworkElement>(ChildElementKey), DataContext = context.Get<object>(DataContextKey) })));
-            Given("a controller that has event handlers", () => WpfRunner.Run((application, context) =>
+            TestWpfControllers.AttributedToField.OneArgumentHandlerController controller = null;
+
+            Given("a controller that has event handlers", () =>
             {
-                void HandleEvent(RoutedEventArgs e) => context.Set(EventHandledKey, Equals(e.Source, context.Get<FrameworkElement>(ChildElementKey)));
-                context.Set(ControllerKey, new TestWpfControllers.AttributedToField.OneArgumentHandlerController(HandleEvent));
-            }));
+                void HandleEvent(RoutedEventArgs e) => EventHandled = Equals(e.Source, ChildElement);
+                controller = new TestWpfControllers.AttributedToField.OneArgumentHandlerController(HandleEvent);
+            });
 
-            When("the controller is added", () => WpfRunner.Run((application, context) => WpfController.GetControllers(context.Get<TestElement>(ElementKey)).Add(context.Get<TestWpfControllers.AttributedToField.OneArgumentHandlerController>(ControllerKey))));
-            When("the controller is attached to the element", () => WpfRunner.Run((application, context) => WpfController.GetControllers(context.Get<TestElement>(ElementKey)).AttachTo(context.Get<TestElement>(ElementKey))));
+            When("the controller is added", () => WpfController.GetControllers(Element).Add(controller));
+            When("the controller is attached to the element", () => WpfController.GetControllers(Element).AttachTo(Element));
 
-            Then("the data context of the controller should be set", () => WpfRunner.Run((application, context) => context.Get<TestWpfControllers.AttributedToField.OneArgumentHandlerController>(ControllerKey).DataContext.Should().Be(context.Get<object>(DataContextKey))));
-            Then("the element of the controller should be set", () => WpfRunner.Run((application, context) => context.Get<TestWpfControllers.AttributedToField.OneArgumentHandlerController>(ControllerKey).Element.Should().Be(context.Get<TestElement>(ElementKey))));
-            Then("the child element of the controller should be set", () => WpfRunner.Run((application, context) => context.Get<TestWpfControllers.AttributedToField.OneArgumentHandlerController>(ControllerKey).ChildElement.Should().Be(context.Get<FrameworkElement>(ChildElementKey))));
+            Then("the data context of the controller should be set", () => controller.DataContext == DataContext);
+            Then("the element of the controller should be set", () => controller.Element == Element);
+            Then("the child element of the controller should be set", () => controller.ChildElement == ChildElement);
 
-            When("the Initialized event is raised", () => WpfRunner.Run((application, context) => context.Get<TestElement>(ElementKey).RaiseInitialized()));
+            When("the Initialized event is raised", () => Element.RaiseInitialized());
 
-            Then("the data context of the controller should be set", () => WpfRunner.Run((application, context) => context.Get<TestWpfControllers.AttributedToField.OneArgumentHandlerController>(ControllerKey).DataContext.Should().Be(context.Get<object>(DataContextKey))));
-            Then("the element of the controller should be set", () => WpfRunner.Run((application, context) => context.Get<TestWpfControllers.AttributedToField.OneArgumentHandlerController>(ControllerKey).Element.Should().Be(context.Get<TestElement>(ElementKey))));
-            Then("the child element of the controller should be set", () => WpfRunner.Run((application, context) => context.Get<TestWpfControllers.AttributedToField.OneArgumentHandlerController>(ControllerKey).ChildElement.Should().Be(context.Get<FrameworkElement>(ChildElementKey))));
+            Then("the data context of the controller should be set", () => controller.DataContext == DataContext);
+            Then("the element of the controller should be set", () => controller.Element == Element);
+            Then("the child element of the controller should be set", () => controller.ChildElement == ChildElement);
 
-            When("the Loaded event of the child element is raised", () => WpfRunner.Run((application, context) => context.Get<FrameworkElement>(ChildElementKey).RaiseEvent(new RoutedEventArgs(FrameworkElement.LoadedEvent) { Source = context.Get<FrameworkElement>(ChildElementKey) })));
+            When("the Loaded event of the child element is raised", () => ChildElement.RaiseEvent(new RoutedEventArgs(FrameworkElement.LoadedEvent) { Source = ChildElement }));
 
-            Then("the Loaded event should be handled", () => WpfRunner.Run((application, context) => context.Get<bool>(EventHandledKey).Should().BeTrue()));
+            Then("the Loaded event should be handled", () => EventHandled);
         }
 
         [Example("When an event handler is the RoutedEventHandler")]
         void Ex03()
         {
-            Given("a data context", () => WpfRunner.Run((application, context) => context.Set(DataContextKey, new object())));
-            Given("a child element", () => WpfRunner.Run((application, context) => context.Set(ChildElementKey, new FrameworkElement { Name = "childElement" })));
-            Given("an element that has the child element", () => WpfRunner.Run((application, context) => context.Set(ElementKey, new TestElement { Name = "element", Content = context.Get<FrameworkElement>(ChildElementKey), DataContext = context.Get<object>(DataContextKey) })));
-            Given("a controller that has event handlers", () => WpfRunner.Run((application, context) =>
+            TestWpfControllers.AttributedToField.RoutedEventHandlerController controller = null;
+
+            Given("a controller that has event handlers", () =>
             {
-                void HandleEvent(object s, RoutedEventArgs e) => context.Set(EventHandledKey, Equals(s, context.Get<FrameworkElement>(ChildElementKey)) && Equals(e.Source, context.Get<FrameworkElement>(ChildElementKey)));
-                context.Set(ControllerKey, new TestWpfControllers.AttributedToField.RoutedEventHandlerController(HandleEvent));
-            }));
+                void HandleEvent(object s, RoutedEventArgs e) => EventHandled = Equals(s, ChildElement) && Equals(e.Source, ChildElement);
+                controller = new TestWpfControllers.AttributedToField.RoutedEventHandlerController(HandleEvent);
+            });
 
-            When("the controller is added", () => WpfRunner.Run((application, context) => WpfController.GetControllers(context.Get<TestElement>(ElementKey)).Add(context.Get<TestWpfControllers.AttributedToField.RoutedEventHandlerController>(ControllerKey))));
-            When("the controller is attached to the element", () => WpfRunner.Run((application, context) => WpfController.GetControllers(context.Get<TestElement>(ElementKey)).AttachTo(context.Get<TestElement>(ElementKey))));
+            When("the controller is added", () => WpfController.GetControllers(Element).Add(controller));
+            When("the controller is attached to the element", () => WpfController.GetControllers(Element).AttachTo(Element));
 
-            Then("the data context of the controller should be set", () => WpfRunner.Run((application, context) => context.Get<TestWpfControllers.AttributedToField.RoutedEventHandlerController>(ControllerKey).DataContext.Should().Be(context.Get<object>(DataContextKey))));
-            Then("the element of the controller should be set", () => WpfRunner.Run((application, context) => context.Get<TestWpfControllers.AttributedToField.RoutedEventHandlerController>(ControllerKey).Element.Should().Be(context.Get<TestElement>(ElementKey))));
-            Then("the child element of the controller should be set", () => WpfRunner.Run((application, context) => context.Get<TestWpfControllers.AttributedToField.RoutedEventHandlerController>(ControllerKey).ChildElement.Should().Be(context.Get<FrameworkElement>(ChildElementKey))));
+            Then("the data context of the controller should be set", () => controller.DataContext == DataContext);
+            Then("the element of the controller should be set", () => controller.Element == Element);
+            Then("the child element of the controller should be set", () => controller.ChildElement == ChildElement);
 
-            When("the Initialized event is raised", () => WpfRunner.Run((application, context) => context.Get<TestElement>(ElementKey).RaiseInitialized()));
+            When("the Initialized event is raised", () => Element.RaiseInitialized());
 
-            Then("the data context of the controller should be set", () => WpfRunner.Run((application, context) => context.Get<TestWpfControllers.AttributedToField.RoutedEventHandlerController>(ControllerKey).DataContext.Should().Be(context.Get<object>(DataContextKey))));
-            Then("the element of the controller should be set", () => WpfRunner.Run((application, context) => context.Get<TestWpfControllers.AttributedToField.RoutedEventHandlerController>(ControllerKey).Element.Should().Be(context.Get<TestElement>(ElementKey))));
-            Then("the child element of the controller should be set", () => WpfRunner.Run((application, context) => context.Get<TestWpfControllers.AttributedToField.RoutedEventHandlerController>(ControllerKey).ChildElement.Should().Be(context.Get<FrameworkElement>(ChildElementKey))));
+            Then("the data context of the controller should be set", () => controller.DataContext == DataContext);
+            Then("the element of the controller should be set", () => controller.Element == Element);
+            Then("the child element of the controller should be set", () => controller.ChildElement == ChildElement);
 
-            When("the Loaded event of the child element is raised", () => WpfRunner.Run((application, context) => context.Get<FrameworkElement>(ChildElementKey).RaiseEvent(new RoutedEventArgs(FrameworkElement.LoadedEvent) { Source = context.Get<FrameworkElement>(ChildElementKey) })));
+            When("the Loaded event of the child element is raised", () => ChildElement.RaiseEvent(new RoutedEventArgs(FrameworkElement.LoadedEvent) { Source = ChildElement }));
 
-            Then("the Loaded event should be handled", () => WpfRunner.Run((application, context) => context.Get<bool>(EventHandledKey).Should().BeTrue()));
+            Then("the Loaded event should be handled", () => EventHandled);
         }
     }
 }

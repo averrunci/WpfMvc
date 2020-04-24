@@ -1,4 +1,4 @@
-// Copyright (C) 2018 Fievus
+// Copyright (C) 2018-2020 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
@@ -9,21 +9,23 @@ using System.Windows.Threading;
 using Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents;
 using Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login;
 using Charites.Windows.Mvc;
+using Microsoft.Extensions.Hosting;
 
 namespace Charites.Windows.Samples.SimpleLoginDemo
 {
-    public class SimpleLoginDemo : Application
+    public class SimpleLoginDemoApplication : Application
     {
-        [STAThread]
-        static void Main()
-        {
-            new SimpleLoginDemo().Run();
-        }
+        private readonly IHostApplicationLifetime lifetime;
 
-        public SimpleLoginDemo()
+        public SimpleLoginDemoApplication(IHostApplicationLifetime lifetime, IServiceProvider services)
         {
-            Startup += SimpleLoginDemo_Startup;
-            DispatcherUnhandledException += SimpleLoginDemo_DispatcherUnhandledException;
+            this.lifetime = lifetime ?? throw new ArgumentNullException(nameof(lifetime));
+
+            Startup += SimpleLoginDemoApplication_Startup;
+            Exit += SimpleLoginDemoApplication_Exit;
+            DispatcherUnhandledException += SimpleLoginDemoApplication_DispatcherUnhandledException;
+
+            WpfController.ControllerFactory = new SimpleLoginDemoControllerFactory(services);
 
             AddResourceDictionary("Resources.xaml");
         }
@@ -36,16 +38,14 @@ namespace Charites.Windows.Samples.SimpleLoginDemo
             });
         }
 
-        private void SimpleLoginDemo_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+        private void SimpleLoginDemoApplication_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
             MessageBox.Show(e.Exception.ToString());
             e.Handled = true;
         }
 
-        private void SimpleLoginDemo_Startup(object sender, StartupEventArgs e)
+        private void SimpleLoginDemoApplication_Startup(object sender, StartupEventArgs e)
         {
-            WpfController.ControllerFactory = new SimpleLoginDemoControllerFactory();
-
             MainWindow = new Window
             {
                 Style = FindResource("MainWindowStyle") as Style,
@@ -53,6 +53,11 @@ namespace Charites.Windows.Samples.SimpleLoginDemo
                 DataContext = new MainContent(new LoginContent())
             };
             MainWindow.Show();
+        }
+
+        private void SimpleLoginDemoApplication_Exit(object sender, ExitEventArgs e)
+        {
+            lifetime.StopApplication();
         }
     }
 }

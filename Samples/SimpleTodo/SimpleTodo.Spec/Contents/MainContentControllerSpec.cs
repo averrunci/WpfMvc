@@ -1,80 +1,52 @@
-﻿// Copyright (C) 2018 Fievus
+﻿// Copyright (C) 2018-2020 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
-
-using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using Carna;
 using Charites.Windows.Mvc;
-using Charites.Windows.Runners;
-using Charites.Windows.Samples.SimpleTodo.Contents;
-using FluentAssertions;
 using NSubstitute;
 
-namespace Charites.Windows.Samples.SimpleTodo.Test.Content
+namespace Charites.Windows.Samples.SimpleTodo.Contents
 {
-    [Specification("MainContentController Spec")]
-    class MainContentControllerSpec : FixtureSteppable, IDisposable
+    [Specification("MainContentController Spec", RequiresSta = true)]
+    class MainContentControllerSpec : FixtureSteppable
     {
-        IWpfApplicationRunner<Application> WpfRunner { get; }
+        MainContent MainContent { get; } = new MainContent();
+        MainContentController Controller { get; } = new MainContentController();
 
-        const string ControllerKey = "Controller";
-        const string MainContentKey = "MainContent";
-
+        [Background("a controller that has a to-do item")]
         public MainContentControllerSpec()
         {
-            WpfRunner = WpfApplicationRunner.Start<Application>();
-        }
-
-        public void Dispose()
-        {
-            WpfRunner.Shutdown();
+            WpfController.SetDataContext(MainContent, Controller);
         }
 
         [Example("A to-do item is added when the Enter key is pressed")]
         void Ex01()
         {
-            Given("a controller that has a to-do item", () => WpfRunner.Run((application, context) =>
-            {
-                var mainContent = new MainContent();
-                var controller = new MainContentController();
-                WpfController.SetDataContext(mainContent, controller);
-
-                context.Set(ControllerKey, controller);
-                context.Set(MainContentKey, mainContent);
-            }));
-            When("the content of the to-do is set", () => WpfRunner.Run((application, context) => context.Get<MainContent>(MainContentKey).TodoContent.Value = "Todo Item"));
-            When("the Enter key is pressed", () => WpfRunner.Run((application, context) =>
-                WpfController.EventHandlersOf(context.Get<MainContentController>(ControllerKey))
+            When("the content of the to-do is set", () => MainContent.TodoContent.Value = "Todo Item");
+            When("the Enter key is pressed", () =>
+                WpfController.EventHandlersOf(Controller)
                     .GetBy("TodoContentTextBox")
                     .With(new KeyEventArgs(Keyboard.PrimaryDevice, Substitute.For<PresentationSource>(), 0, Key.Enter))
                     .Raise(UIElement.KeyDownEvent.Name)
-            ));
-            Then("a to-do item should be added", () => WpfRunner.Run((application, context) => context.Get<MainContent>(MainContentKey).TodoItems.Count.Should().Be(1)));
+            );
+            Then("a to-do item should be added", () => MainContent.TodoItems.Count == 1);
         }
 
         [Example("A to-do item is not added when the Tab key is pressed")]
         void Ex02()
         {
-            Given("a controller that has a to-do item", () => WpfRunner.Run((application, context) =>
-            {
-                var mainContent = new MainContent();
-                var controller = new MainContentController();
-                WpfController.SetDataContext(mainContent, controller);
-
-                context.Set(ControllerKey, controller);
-                context.Set(MainContentKey, mainContent);
-            }));
-            When("the content of the to-do is set", () => WpfRunner.Run((application, context) => context.Get<MainContent>(MainContentKey).TodoContent.Value = "Todo Item"));
-            When("the Tab key is pressed", () => WpfRunner.Run((application, context) =>
-                WpfController.EventHandlersOf(context.Get<MainContentController>(ControllerKey))
+            When("the content of the to-do is set", () => MainContent.TodoContent.Value = "Todo Item");
+            When("the Tab key is pressed", () =>
+                WpfController.EventHandlersOf(Controller)
                     .GetBy("TodoContentTextBox")
                     .With(new KeyEventArgs(Keyboard.PrimaryDevice, Substitute.For<PresentationSource>(), 0, Key.Tab))
                     .Raise(UIElement.KeyDownEvent.Name)
-            ));
-            Then("a to-do item should not be added", () => WpfRunner.Run((application, context) => context.Get<MainContent>(MainContentKey).TodoItems.Should().BeEmpty()));
+            );
+            Then("a to-do item should not be added", () => !MainContent.TodoItems.Any());
         }
     }
 }

@@ -1,17 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27703.2035
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleLoginDemo", "SimpleLoginDemo\SimpleLoginDemo.csproj", "{23C7A80E-B3BD-4510-9D44-EBFFA7211F21}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfMvc", "..\..\Source\WpfMvc\WpfMvc.csproj", "{711952B7-2B12-44F2-936A-BB7679E4EE72}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WpfMvc", "..\..\Source\WpfMvc\WpfMvc.csproj", "{711952B7-2B12-44F2-936A-BB7679E4EE72}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleLoginDemo.Presentation", "SimpleLoginDemo.Presentation\SimpleLoginDemo.Presentation.csproj", "{EAA7B78D-B6F7-4C6E-8D33-AFAD99A755C1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleLoginDemo.Adapter", "SimpleLoginDemo.Adapter\SimpleLoginDemo.Adapter.csproj", "{F760E225-5C5B-4486-ABF9-E9347CE751AB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleLoginDemo.Presentation.Spec", "SimpleLoginDemo.Presentation.Spec\SimpleLoginDemo.Presentation.Spec.csproj", "{B40D51C3-8527-409A-A804-889DBCA7148D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleLoginDemoSpecRunner", "SimpleLoginDemoSpecRunner\SimpleLoginDemoSpecRunner.csproj", "{CAE48AC6-055B-42D4-8903-CA9EEA646C7C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{B40D51C3-8527-409A-A804-889DBCA7148D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B40D51C3-8527-409A-A804-889DBCA7148D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B40D51C3-8527-409A-A804-889DBCA7148D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CAE48AC6-055B-42D4-8903-CA9EEA646C7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CAE48AC6-055B-42D4-8903-CA9EEA646C7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CAE48AC6-055B-42D4-8903-CA9EEA646C7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CAE48AC6-055B-42D4-8903-CA9EEA646C7C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

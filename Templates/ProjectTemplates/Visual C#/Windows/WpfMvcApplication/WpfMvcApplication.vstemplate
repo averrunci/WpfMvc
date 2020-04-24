@@ -1,30 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <VSTemplate Version="3.0.0" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" Type="Project">
   <TemplateData>
-    <Name>WpfMvcApplication</Name>
-    <Description>Windows Presentation Foundation client application with Model View Controller Architecture</Description>
+    <Name>WPF Mvc App (.NET Core)</Name>
+    <Description>Windows Presentation Foundation client application with the Model-View-Controller architecture</Description>
     <Icon Package="{b3bae735-386c-4030-8329-ef48eeda4036}" ID="4602" />
     <ProjectType>CSharp</ProjectType>
-    <RequiredFrameworkVersion>3.0</RequiredFrameworkVersion>
-    <SortOrder>11</SortOrder>
-    <NumberOfParentCategoriesToRollUp>2</NumberOfParentCategoriesToRollUp>
+    <SortOrder>1000</SortOrder>
     <CreateNewFolder>true</CreateNewFolder>
     <DefaultName>WpfMvcApplication</DefaultName>
     <ProvideDefaultName>true</ProvideDefaultName>
     <LocationField>Enabled</LocationField>
     <EnableLocationBrowseButton>true</EnableLocationBrowseButton>
+    <CreateInPlace>true</CreateInPlace>
+    <LanguageTag>CSharp</LanguageTag>
+    <PlatformTag>Windows</PlatformTag>
+    <ProjectTypeTag>Desktop</ProjectTypeTag>
   </TemplateData>
   <TemplateContent>
-    <Project File="WpfMvcApplication.csproj" ReplaceParameters="true">
-      <ProjectItem ReplaceParameters="true" TargetFileName="App.config">App.config</ProjectItem>
-      <ProjectItem ReplaceParameters="true" TargetFileName="MainContent.cs">MainContent.cs</ProjectItem>
-      <Folder Name="Properties" TargetFolderName="Properties">
-        <ProjectItem ReplaceParameters="true" TargetFileName="AssemblyInfo.cs">AssemblyInfo.cs</ProjectItem>
-        <ProjectItem ReplaceParameters="true" TargetFileName="Resources.resx">Resources.resx</ProjectItem>
-        <ProjectItem ReplaceParameters="true" TargetFileName="Resources.Designer.cs">Resources.Designer.cs</ProjectItem>
-        <ProjectItem ReplaceParameters="true" TargetFileName="Settings.settings">Settings.settings</ProjectItem>
-        <ProjectItem ReplaceParameters="true" TargetFileName="Settings.Designer.cs">Settings.Designer.cs</ProjectItem>
-      </Folder>
+    <Project File="WpfMvcApp.csproj" ReplaceParameters="true">
       <Folder Name="Resources" TargetFolderName="Resources">
         <ProjectItem ReplaceParameters="true" TargetFileName="Resources.xaml">Resources.xaml</ProjectItem>
         <Folder Name="Styles" TargetFolderName="Styles">
@@ -36,7 +29,13 @@
         </Folder>
         <ProjectItem ReplaceParameters="true" TargetFileName="Templates.xaml">Templates.xaml</ProjectItem>
       </Folder>
-      <ProjectItem ReplaceParameters="true" TargetFileName="$safeprojectname$.cs">WpfMvcApplication.cs</ProjectItem>
+      <ProjectItem ReplaceParameters="true" TargetFileName="AssemblyInfo.cs">AssemblyInfo.cs</ProjectItem>
+      <ProjectItem ReplaceParameters="true" TargetFileName="MainContent.cs">MainContent.cs</ProjectItem>
+      <ProjectItem ReplaceParameters="true" TargetFileName="Program.cs">Program.cs</ProjectItem>
+      <ProjectItem ReplaceParameters="true" TargetFileName="ServiceExtensions.cs">ServiceExtensions.cs</ProjectItem>
+      <ProjectItem ReplaceParameters="true" TargetFileName="$projectname$.cs">WpfMvcApp.cs</ProjectItem>
+      <ProjectItem ReplaceParameters="true" TargetFileName="$projectname$Application.cs">WpfMvcAppApplication.cs</ProjectItem>
+      <ProjectItem ReplaceParameters="true" TargetFileName="$projectname$ControllerFactory.cs">WpfMvcAppControllerFactory.cs</ProjectItem>
     </Project>
   </TemplateContent>
 </VSTemplate>

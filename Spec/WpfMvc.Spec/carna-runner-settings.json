@@ -1,12 +1,13 @@
-﻿{
+{
   "assemblies": [
-    "SimpleTodo.Spec.dll"
+    "WpfMvc.Spec.dll"
   ],
   "reporters": [
     {
       "reporter": {
         "type": "Carna.ConsoleRunner.Reporters.ConsoleFixtureReporter,Carna.ConsoleRunner",
         "options": {
+          "full": true,
           "stepVisible": true
         }
       }

@@ -1,5 +1,3 @@
-using System;
-
 namespace $safeprojectname$
 {
     public class $safeitemrootname$

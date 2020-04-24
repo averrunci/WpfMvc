@@ -1,143 +1,86 @@
-﻿// Copyright (C) 2018 Fievus
+﻿// Copyright (C) 2018-2020 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
-using System.Windows;
 using Carna;
-using Charites.Windows.Runners;
-using FluentAssertions;
 
 namespace Charites.Windows.Mvc
 {
     [Context("Attaches a controller when the IsEnabled property of the WpfController is set to true before the data context of the element is set")]
-    class WpfControllerSpec_AttachingAndDetachingController_IsEnabledBeforeDataContextIsSet : FixtureSteppable, IDisposable
+    class WpfControllerSpec_AttachingAndDetachingController_IsEnabledBeforeDataContextIsSet : FixtureSteppable
     {
-        IWpfApplicationRunner<Application> WpfRunner { get; }
+        TestElement Element { get; set; }
 
-        const string ElementKey = "Element";
-
-        public WpfControllerSpec_AttachingAndDetachingController_IsEnabledBeforeDataContextIsSet()
+        [Example("The WpfController for the element is enabled before a data context of the element is set")]
+        [Sample(Source = typeof(IsEnabledBeforeDataContextIsSetSampleDataSource))]
+        void Ex01(object dataContext, IEnumerable<Type> expectedControllerTypes)
         {
-            WpfRunner = WpfApplicationRunner.Start<Application>();
+            Given("an element that does not contain the data context", () => Element = new TestElement());
+            When("the WpfController is enabled for the element", () => WpfController.SetIsEnabled(Element, true));
+            When("a data context of the element is set", () => Element.DataContext = dataContext);
+            Then("the controller should be attached to the element", () =>
+                WpfController.GetControllers(Element).Select(controller => controller.GetType()).SequenceEqual(expectedControllerTypes) &&
+                WpfController.GetControllers(Element).OfType<TestWpfControllers.TestController>().All(controller => controller.DataContext == Element.DataContext)
+            );
         }
 
-        public void Dispose()
+        class IsEnabledBeforeDataContextIsSetSampleDataSource : ISampleDataSource
         {
-            WpfRunner.Shutdown();
-        }
-
-        [Example("When the key is the name of the data context type")]
-        void Ex01()
-        {
-            Given("an element that does not contain the data context", () => WpfRunner.Run((application, context) => context.Set(ElementKey, new TestElement())));
-            When("the WpfController is enabled for the element", () => WpfRunner.Run((application, context) => WpfController.SetIsEnabled(context.Get<TestElement>(ElementKey), true)));
-            When("a data context of the element is set", () => WpfRunner.Run((application, context) => context.Get<TestElement>(ElementKey).DataContext = new TestDataContexts.AttachingTestDataContext()));
-            Then("the controller should be attached to the element", () => WpfRunner.Run((application, context) =>
+            IEnumerable ISampleDataSource.GetData()
             {
-                var element = context.Get<TestElement>(ElementKey);
-                WpfController.GetControllers(element).Select(controller => controller.GetType()).Should().BeEquivalentTo(typeof(TestWpfControllers.TestDataContextController));
-                WpfController.GetControllers(element).OfType<TestWpfControllers.TestController>().All(controller => controller.DataContext == element.DataContext).Should().BeTrue();
-            }));
-        }
-
-        [Example("When the key is the name of the data context base type")]
-        void Ex02()
-        {
-            Given("an element that does not contain the data context", () => WpfRunner.Run((application, context) => context.Set(ElementKey, new TestElement())));
-            When("the WpfController is enabled for the element", () => WpfRunner.Run((application, context) => WpfController.SetIsEnabled(context.Get<TestElement>(ElementKey), true)));
-            When("a data context of the element is set", () => WpfRunner.Run((application, context) => context.Get<TestElement>(ElementKey).DataContext = new TestDataContexts.DerivedBaseAttachingTestDataContext()));
-            Then("the controller should be attached to the element", () => WpfRunner.Run((application, context) =>
-            {
-                var element = context.Get<TestElement>(ElementKey);
-                WpfController.GetControllers(element).Select(controller => controller.GetType()).Should().BeEquivalentTo(typeof(TestWpfControllers.BaseTestDataContextController));
-                WpfController.GetControllers(element).OfType<TestWpfControllers.TestController>().All(controller => controller.DataContext == element.DataContext).Should().BeTrue();
-            }));
-        }
-
-        [Example("When the key is the full name of the data context type")]
-        void Ex03()
-        {
-            Given("an element that does not contain the data context", () => WpfRunner.Run((application, context) => context.Set(ElementKey, new TestElement())));
-            When("the WpfController is enabled for the element", () => WpfRunner.Run((application, context) => WpfController.SetIsEnabled(context.Get<TestElement>(ElementKey), true)));
-            When("a data context of the element is set", () => WpfRunner.Run((application, context) => context.Get<TestElement>(ElementKey).DataContext = new TestDataContexts.AttachingTestDataContextFullName()));
-            Then("the controller should be attached to the element", () => WpfRunner.Run((application, context) =>
-            {
-                var element = context.Get<TestElement>(ElementKey);
-                WpfController.GetControllers(element).Select(controller => controller.GetType()).Should().BeEquivalentTo(typeof(TestWpfControllers.TestDataContextFullNameController));
-                WpfController.GetControllers(element).OfType<TestWpfControllers.TestController>().All(controller => controller.DataContext == element.DataContext).Should().BeTrue();
-            }));
-        }
-
-        [Example("When the key is the full name of the data context base type")]
-        void Ex04()
-        {
-            Given("an element that does not contain the data context", () => WpfRunner.Run((application, context) => context.Set(ElementKey, new TestElement())));
-            When("the WpfController is enabled for the element", () => WpfRunner.Run((application, context) => WpfController.SetIsEnabled(context.Get<TestElement>(ElementKey), true)));
-            When("a data context of the element is set", () => WpfRunner.Run((application, context) => context.Get<TestElement>(ElementKey).DataContext = new TestDataContexts.DerivedBaseAttachingTestDataContextFullName()));
-            Then("the controller should be attached to the element", () => WpfRunner.Run((application, context) =>
-            {
-                var element = context.Get<TestElement>(ElementKey);
-                WpfController.GetControllers(element).Select(controller => controller.GetType()).Should().BeEquivalentTo(typeof(TestWpfControllers.BaseTestDataContextFullNameController));
-                WpfController.GetControllers(element).OfType<TestWpfControllers.TestController>().All(controller => controller.DataContext == element.DataContext).Should().BeTrue();
-            }));
-        }
-
-        [Example("When the key is the name of the data context type that is generic")]
-        void Ex05()
-        {
-            Given("an element that does not contain the data context", () => WpfRunner.Run((application, context) => context.Set(ElementKey, new TestElement())));
-            When("the WpfController is enabled for the element", () => WpfRunner.Run((application, context) => WpfController.SetIsEnabled(context.Get<TestElement>(ElementKey), true)));
-            When("a data context of the element is set", () => WpfRunner.Run((application, context) => context.Get<TestElement>(ElementKey).DataContext = new TestDataContexts.GenericAttachingTestDataContext<string>()));
-            Then("the controller should be attached to the element", () => WpfRunner.Run((application, context) =>
-            {
-                var element = context.Get<TestElement>(ElementKey);
-                WpfController.GetControllers(element).Select(controller => controller.GetType()).Should().BeEquivalentTo(typeof(TestWpfControllers.GenericTestDataContextController));
-                WpfController.GetControllers(element).OfType<TestWpfControllers.TestController>().All(controller => controller.DataContext == element.DataContext).Should().BeTrue();
-            }));
-        }
-
-        [Example("When the key is the full name of the data context type that is generic")]
-        void Ex06()
-        {
-            Given("an element that does not contain the data context", () => WpfRunner.Run((application, context) => context.Set(ElementKey, new TestElement())));
-            When("the WpfController is enabled for the element", () => WpfRunner.Run((application, context) => WpfController.SetIsEnabled(context.Get<TestElement>(ElementKey), true)));
-            When("a data context of the element is set", () => WpfRunner.Run((application, context) => context.Get<TestElement>(ElementKey).DataContext = new TestDataContexts.GenericAttachingTestDataContextFullName<string>()));
-            Then("the controller should be attached to the element", () => WpfRunner.Run((application, context) =>
-            {
-                var element = context.Get<TestElement>(ElementKey);
-                WpfController.GetControllers(element).Select(controller => controller.GetType()).Should().BeEquivalentTo(typeof(TestWpfControllers.GenericTestDataContextFullNameController), typeof(TestWpfControllers.GenericTestDataContextFullNameWithoutParametersController));
-                WpfController.GetControllers(element).OfType<TestWpfControllers.TestController>().All(controller => controller.DataContext == element.DataContext).Should().BeTrue();
-            }));
-        }
-
-        [Example("When the key is the name of the interface implemented by the data context")]
-        void Ex07()
-        {
-            Given("an element that does not contain the data context", () => WpfRunner.Run((application, context) => context.Set(ElementKey, new TestElement())));
-            When("the WpfController is enabled for the element", () => WpfRunner.Run((application, context) => WpfController.SetIsEnabled(context.Get<TestElement>(ElementKey), true)));
-            When("a data context of the element is set", () => WpfRunner.Run((application, context) => context.Get<TestElement>(ElementKey).DataContext = new TestDataContexts.InterfaceImplementedAttachingTestDataContext()));
-            Then("the controller should be attached to the element", () => WpfRunner.Run((application, context) =>
-            {
-                var element = context.Get<TestElement>(ElementKey);
-                WpfController.GetControllers(element).Select(controller => controller.GetType()).Should().BeEquivalentTo(typeof(TestWpfControllers.InterfaceImplementedTestDataContextController));
-                WpfController.GetControllers(element).OfType<TestWpfControllers.TestController>().All(controller => controller.DataContext == element.DataContext).Should().BeTrue();
-            }));
-        }
-
-        [Example("When the key is the full name of the interface implemented by the data context")]
-        void Ex08()
-        {
-            Given("an element that does not contain the data context", () => WpfRunner.Run((application, context) => context.Set(ElementKey, new TestElement())));
-            When("the WpfController is enabled for the element", () => WpfRunner.Run((application, context) => WpfController.SetIsEnabled(context.Get<TestElement>(ElementKey), true)));
-            When("a data context of the element is set", () => WpfRunner.Run((application, context) => context.Get<TestElement>(ElementKey).DataContext = new TestDataContexts.InterfaceImplementedAttachingTestDataContextFullName()));
-            Then("the controller should be attached to the element", () => WpfRunner.Run((application, context) =>
-            {
-                var element = context.Get<TestElement>(ElementKey);
-                WpfController.GetControllers(element).Select(controller => controller.GetType()).Should().BeEquivalentTo(typeof(TestWpfControllers.InterfaceImplementedTestDataContextFullNameController));
-                WpfController.GetControllers(element).OfType<TestWpfControllers.TestController>().All(controller => controller.DataContext == element.DataContext).Should().BeTrue();
-            }));
+                yield return new
+                {
+                    Description = "When the key is the name of the data context type",
+                    DataContext = new TestDataContexts.AttachingTestDataContext(),
+                    ExpectedControllerTypes = new[] { typeof(TestWpfControllers.TestDataContextController) }
+                };
+                yield return new
+                {
+                    Description = "When the key is the name of the data context base type",
+                    DataContext = new TestDataContexts.DerivedBaseAttachingTestDataContext(),
+                    ExpectedControllerTypes = new[] { typeof(TestWpfControllers.BaseTestDataContextController) }
+                };
+                yield return new
+                {
+                    Description = "When the key is the full name of the data context type",
+                    DataContext = new TestDataContexts.AttachingTestDataContextFullName(),
+                    ExpectedControllerTypes = new[] { typeof(TestWpfControllers.TestDataContextFullNameController) }
+                };
+                yield return new
+                {
+                    Description = "When the key is the full name of the data context base type",
+                    DataContext = new TestDataContexts.DerivedBaseAttachingTestDataContextFullName(),
+                    ExpectedControllerTypes = new[] { typeof(TestWpfControllers.BaseTestDataContextFullNameController) }
+                };
+                yield return new
+                {
+                    Description = "When the key is the name of the data context type that is generic",
+                    DataContext = new TestDataContexts.GenericAttachingTestDataContext<string>(),
+                    ExpectedControllerTypes = new[] { typeof(TestWpfControllers.GenericTestDataContextController) }
+                };
+                yield return new
+                {
+                    Description = "When the key is the full name of the data context type that is generic",
+                    DataContext = new TestDataContexts.GenericAttachingTestDataContextFullName<string>(),
+                    ExpectedControllerTypes = new[] { typeof(TestWpfControllers.GenericTestDataContextFullNameController), typeof(TestWpfControllers.GenericTestDataContextFullNameWithoutParametersController) }
+                };
+                yield return new
+                {
+                    Description = "When the key is the name of the interface implemented by the data context",
+                    DataContext = new TestDataContexts.InterfaceImplementedAttachingTestDataContext(),
+                    ExpectedControllerTypes = new[] { typeof(TestWpfControllers.InterfaceImplementedTestDataContextController) }
+                };
+                yield return new
+                {
+                    Description = "When the key is the full name of the interface implemented by the data context",
+                    DataContext = new TestDataContexts.InterfaceImplementedAttachingTestDataContextFullName(),
+                    ExpectedControllerTypes = new[] { typeof(TestWpfControllers.InterfaceImplementedTestDataContextFullNameController) }
+                };
+            }
         }
     }
 }

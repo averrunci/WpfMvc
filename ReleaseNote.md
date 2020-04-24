@@ -1,5 +1,11 @@
 # Release note
 
+## v3.0.0
+
+### Changes
+
+- Change the framework version to .NET Core 3.0.
+
 ## v2.3.0
 
 ### Add

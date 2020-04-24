@@ -1,95 +1,65 @@
-﻿// Copyright (C) 2018 Fievus
+﻿// Copyright (C) 2018-2020 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
 using System;
 using System.Reflection;
-using System.Windows;
 using Carna;
-using Charites.Windows.Runners;
-using FluentAssertions;
 
 namespace Charites.Windows.Mvc
 {
     [Context("Unhandled exception")]
     class WpfControllerSpec_UnhandledException : FixtureSteppable, IDisposable
     {
-        IWpfApplicationRunner<Application> WpfRunner { get; }
+        TestWpfControllers.ExceptionTestWpfController Controller { get; } = new TestWpfControllers.ExceptionTestWpfController();
+        TestElement Element { get; } = new TestElement();
 
-        const string UnhandledExceptionHandlerKey = "UnhandledExceptionHanlder";
-        const string UnhandledExceptionKey = "UnhandledException";
-        const string ControllerKey = "Controller";
-        const string ElementKey = "Element";
+        bool ExceptionHandled { get; set; }
+        Exception UnhandledException { get; set; }
 
         public WpfControllerSpec_UnhandledException()
         {
-            WpfRunner = WpfApplicationRunner.Start<Application>();
+            WpfController.UnhandledException += OnWpfControllerUnhandledException;
         }
 
         public void Dispose()
         {
-            WpfRunner.Run((application, context) =>
-            {
-                var unhandledExceptionHandler = context.Get<UnhandledExceptionEventHandler>(UnhandledExceptionHandlerKey);
-                if (unhandledExceptionHandler != null) WpfController.UnhandledException -= unhandledExceptionHandler;
-            });
+            WpfController.UnhandledException -= OnWpfControllerUnhandledException;
+        }
 
-            WpfRunner.Shutdown();
+        void OnWpfControllerUnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            UnhandledException = e.Exception;
+            e.Handled = ExceptionHandled;
         }
 
         [Example("Handles an unhandled exception as it is handled")]
         void Ex01()
         {
-            WpfRunner.Run((application, context) =>
-            {
-                void HandleUnhandledException(object sender, UnhandledExceptionEventArgs e)
-                {
-                    context.Set(UnhandledExceptionKey, e.Exception);
-                    e.Handled = true;
-                }
+            ExceptionHandled = true;
 
-                WpfController.UnhandledException += HandleUnhandledException;
-                context.Set(UnhandledExceptionHandlerKey, (UnhandledExceptionEventHandler)HandleUnhandledException);
-            });
+            When("the controller is added", () => WpfController.GetControllers(Element).Add(Controller));
+            When("the controller is attached to the element", () => WpfController.GetControllers(Element).AttachTo(Element));
 
-            Given("a controller that has an event handler that throws an exception", () => WpfRunner.Run((application, context) => context.Set(ControllerKey, new TestWpfControllers.ExceptionTestWpfController())));
-            Given("an element", () => WpfRunner.Run((application, context) => context.Set(ElementKey, new TestElement())));
+            When("the Initialized event is raised", () => Element.RaiseInitialized());
 
-            When("the controller is added", () => WpfRunner.Run((application, context) => WpfController.GetControllers(context.Get<TestElement>(ElementKey)).Add(context.Get<TestWpfControllers.ExceptionTestWpfController>(ControllerKey))));
-            When("the controller is attached to the element", () => WpfRunner.Run((application, context) => WpfController.GetControllers(context.Get<TestElement>(ElementKey)).AttachTo(context.Get<TestElement>(ElementKey))));
-
-            When("the Initialized event is raised", () => WpfRunner.Run((application, context) => context.Get<TestElement>(ElementKey).RaiseInitialized()));
-
-            When("the Changed event of the element is raised", () => WpfRunner.Run((application, context) => context.Get<TestElement>(ElementKey).RaiseChanged()));
-            Then("the unhandled exception should be handled", () => WpfRunner.Run((application, context) => context.Get<Exception>(UnhandledExceptionKey).Should().NotBeNull()));
+            When("the Changed event of the element is raised", () => Element.RaiseChanged());
+            Then("the unhandled exception should be handled", () => UnhandledException != null);
         }
 
         [Example("Handles an unhandled exception as it is not handled")]
         void Ex02()
         {
-            WpfRunner.Run((application, context) =>
-            {
-                void HandleUnhandledException(object sender, UnhandledExceptionEventArgs e)
-                {
-                    context.Set(UnhandledExceptionKey, e.Exception);
-                    e.Handled = false;
-                }
+            ExceptionHandled = false;
 
-                WpfController.UnhandledException += HandleUnhandledException;
-                context.Set(UnhandledExceptionHandlerKey, (UnhandledExceptionEventHandler)HandleUnhandledException);
-            });
+            When("the controller is added", () => WpfController.GetControllers(Element).Add(Controller));
+            When("the controller is attached to the element", () => WpfController.GetControllers(Element).AttachTo(Element));
 
-            Given("a controller that has an event handler that throws an exception", () => WpfRunner.Run((application, context) => context.Set(ControllerKey, new TestWpfControllers.ExceptionTestWpfController())));
-            Given("an element", () => WpfRunner.Run((application, context) => context.Set(ElementKey, new TestElement())));
+            When("the Initialized event is raised", () => Element.RaiseInitialized());
 
-            When("the controller is added", () => WpfRunner.Run((application, context) => WpfController.GetControllers(context.Get<TestElement>(ElementKey)).Add(context.Get<TestWpfControllers.ExceptionTestWpfController>(ControllerKey))));
-            When("the controller is attached to the element", () => WpfRunner.Run((application, context) => WpfController.GetControllers(context.Get<TestElement>(ElementKey)).AttachTo(context.Get<TestElement>(ElementKey))));
-
-            When("the Initialized event is raised", () => WpfRunner.Run((application, context) => context.Get<TestElement>(ElementKey).RaiseInitialized()));
-
-            When("the Changed event of the element is raised", () => WpfRunner.Run((application, context) => context.Get<TestElement>(ElementKey).RaiseChanged()));
+            When("the Changed event of the element is raised", () => Element.RaiseChanged());
             Then<TargetInvocationException>("the exception should be thrown");
-            Then("the unhandled exception should be handled", () => WpfRunner.Run((application, context) => context.Get<Exception>(UnhandledExceptionKey).Should().NotBeNull()));
+            Then("the unhandled exception should be handled", () => UnhandledException != null);
         }
     }
 }
