@@ -63,7 +63,7 @@ The condition to search the controller is as follows:
    1. the name of the base type of the data context.
    1. the name of the interface that is implemented by the data context.
 
-A controller can be created with a factory that implements IUwpControllerFactory. If a factory is not specified, a default factory that creates a controller with Activator.CreateInstance method is used.
+A controller can be created with a factory that implements IWpfControllerFactory. If a factory is not specified, a default factory that creates a controller with Activator.CreateInstance method is used.
 
 ``` csharp
 class ControllerFactory : IWpfControllerFactory {...}
