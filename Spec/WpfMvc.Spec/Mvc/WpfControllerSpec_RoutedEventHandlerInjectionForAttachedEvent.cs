@@ -27,7 +27,7 @@ namespace Charites.Windows.Mvc
             };
         }
 
-        [Example("Adds event handler for an attached event")]
+        [Example("Adds an event handler for an attached event")]
         void Ex01()
         {
             When("the WpfController is enabled for the element", () => WpfController.SetIsEnabled(Element, true));

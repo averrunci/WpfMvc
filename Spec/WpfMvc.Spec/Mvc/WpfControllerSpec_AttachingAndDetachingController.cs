@@ -79,7 +79,7 @@ namespace Charites.Windows.Mvc
 
             When("the Unloaded event is raised", () => Element.RaiseEvent(new RoutedEventArgs(FrameworkElement.UnloadedEvent) { Source = Element }));
             Then("the data context of the controller should be null", () => Controller.DataContext == null);
-            Then("the element the controller should be null", () => Controller.Element == null);
+            Then("the element of the controller should be null", () => Controller.Element == null);
 
             When("the Loaded event is raised", () =>
             {
@@ -128,7 +128,7 @@ namespace Charites.Windows.Mvc
             When("the WpfController is disabled for the element", () => WpfController.SetIsEnabled(Element, false));
             Then("the controller should be detached", () => !WpfController.GetControllers(Element).Any());
             Then("the data context of the controller should be null", () => Controller.DataContext == null);
-            Then("the element the controller should be null", () => Controller.Element == null);
+            Then("the element of the controller should be null", () => Controller.Element == null);
 
             When("the Loaded event is raised", () =>
             {
@@ -191,7 +191,7 @@ namespace Charites.Windows.Mvc
 
             When("the Unloaded event is raised", () => Element.RaiseEvent(new RoutedEventArgs(FrameworkElement.UnloadedEvent) { Source = Element }));
             Then("the data context of the controller should be null", () => Controllers.All(controller => controller.DataContext == null));
-            Then("the element the controller should be null", () => Controllers.All(controller => controller.Element == null));
+            Then("the element of the controller should be null", () => Controllers.All(controller => controller.Element == null));
 
             When("the Loaded event is raised", () =>
             {
@@ -213,7 +213,7 @@ namespace Charites.Windows.Mvc
 
                 Element.RaiseChanged();
             });
-            Then("the Loaded event should not be handled", () => ChangedEventsHandled.All(handled => !handled));
+            Then("the Changed event should not be handled", () => ChangedEventsHandled.All(handled => !handled));
         }
     }
 }

@@ -91,7 +91,7 @@ If the key of the view should be specified, then the Key attached property can b
 This library also provides features to inject routed event handlers, command event handlers, a data context, and visual elements to the controller using attributes.
 The available attributes are as follows.
 
-### RoutedEventHandlerAttribute
+### EventHandlerAttribute
 
 This attribute is specified to the method to handle a routed event.
 It is also specified to the property or the field that is defined with a delegate.
@@ -100,7 +100,7 @@ The method is declared as follows;
 - No argument.
 
 ``` csharp
-[RoutedEventHandler(ElementName = "ActionButton", RoutedEvent = "Click")]
+[EventHandler(ElementName = "ActionButton", Event = "Click")]
 private void ActionButton_Click()
 {
     // implements the action.
@@ -110,7 +110,7 @@ private void ActionButton_Click()
 - One argument that is a RoutedEventArgs.
 
 ``` csharp
-[RoutedEventHandler(ElementName = "ActionButton", RoutedEvent = "Click")]
+[EventHandler(ElementName = "ActionButton", Event = "Click")]
 private void ActionButton_Click(RoutedEventArgs e)
 {
     // implements the action.
@@ -120,7 +120,7 @@ private void ActionButton_Click(RoutedEventArgs e)
 - Two arguments that are an object and a RoutedEventArgs.
 
 ``` csharp
-[RoutedEventHandler(ElementName = "ActionButton", RoutedEvent = "Click")]
+[EventHandler(ElementName = "ActionButton", Event = "Click")]
 private void ActionButton_Click(object sender, RoutedEventArgs e)
 {
     // implements the action.
