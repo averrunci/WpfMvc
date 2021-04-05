@@ -1,14 +1,15 @@
-﻿// Copyright (C) 2018-2020 Fievus
+﻿// Copyright (C) 2018-2021 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
+using System;
 using System.Windows;
 using Carna;
 
 namespace Charites.Windows.Mvc
 {
     [Context("WpfControllerExtension")]
-    class WpfControllerSpec_WpfControllerExtension : FixtureSteppable
+    class WpfControllerSpec_WpfControllerExtension : FixtureSteppable, IDisposable
     {
         class TestExtension : IWpfControllerExtension
         {
@@ -23,6 +24,11 @@ namespace Charites.Windows.Mvc
         TestWpfControllers.TestWpfController Controller { get; } = new TestWpfControllers.TestWpfController();
         TestExtension Extension { get; } = new TestExtension();
         TestElement Element { get; } = new TestElement { DataContext = new TestDataContexts.TestDataContext() };
+
+        public void Dispose()
+        {
+            WpfController.RemoveExtension(Extension);
+        }
 
         [Example("Attaches an extension when the element is initialized and detaches it when the element is unloaded")]
         void Ex01()
@@ -40,7 +46,7 @@ namespace Charites.Windows.Mvc
         [Example("Retrieves a container of an extension")]
         void Ex02()
         {
-            When("an extension is added", () => WpfController.AddExtension(new TestExtension()));
+            When("an extension is added", () => WpfController.AddExtension(Extension));
             Then("the container of the extension should be retrieved", () => WpfController.Retrieve<TestExtension, object>(Controller) == TestExtension.TestExtensionContainer);
         }
     }
