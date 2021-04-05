@@ -1,6 +1,6 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <OutputType>Exe</OutputType>
     <RootNamespace>Charites.Windows</RootNamespace>
     <UseWPF>true</UseWPF>
@@ -14,6 +14,7 @@
     <Copyright>Copyright (C) 2020 Fievus</Copyright>
     <PackageProjectUrl>https://github.com/averrunci/WpfMvc</PackageProjectUrl>
     <PackageTags>wpf mvc charites</PackageTags>
+    <DisableWinExeOutputInference>true</DisableWinExeOutputInference>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\WpfMvc\WpfMvc.csproj" />
