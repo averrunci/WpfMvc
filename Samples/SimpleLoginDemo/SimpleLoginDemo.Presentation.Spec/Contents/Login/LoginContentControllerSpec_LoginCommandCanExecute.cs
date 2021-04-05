@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2018 Fievus
+﻿// Copyright (C) 2018-2021 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
@@ -6,13 +6,14 @@ using System.Linq;
 using System.Windows.Input;
 using Carna;
 using Charites.Windows.Mvc;
+using NSubstitute;
 
 namespace Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login
 {
     [Context("Login command can execute")]
     class LoginContentControllerSpec_LoginCommandCanExecute : FixtureSteppable
     {
-        LoginContentController Controller { get; } = new LoginContentController(null);
+        LoginContentController Controller { get; } = new LoginContentController(Substitute.For<IContentNavigator>(), null);
 
         LoginContent LoginContent { get; } = new LoginContent();
 

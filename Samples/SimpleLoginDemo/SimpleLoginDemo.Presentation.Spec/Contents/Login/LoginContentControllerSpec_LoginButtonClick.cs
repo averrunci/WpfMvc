@@ -1,7 +1,8 @@
-﻿// Copyright (C) 2018 Fievus
+﻿// Copyright (C) 2018-2021 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
+using System;
 using Carna;
 using Charites.Windows.Mvc;
 using Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents.User;
@@ -16,13 +17,12 @@ namespace Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login
         LoginContentController Controller { get; set; }
 
         LoginContent LoginContent { get; } = new LoginContent { Message = { Value = "message" } };
+        IContentNavigator Navigator { get; } = Substitute.For<IContentNavigator>();
         IUserAuthentication UserAuthentication { get; } = Substitute.For<IUserAuthentication>();
-        ContentChangingEventHandler ContentChangingEventHandler { get; } = Substitute.For<ContentChangingEventHandler>();
 
         public LoginContentControllerSpec_LoginButtonClick()
         {
-            Controller = new LoginContentController(UserAuthentication);
-            LoginContent.ContentChanging += ContentChangingEventHandler;
+            Controller = new LoginContentController(Navigator, UserAuthentication);
 
             WpfController.SetDataContext(LoginContent, Controller);
         }
@@ -44,20 +44,25 @@ namespace Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login
                     .With(SimpleLoginCommands.Login)
                     .RaiseExecuted(LoginContent)
             );
-            Then("the ContentChanging event should be raised", () =>
-                ContentChangingEventHandler.Received(1).Invoke(
-                    LoginContent,
-                    Arg.Is<ContentChangingEventArgs>(e => (e.NextContent as UserContent).Id == LoginContent.UserId.Value)
-                )
-            );
+            Then("the content should be navigated to the UserContent", () =>
+            {
+                Navigator.Received(1).NavigateTo(Arg.Is<UserContent>(content => content.Id == LoginContent.UserId.Value));
+            });
+        }
+
+        [Example("When the IContentNavigator is not specified")]
+        void Ex02()
+        {
+            When("a controller to which the IContentNavigator is not specified is created", () => new LoginContentController(null, UserAuthentication));
+            Then<ArgumentNullException>($"{typeof(ArgumentNullException)} should be thrown");
         }
 
         [Example("When the IUserAuthentication is not specified")]
-        void Ex02()
+        void Ex03()
         {
             Given("a controller to which the IUserAuthentication is not specified", () =>
             {
-                Controller = new LoginContentController(null);
+                Controller = new LoginContentController(Navigator, null);
                 WpfController.SetDataContext(LoginContent, Controller);
             });
             When("the login command is executed", () =>
@@ -66,14 +71,15 @@ namespace Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login
                     .With(SimpleLoginCommands.Login)
                     .RaiseExecuted(LoginContent)
             );
-            Then("the ContentChanging event should not be raised", () =>
-                ContentChangingEventHandler.DidNotReceive().Invoke(Arg.Any<object>(), Arg.Any<ContentChangingEventArgs>())
-            );
+            Then("the content should not be navigated to any contents", () =>
+            {
+                Navigator.DidNotReceive().NavigateTo(Arg.Any<object>());
+            });
             Then("the LoginNotAvailable message should be set", () => LoginContent.Message.Value == Resources.LoginNotAvailable);
         }
 
         [Example("When the login content is not valid")]
-        void Ex03()
+        void Ex04()
         {
             When("the invalid user id and password are set", () =>
             {
@@ -86,14 +92,15 @@ namespace Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login
                     .With(SimpleLoginCommands.Login)
                     .RaiseExecuted(LoginContent)
             );
-            Then("the ContentChanging event should not be raised", () =>
-                ContentChangingEventHandler.DidNotReceive().Invoke(Arg.Any<object>(), Arg.Any<ContentChangingEventArgs>())
-            );
+            Then("the content should not be navigated to any contents", () =>
+            {
+                Navigator.DidNotReceive().NavigateTo(Arg.Any<object>());
+            });
             Then("the message of the login content should be empty", () => LoginContent.Message.Value == string.Empty);
         }
 
         [Example("When the user is not authenticated")]
-        void Ex04()
+        void Ex05()
         {
             When("the no authenticated user id and password are set", () =>
             {
@@ -109,9 +116,10 @@ namespace Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login
                     .With(SimpleLoginCommands.Login)
                     .RaiseExecuted(LoginContent)
             );
-            Then("the ContentChanging event should not be raised", () =>
-                ContentChangingEventHandler.DidNotReceive().Invoke(Arg.Any<object>(), Arg.Any<ContentChangingEventArgs>())
-            );
+            Then("the content should not be navigated to any contents", () =>
+            {
+                Navigator.DidNotReceive().NavigateTo(Arg.Any<object>());
+            });
             Then("the LoginFailureMessage message should be set", () => LoginContent.Message.Value == Resources.LoginFailureMessage);
         }
     }

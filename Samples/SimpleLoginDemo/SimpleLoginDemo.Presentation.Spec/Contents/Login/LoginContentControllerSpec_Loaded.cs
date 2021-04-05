@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2018-2020 Fievus
+﻿// Copyright (C) 2018-2021 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using Carna;
 using Charites.Windows.Mvc;
+using NSubstitute;
 
 namespace Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login
 {
@@ -14,7 +15,7 @@ namespace Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login
     {
         PasswordBox PasswordBox { get; } = new PasswordBox { Name = "PasswordBox"};
         LoginContent Content { get; } = new LoginContent();
-        LoginContentController Controller { get; } = new LoginContentController(null);
+        LoginContentController Controller { get; } = new LoginContentController(Substitute.For<IContentNavigator>(), null);
 
         [Background("a controller to which the PasswordBox and the login content are set")]
         public LoginContentControllerSpec_Loaded()
