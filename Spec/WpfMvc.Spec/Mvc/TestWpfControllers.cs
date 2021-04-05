@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2018-2019 Fievus
+﻿// Copyright (C) 2018-2021 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
@@ -13,6 +13,13 @@ namespace Charites.Windows.Mvc
     {
         public static readonly RoutedUICommand TestCommand = new RoutedUICommand("Test", nameof(TestCommand), typeof(TestWpfControllers));
         public static readonly RoutedUICommand AnotherTestCommand = new RoutedUICommand("Another Test", nameof(AnotherTestCommand), typeof(TestWpfControllers));
+
+        public interface ITestWpfController
+        {
+            object DataContext { get; }
+            FrameworkElement Element { get; }
+            FrameworkElement ChildElement { get; }
+        }
 
         public class TestWpfControllerBase
         {
@@ -141,7 +148,7 @@ namespace Charites.Windows.Mvc
 
         public class AttributedToField
         {
-            public class NoArgumentHandlerController
+            public class NoArgumentHandlerController : ITestWpfController
             {
                 [DataContext]
                 private object dataContext;
@@ -165,7 +172,7 @@ namespace Charites.Windows.Mvc
                 public FrameworkElement ChildElement => childElement;
             }
 
-            public class OneArgumentHandlerController
+            public class OneArgumentHandlerController : ITestWpfController
             {
                 [DataContext]
                 private object dataContext;
@@ -212,7 +219,7 @@ namespace Charites.Windows.Mvc
                 public FrameworkElement ChildElement => childElement;
             }
 
-            public class RoutedEventHandlerController
+            public class RoutedEventHandlerController : ITestWpfController
             {
                 [DataContext]
                 private object dataContext;
@@ -333,7 +340,7 @@ namespace Charites.Windows.Mvc
 
         public class AttributedToProperty
         {
-            public class NoArgumentHandlerController
+            public class NoArgumentHandlerController : ITestWpfController
             {
                 [DataContext]
                 public object DataContext { get; private set; }
@@ -353,7 +360,7 @@ namespace Charites.Windows.Mvc
                 }
             }
 
-            public class OneArgumentHandlerController
+            public class OneArgumentHandlerController : ITestWpfController
             {
                 [DataContext]
                 public object DataContext { get; private set; }
@@ -373,7 +380,7 @@ namespace Charites.Windows.Mvc
                 }
             }
 
-            public class RoutedEventHandlerController
+            public class RoutedEventHandlerController : ITestWpfController
             {
                 [DataContext]
                 public object DataContext { get; private set; }
@@ -490,7 +497,7 @@ namespace Charites.Windows.Mvc
 
         public class AttributedToMethod
         {
-            public class NoArgumentHandlerController
+            public class NoArgumentHandlerController : ITestWpfController
             {
                 [DataContext]
                 public void SetDataContext(object dataContext) => DataContext = dataContext;
@@ -514,7 +521,7 @@ namespace Charites.Windows.Mvc
                 }
             }
 
-            public class OneArgumentHandlerController
+            public class OneArgumentHandlerController : ITestWpfController
             {
                 [DataContext]
                 public void SetDataContext(object dataContext) => DataContext = dataContext;
@@ -538,7 +545,7 @@ namespace Charites.Windows.Mvc
                 }
             }
 
-            public class RoutedEventHandlerController
+            public class RoutedEventHandlerController : ITestWpfController
             {
                 [DataContext]
                 public void SetDataContext(object dataContext) => DataContext = dataContext;
@@ -669,7 +676,7 @@ namespace Charites.Windows.Mvc
 
         public class AttributedToMethodUsingNamingConvention
         {
-            public class NoArgumentHandlerController
+            public class NoArgumentHandlerController : ITestWpfController
             {
                 public void SetDataContext(object dataContext) => DataContext = dataContext;
                 public object DataContext { get; private set; }
@@ -691,7 +698,7 @@ namespace Charites.Windows.Mvc
                 }
             }
 
-            public class OneArgumentHandlerController
+            public class OneArgumentHandlerController : ITestWpfController
             {
                 public void SetDataContext(object dataContext) => DataContext = dataContext;
                 public object DataContext { get; private set; }
@@ -713,7 +720,7 @@ namespace Charites.Windows.Mvc
                 }
             }
 
-            public class RoutedEventHandlerController
+            public class RoutedEventHandlerController : ITestWpfController
             {
                 public void SetDataContext(object dataContext) => DataContext = dataContext;
                 public object DataContext { get; private set; }
