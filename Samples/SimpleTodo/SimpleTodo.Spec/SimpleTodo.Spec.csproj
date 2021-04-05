@@ -1,10 +1,18 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <OutputType>Exe</OutputType>
     <RootNamespace>Charites.Windows.Samples.SimpleTodo</RootNamespace>
     <UseWPF>true</UseWPF>
+    <DisableWinExeOutputInference>true</DisableWinExeOutputInference>
+    <Version>3.1.0</Version>
+    <Authors>averrunci</Authors>
+    <Copyright>Copyright (C) 2018-2021 Fievus</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <AssemblyVersion>3.1.0</AssemblyVersion>
+    <FileVersion>3.1.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Carna.ConsoleRunner" Version="1.7.1" />
-    <PackageReference Include="NSubstitute" Version="4.2.1" />
+    <PackageReference Include="Carna.ConsoleRunner" Version="1.8.0" />
+    <PackageReference Include="NSubstitute" Version="4.2.2" />
   </ItemGroup>
 </Project>
