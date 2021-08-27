@@ -4,9 +4,9 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>Charites.Windows</RootNamespace>
     <UseWPF>true</UseWPF>
-    <Version>3.1.0</Version>
-    <AssemblyVersion>3.1.0</AssemblyVersion>
-    <FileVersion>3.1.0</FileVersion>
+    <Version>3.1.1</Version>
+    <AssemblyVersion>3.1.1</AssemblyVersion>
+    <FileVersion>3.1.1</FileVersion>
     <NeutralLanguage>en-US</NeutralLanguage>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Description>The specification class library for Windows Presentation Foundation with Model View Controller.</Description>

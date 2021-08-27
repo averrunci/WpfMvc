@@ -145,6 +145,25 @@ private void ActionButton_Click(object sender, RoutedEventArgs e)
 }
 ```
 
+If the method is an async method, its suffix can be "Async".
+
+``` csharp
+private async Task ActionButton_ClickAsync()
+{
+    // implements the action.
+}
+
+private async Task ActionButton_ClickAsync(RoutedEventArgs e)
+{
+    // implements the action.
+}
+
+private async Task ActionButton_ClickAsync(object sender, RoutedEventArgs e)
+{
+    // implements the action.
+}
+```
+
 ### CommandHandlerAttribute
 
 This attribute is specified to the method to handle a command event.
@@ -200,6 +219,30 @@ private void ActionCommand_Executed(object sender, ExecutedRoutedEventArgs e)
 }
 
 private void ActionCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+{
+    // implements the action of the command CanExecute event.
+}
+```
+
+If the method is an async method, its suffix can be "Async".
+
+``` csharp
+private async Task ActionCommand_ExecutedAsync(ExecutedRoutedEventArgs e)
+{
+    // implements the action of the command Executed event.
+}
+
+private async Task ActionCommand_CanExecuteAsync(CanExecuteRoutedEventArgs e)
+{
+    // implements the action of the command CanExecute event.
+}
+
+private async Task ActionCommand_ExecutedAsync(object sender, ExecutedRoutedEventArgs e)
+{
+    // implements the action of the command Executed event.
+}
+
+private async Task ActionCommand_CanExecuteAsync(object sender, CanExecuteRoutedEventArgs e)
 {
     // implements the action of the command CanExecute event.
 }
