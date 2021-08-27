@@ -883,5 +883,86 @@ namespace Charites.Windows.Mvc
                 }
             }
         }
+
+        public class AttributedToAsyncMethodUsingNamingConvention
+        {
+            public class NoArgumentHandlerController : ITestWpfController
+            {
+                public void SetDataContext(object dataContext) => DataContext = dataContext;
+                public object DataContext { get; private set; }
+
+                [Element(Name = "element")]
+                public void SetElement(FrameworkElement element) => Element = element;
+                public FrameworkElement Element { get; private set; }
+
+                [Element]
+                public void SetChildElement(FrameworkElement childElement) => ChildElement = childElement;
+                public FrameworkElement ChildElement { get; private set; }
+
+                public Task ChildElement_LoadedAsync()
+                {
+                    handler();
+                    return Task.CompletedTask;
+                }
+                private readonly Action handler;
+
+                public NoArgumentHandlerController(Action assertionHandler)
+                {
+                    handler = assertionHandler;
+                }
+            }
+
+            public class OneArgumentHandlerController : ITestWpfController
+            {
+                public void SetDataContext(object dataContext) => DataContext = dataContext;
+                public object DataContext { get; private set; }
+
+                [Element(Name = "element")]
+                public void SetElement(FrameworkElement element) => Element = element;
+                public FrameworkElement Element { get; private set; }
+
+                [Element]
+                public void SetChildElement(FrameworkElement childElement) => ChildElement = childElement;
+                public FrameworkElement ChildElement { get; private set; }
+
+                public Task ChildElement_LoadedAsync(RoutedEventArgs e)
+                {
+                    handler(e);
+                    return Task.CompletedTask;
+                }
+                private readonly Action<RoutedEventArgs> handler;
+
+                public OneArgumentHandlerController(Action<RoutedEventArgs> assertionHandler)
+                {
+                    handler = assertionHandler;
+                }
+            }
+
+            public class RoutedEventHandlerController : ITestWpfController
+            {
+                public void SetDataContext(object dataContext) => DataContext = dataContext;
+                public object DataContext { get; private set; }
+
+                [Element(Name = "element")]
+                public void SetElement(FrameworkElement element) => Element = element;
+                public FrameworkElement Element { get; private set; }
+
+                [Element]
+                public void SetChildElement(FrameworkElement childElement) => ChildElement = childElement;
+                public FrameworkElement ChildElement { get; private set; }
+
+                public Task ChildElement_LoadedAsync(object sender, RoutedEventArgs e)
+                {
+                    handler(sender, e);
+                    return Task.CompletedTask;
+                }
+                private readonly RoutedEventHandler handler;
+
+                public RoutedEventHandlerController(RoutedEventHandler assertionHandler)
+                {
+                    handler = assertionHandler;
+                }
+            }
+        }
     }
 }
