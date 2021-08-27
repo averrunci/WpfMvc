@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2018-2019 Fievus
+﻿// Copyright (C) 2018-2021 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
@@ -20,7 +20,7 @@ namespace Charites.Windows.Mvc
     {
         private static readonly BindingFlags CommandHandlerBindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
 
-        private static readonly Regex CommandHandlerNamingConventionRegex = new Regex("^[^_]+_(?:Executed|CanExecute)$", RegexOptions.Compiled);
+        private static readonly Regex CommandHandlerNamingConventionRegex = new Regex("^[^_]+_(?:Executed|CanExecute)(Async)?$", RegexOptions.Compiled);
 
         private static readonly DependencyProperty CommandHandlerBasesProperty = DependencyProperty.RegisterAttached(
             "ShadowCommandHandlerBases", typeof(IDictionary<object, CommandHandlerBase>), typeof(CommandHandlerExtension), new PropertyMetadata(null)
