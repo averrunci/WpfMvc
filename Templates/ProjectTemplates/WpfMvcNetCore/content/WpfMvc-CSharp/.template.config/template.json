@@ -1,0 +1,18 @@
+{
+  "author": "averrunci",
+  "name": "WPF Mvc Application",
+  "description": "WPF client application with the Model-View-Controller architecture.",
+  "groupIdentity": "WpfMvc",
+  "identity": "WpfMvc.CSharp",
+  "shortName": "wpfmvc",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "classifications": [
+    "Common",
+    "WPF"
+  ],
+  "sourceName": "WpfMvcApp",
+  "preferNameDirectory": true
+}
