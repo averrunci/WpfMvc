@@ -18,6 +18,6 @@ internal sealed class WpfParameterDependencyResolver : ParameterDependencyResolv
 
     protected override object? ResolveParameterFromDependency(ParameterInfo parameter)
     {
-        return WpfController.ControllerFactory.Create(parameter.ParameterType) ?? base.ResolveParameterFromDependency(parameter);
+        return base.ResolveParameterFromDependency(parameter) ?? WpfController.ControllerFactory.Create(parameter.ParameterType);
     }
 }
