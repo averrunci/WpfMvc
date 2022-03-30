@@ -109,19 +109,19 @@ internal class TestWpfControllers
         public FrameworkElement? Element { get; set; }
 
         [EventHandler(ElementName = nameof(Element), Event = nameof(FrameworkElement.Loaded))]
-        private async Task Element_Loaded()
+        private async Task Element_LoadedAsync()
         {
             await Task.Run(() => LoadedAssertionHandler?.Invoke());
         }
 
         [CommandHandler(CommandName = nameof(TestCommand))]
-        private async Task TestCommand_Executed(ExecutedRoutedEventArgs e)
+        private async Task TestCommand_ExecutedAsync(ExecutedRoutedEventArgs e)
         {
             await Task.Run(() => ExecutedAssertionHandler?.Invoke());
         }
 
         [CommandHandler(CommandName = nameof(TestCommand))]
-        private async Task TestCommand_CanExecute(CanExecuteRoutedEventArgs e)
+        private async Task TestCommand_CanExecuteAsync(CanExecuteRoutedEventArgs e)
         {
             await Task.Run(() =>
             {
@@ -143,6 +143,65 @@ internal class TestWpfControllers
             throw new Exception();
         }
     }
+
+    public class CommandHandlerWithDependencyParametersController
+    {
+        [CommandHandler(CommandName = nameof(TestCommand))]
+        private void TestCommand_Executed(ExecutedRoutedEventArgs e, [FromDI] IDependency1 dependency1, [FromDI] IDependency2 dependency2, [FromDI] IDependency3 dependency3)
+        {
+            ExecutedAssertionHandler?.Invoke();
+            ExecutedDependencyArgumentsHandler?.Invoke(dependency1, dependency2, dependency3);
+        }
+
+        [CommandHandler(CommandName = nameof(TestCommand))]
+        private void TestCommand_CanExecute(CanExecuteRoutedEventArgs e, [FromDI] IDependency1 dependency1, [FromDI] IDependency2 dependency2, [FromDI] IDependency3 dependency3)
+        {
+            CanExecuteAssertionHandler?.Invoke();
+            CanExecuteDependencyArgumentsHandler?.Invoke(dependency1, dependency2, dependency3);
+            e.CanExecute = true;
+        }
+
+        public Action? ExecutedAssertionHandler { get; set; }
+        public Action<IDependency1, IDependency2, IDependency3>? ExecutedDependencyArgumentsHandler { get; set; }
+        public Action? CanExecuteAssertionHandler { get; set; }
+        public Action<IDependency1, IDependency2, IDependency3>? CanExecuteDependencyArgumentsHandler { get; set; }
+    }
+
+    public class CommandHandlerWithDependencyParametersControllerAsync
+    {
+        [CommandHandler(CommandName = nameof(TestCommand))]
+        private async Task TestCommand_ExecutedAsync(ExecutedRoutedEventArgs e, [FromDI] IDependency1 dependency1, [FromDI] IDependency2 dependency2, [FromDI] IDependency3 dependency3)
+        {
+            await Task.Run(() =>
+            {
+                ExecutedAssertionHandler?.Invoke();
+                ExecutedDependencyArgumentsHandler?.Invoke(dependency1, dependency2, dependency3);
+            });
+        }
+
+        [CommandHandler(CommandName = nameof(TestCommand))]
+        private async Task TestCommand_CanExecuteAsync(CanExecuteRoutedEventArgs e, [FromDI] IDependency1 dependency1, [FromDI] IDependency2 dependency2, [FromDI] IDependency3 dependency3)
+        {
+            await Task.Run(() =>
+            {
+                CanExecuteAssertionHandler?.Invoke();
+                CanExecuteDependencyArgumentsHandler?.Invoke(dependency1, dependency2, dependency3);
+                e.CanExecute = true;
+            });
+        }
+
+        public Action? ExecutedAssertionHandler { get; set; }
+        public Action<IDependency1, IDependency2, IDependency3>? ExecutedDependencyArgumentsHandler { get; set; }
+        public Action? CanExecuteAssertionHandler { get; set; }
+        public Action<IDependency1, IDependency2, IDependency3>? CanExecuteDependencyArgumentsHandler { get; set; }
+    }
+
+    public interface IDependency1 {}
+    public interface IDependency2 { }
+    public interface IDependency3 { }
+    public class Dependency1 : IDependency1 { }
+    public class Dependency2 : IDependency2 { }
+    public class Dependency3 : IDependency3 { }
 
     public class AttributedToField
     {

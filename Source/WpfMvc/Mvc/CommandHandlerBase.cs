@@ -98,6 +98,7 @@ public class CommandHandlerBase
         private readonly IEnumerable<Item> items;
         private object? sender;
         private ICommand? command;
+        private readonly IDictionary<Type, Func<object?>> dependencyResolver = new Dictionary<Type, Func<object?>>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Executor"/> class,
@@ -136,10 +137,24 @@ public class CommandHandlerBase
         }
 
         /// <summary>
+        /// Resolves a parameter of the specified type using the specified resolver.
+        /// </summary>
+        /// <typeparam name="T">The type of the parameter to inject to.</typeparam>
+        /// <param name="resolver">The function to resolve the parameter of the specified type.</param>
+        /// <returns>
+        /// The instance of the <see cref="Executor"/> class.
+        /// </returns>
+        public Executor Resolve<T>(Func<object?> resolver)
+        {
+            dependencyResolver[typeof(T)] = resolver;
+            return this;
+        }
+
+        /// <summary>
         /// Raises the command Executed event using the specified parameter.
         /// </summary>
         /// <param name="parameter">The parameter of the command.</param>
-        public void RaiseExecuted(object? parameter = null) => items.ForEach(i => i.RaiseExecuted(command, sender, parameter));
+        public void RaiseExecuted(object? parameter = null) => items.ForEach(i => i.RaiseExecuted(command, sender, parameter, dependencyResolver));
 
         /// <summary>
         /// Raises the command CanExecute event using the specified parameter.
@@ -147,7 +162,7 @@ public class CommandHandlerBase
         /// <param name="parameter">The parameter of the command.</param>
         /// <returns><see cref="CanExecuteRoutedEventArgs"/> used to raise the CanExecute event.</returns>
         public IEnumerable<CanExecuteRoutedEventArgs> RaiseCanExecute(object? parameter = null)
-            => items.Select(item => item.RaiseCanExecute(command, sender, parameter))
+            => items.Select(item => item.RaiseCanExecute(command, sender, parameter, dependencyResolver))
                 .OfType<CanExecuteRoutedEventArgs>()
                 .ToList()
                 .AsReadOnly();
@@ -161,7 +176,7 @@ public class CommandHandlerBase
         {
             foreach (var item in items)
             {
-                await item.RaiseExecutedAsync(command, sender, parameter);
+                await item.RaiseExecutedAsync(command, sender, parameter, dependencyResolver);
             }
         }
 
@@ -175,7 +190,7 @@ public class CommandHandlerBase
             var args = new List<CanExecuteRoutedEventArgs>();
             foreach (var item in items)
             {
-                var e = await item.RaiseCanExecuteAsync(command, sender, parameter);
+                var e = await item.RaiseCanExecuteAsync(command, sender, parameter, dependencyResolver);
                 if (e is not null) args.Add(e);
             }
             return args.AsReadOnly();
@@ -263,10 +278,23 @@ public class CommandHandlerBase
         /// <param name="parameter">The parameter of the command.</param>
         public void RaiseExecuted(ICommand? command, object? sender, object? parameter)
         {
-            var e = CreateEventArgs<ExecutedRoutedEventArgs>(command, parameter);
-            if (e is null) return;
+            if (ExecutedHandler is null) return;
 
-            ExecutedHandler?.Invoke(sender, e);
+            Handle<ExecutedRoutedEventArgs>(ExecutedHandler, command, sender, parameter);
+        }
+
+        /// <summary>
+        /// Raises the command Executed event using the specified parameter.
+        /// </summary>
+        /// <param name="command">The command that is executed.</param>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="parameter">The parameter of the command.</param>
+        /// <param name="dependencyResolvers">The resolver to resolve dependencies of parameters.</param>
+        public void RaiseExecuted(ICommand? command, object? sender, object? parameter, IDictionary<Type, Func<object?>> dependencyResolvers)
+        {
+            if (ExecutedHandler is null) return;
+
+            Handle<ExecutedRoutedEventArgs>(ExecutedHandler, command, sender, parameter, dependencyResolvers);
         }
 
         /// <summary>
@@ -278,14 +306,20 @@ public class CommandHandlerBase
         /// <returns><see cref="CanExecuteRoutedEventArgs"/> used to raise the CanExecute event.</returns>
         public CanExecuteRoutedEventArgs? RaiseCanExecute(ICommand? command, object? sender, object? parameter)
         {
-            if (CanExecuteHandler is null) return null;
+            return CanExecuteHandler is null ? null : Handle<CanExecuteRoutedEventArgs>(CanExecuteHandler, command, sender, parameter);
+        }
 
-            var e = CreateEventArgs<CanExecuteRoutedEventArgs>(command, parameter);
-            if (e is null) return null;
-
-            CanExecuteHandler(sender, e);
-
-            return e;
+        /// <summary>
+        /// Raises the command CanExecute event using the specified parameter.
+        /// </summary>
+        /// <param name="command">The command that is executed.</param>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="parameter">The parameter of the command.</param>
+        /// <param name="dependencyResolver">the resolver to resolve dependencies of parameters.</param>
+        /// <returns><see cref="CanExecuteRoutedEventArgs"/> used to raise the CanExecute event.</returns>
+        public CanExecuteRoutedEventArgs? RaiseCanExecute(ICommand? command, object? sender, object? parameter, IDictionary<Type, Func<object?>> dependencyResolver)
+        {
+            return CanExecuteHandler is null ? null : Handle<CanExecuteRoutedEventArgs>(CanExecuteHandler, command, sender, parameter, dependencyResolver);
         }
 
         /// <summary>
@@ -297,15 +331,24 @@ public class CommandHandlerBase
         /// <returns>A task that represents the asynchronous raise operation.</returns>
         public async Task RaiseExecutedAsync(ICommand? command, object? sender, object? parameter)
         {
-            if (ExecutedHandler?.Target is not RoutedEventHandlerAction<ExecutedRoutedEventArgs> action) return;
+            if (ExecutedHandler is null) return;
 
-            var e = CreateEventArgs<ExecutedRoutedEventArgs>(command, parameter);
-            if (e is null) return;
+            await HandleAsync<ExecutedRoutedEventArgs>(ExecutedHandler, command, sender, parameter);
+        }
 
-            if (action.Handle(sender, e) is Task task)
-            {
-                await task;
-            }
+        /// <summary>
+        /// Raises the command Executed event using the specified parameter asynchronously.
+        /// </summary>
+        /// <param name="command">The command that is executed.</param>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="parameter">The parameter of the command.</param>
+        /// <param name="dependencyResolver">The resolver to resolve dependencies of parameters.</param>
+        /// <returns>A task that represents the asynchronous raise operation.</returns>
+        public async Task RaiseExecutedAsync(ICommand? command, object? sender, object? parameter, IDictionary<Type, Func<object?>> dependencyResolver)
+        {
+            if (ExecutedHandler is null) return;
+
+            await HandleAsync<ExecutedRoutedEventArgs>(ExecutedHandler, command, sender, parameter, dependencyResolver);
         }
 
         /// <summary>
@@ -317,26 +360,61 @@ public class CommandHandlerBase
         /// <returns>A task that represents the asynchronous raise operation.</returns>
         public async Task<CanExecuteRoutedEventArgs?> RaiseCanExecuteAsync(ICommand? command, object? sender, object? parameter)
         {
-            if (CanExecuteHandler?.Target is not RoutedEventHandlerAction<CanExecuteRoutedEventArgs> action) return null;
+            return CanExecuteHandler is null ? null : await HandleAsync<CanExecuteRoutedEventArgs>(CanExecuteHandler, command, sender, parameter);
+        }
 
-            var e = CreateEventArgs<CanExecuteRoutedEventArgs>(command, parameter);
+        /// <summary>
+        /// Raises the command CanExecute event using the specified parameter asynchronously.
+        /// </summary>
+        /// <param name="command">The command that is executed.</param>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="parameter">The parameter of the command.</param>
+        /// <param name="dependencyResolver">The resolver to resolve dependencies of parameters.</param>
+        /// <returns>A task that represents the asynchronous raise operation.</returns>
+        public async Task<CanExecuteRoutedEventArgs?> RaiseCanExecuteAsync(ICommand? command, object? sender, object? parameter, IDictionary<Type, Func<object?>> dependencyResolver)
+        {
+            return CanExecuteHandler is null ? null : await HandleAsync<CanExecuteRoutedEventArgs>(CanExecuteHandler, command, sender, parameter, dependencyResolver);
+        }
+
+        private T? Handle<T>(Delegate handler, ICommand? command, object? sender, object? parameter, IDictionary<Type, Func<object?>>? dependencyResolver = null) where T : RoutedEventArgs
+        {
+            var e = CreateEventArgs<T>(command, parameter);
             if (e is null) return null;
 
-            if (action.Handle(sender, e) is Task task)
-            {
-                await task;
-            }
+            Handle(handler, command, sender, e, dependencyResolver);
+
             return e;
         }
 
+        private async Task<T?> HandleAsync<T>(Delegate handler, ICommand? command, object? sender, object? parameter, IDictionary<Type, Func<object?>>? dependencyResolver = null) where T : RoutedEventArgs
+        {
+            var e = CreateEventArgs<T>(command, parameter);
+            if (e is null) return null;
+
+            if (Handle(handler, command, sender, e, dependencyResolver) is Task task)
+            {
+                await task;
+            }
+
+            return e;
+        }
+
+        private object? Handle<T>(Delegate handler, ICommand? command, object? sender, T e, IDictionary<Type, Func<object?>>? dependencyResolver = null) where T : RoutedEventArgs
+            => handler.Target is RoutedEventHandlerAction<T> action ?
+                action.Handle(sender, e, dependencyResolver) :
+                handler.DynamicInvoke(CreateDependencyResolver(dependencyResolver).Resolve(handler.Method, sender, e));
+
         private T? CreateEventArgs<T>(ICommand? command, object? parameter) where T : RoutedEventArgs
         {
-            if (command is null && Command is null) throw new InvalidOperationException();
+            if (command is null && Command is null) return null;
 
             return Activator.CreateInstance(
                 typeof(T), BindingFlags.NonPublic | BindingFlags.Instance,
                 null, new[] { command ?? Command, parameter }, null
             ) as T;
         }
+
+        private IParameterDependencyResolver CreateDependencyResolver(IDictionary<Type, Func<object?>>? dependencyResolver)
+            => dependencyResolver is null ? new WpfParameterDependencyResolver() : new WpfParameterDependencyResolver(dependencyResolver);
     }
 }
