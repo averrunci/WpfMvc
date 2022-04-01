@@ -14,4 +14,9 @@ public class CommandHandlerAttribute : Attribute
     /// Gets or sets the name of the command.
     /// </summary>
     public string CommandName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the event which is raised on the command
+    /// </summary>
+    public string Event { get; set; } = string.Empty;
 }

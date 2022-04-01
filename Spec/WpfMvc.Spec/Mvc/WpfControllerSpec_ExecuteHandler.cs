@@ -14,6 +14,10 @@ class WpfControllerSpec_ExecuteHandler : FixtureSteppable
     bool ExecutedEventDependencyArgumentsHandled { get; set; }
     bool CanExecuteEventHandled { get; set; }
     bool CanExecuteEventDependencyArgumentsHandled { get; set; }
+    bool PreviewExecutedEventHandled { get; set; }
+    bool PreviewExecutedEventDependencyArgumentsHandled { get; set; }
+    bool PreviewCanExecuteEventHandled { get; set; }
+    bool PreviewCanExecuteEventDependencyArgumentsHandled { get; set; }
 
     [Example("Retrieves event handlers and executes them when an element is not attached")]
     void Ex01()
@@ -55,6 +59,22 @@ class WpfControllerSpec_ExecuteHandler : FixtureSteppable
                 .RaiseCanExecute(new object())
         );
         Then("the CanExecute event should be handled", () => CanExecuteEventHandled);
+
+        When("the PreviewExecuted event is raised using the CommandHandlerBase", () =>
+            WpfController.CommandHandlersOf(new TestWpfControllers.TestWpfController { PreviewExecutedAssertionHandler = () => PreviewExecutedEventHandled = true })
+                .GetBy("TestCommand")
+                .With(TestWpfControllers.TestCommand)
+                .RaisePreviewExecuted(new object())
+        );
+        Then("the PreviewExecuted event should be handled", () => PreviewExecutedEventHandled);
+
+        When("the PreviewCanExecute event is raised using the CommandHandlerBase", () =>
+            WpfController.CommandHandlersOf(new TestWpfControllers.TestWpfController { PreviewCanExecuteAssertionHandler = () => PreviewCanExecuteEventHandled = true })
+                .GetBy("TestCommand")
+                .With(TestWpfControllers.TestCommand)
+                .RaisePreviewCanExecute(new object())
+        );
+        Then("the PreviewCanExecute event should be handled", () => CanExecuteEventHandled);
     }
 
     [Example("Retrieves command handlers and executes asynchronously them when an element is not attached")]
@@ -75,6 +95,22 @@ class WpfControllerSpec_ExecuteHandler : FixtureSteppable
                 .RaiseCanExecuteAsync(new object())
         );
         Then("the CanExecute event should be handled", () => CanExecuteEventHandled);
+
+        When("the PreviewExecuted event is raised using the CommandHandlerBase", async () =>
+            await WpfController.CommandHandlersOf(new TestWpfControllers.TestWpfControllerAsync { PreviewExecutedAssertionHandler = () => PreviewExecutedEventHandled = true })
+                .GetBy("TestCommand")
+                .With(TestWpfControllers.TestCommand)
+                .RaisePreviewExecutedAsync(new object())
+        );
+        Then("the PreviewExecuted event should be handled", () => PreviewExecutedEventHandled);
+
+        When("the PreviewCanExecute event is raised using the CommandHandlerBase", async () =>
+            await WpfController.CommandHandlersOf(new TestWpfControllers.TestWpfControllerAsync { PreviewCanExecuteAssertionHandler = () => PreviewCanExecuteEventHandled = true })
+                .GetBy("TestCommand")
+                .With(TestWpfControllers.TestCommand)
+                .RaisePreviewCanExecuteAsync(new object())
+        );
+        Then("the PreviewCanExecute event should be handled", () => PreviewCanExecuteEventHandled);
     }
 
     [Example("Retrieves command handlers that have dependency parameters and executes them when an element is not attached")]
@@ -105,7 +141,7 @@ class WpfControllerSpec_ExecuteHandler : FixtureSteppable
                     {
                         CanExecuteAssertionHandler = () => CanExecuteEventHandled = true,
                         CanExecuteDependencyArgumentsHandler = (d1, d2, d3) => CanExecuteEventDependencyArgumentsHandled = d1 == dependency1 && d2 == dependency2 && d3 == dependency3
-            }
+                    }
                 )
                 .GetBy("TestCommand")
                 .With(TestWpfControllers.TestCommand)
@@ -116,6 +152,40 @@ class WpfControllerSpec_ExecuteHandler : FixtureSteppable
         );
         Then("the CanExecute event should be handled", () => CanExecuteEventHandled);
         Then("the dependency arguments should be injected", () => CanExecuteEventDependencyArgumentsHandled);
+
+        When("the PreviewExecuted event is raised using the CommandHandlerBase", () =>
+            WpfController.CommandHandlersOf(new TestWpfControllers.CommandHandlerWithDependencyParametersController
+                    {
+                        PreviewExecutedAssertionHandler = () => PreviewExecutedEventHandled = true,
+                        PreviewExecutedDependencyArgumentsHandler = (d1, d2, d3) => PreviewExecutedEventDependencyArgumentsHandled = d1 == dependency1 && d2 == dependency2 && d3 == dependency3
+                    }
+                )
+                .GetBy("TestCommand")
+                .With(TestWpfControllers.TestCommand)
+                .Resolve<TestWpfControllers.IDependency1>(() => dependency1)
+                .Resolve<TestWpfControllers.IDependency2>(() => dependency2)
+                .Resolve<TestWpfControllers.IDependency3>(() => dependency3)
+                .RaisePreviewExecuted(new object())
+        );
+        Then("the PreviewExecuted event should be handled", () => PreviewExecutedEventHandled);
+        Then("the dependency arguments should be injected", () => PreviewExecutedEventDependencyArgumentsHandled);
+
+        When("the PreviewCanExecute event is raised using the CommandHandlerBase", () =>
+            WpfController.CommandHandlersOf(new TestWpfControllers.CommandHandlerWithDependencyParametersController
+                    {
+                        PreviewCanExecuteAssertionHandler = () => PreviewCanExecuteEventHandled = true,
+                        PreviewCanExecuteDependencyArgumentsHandler = (d1, d2, d3) => PreviewCanExecuteEventDependencyArgumentsHandled = d1 == dependency1 && d2 == dependency2 && d3 == dependency3
+                    }
+                )
+                .GetBy("TestCommand")
+                .With(TestWpfControllers.TestCommand)
+                .Resolve<TestWpfControllers.IDependency1>(() => dependency1)
+                .Resolve<TestWpfControllers.IDependency2>(() => dependency2)
+                .Resolve<TestWpfControllers.IDependency3>(() => dependency3)
+                .RaisePreviewCanExecute(new object())
+        );
+        Then("the PreviewCanExecute event should be handled", () => PreviewCanExecuteEventHandled);
+        Then("the dependency arguments should be injected", () => PreviewCanExecuteEventDependencyArgumentsHandled);
     }
 
     [Example("Retrieves command handlers that have dependency parameters and executes asynchronously them when an element is not attached")]
@@ -143,7 +213,7 @@ class WpfControllerSpec_ExecuteHandler : FixtureSteppable
 
         When("the CanExecute event is raised using the CommandHandlerBase", async () =>
             await WpfController.CommandHandlersOf(new TestWpfControllers.CommandHandlerWithDependencyParametersControllerAsync
-            {
+                    {
                         CanExecuteAssertionHandler = () => CanExecuteEventHandled = true,
                         CanExecuteDependencyArgumentsHandler = (d1, d2, d3) => CanExecuteEventDependencyArgumentsHandled = d1 == dependency1 && d2 == dependency2 && d3 == dependency3
                     }
@@ -157,5 +227,39 @@ class WpfControllerSpec_ExecuteHandler : FixtureSteppable
         );
         Then("the CanExecute event should be handled", () => CanExecuteEventHandled);
         Then("the dependency arguments should be injected", () => CanExecuteEventDependencyArgumentsHandled);
+
+        When("the PreviewExecuted event is raised using the CommandHandlerBase", async () =>
+           await WpfController.CommandHandlersOf(new TestWpfControllers.CommandHandlerWithDependencyParametersControllerAsync
+                   {
+                       PreviewExecutedAssertionHandler = () => PreviewExecutedEventHandled = true,
+                       PreviewExecutedDependencyArgumentsHandler = (d1, d2, d3) => PreviewExecutedEventDependencyArgumentsHandled = d1 == dependency1 && d2 == dependency2 && d3 == dependency3
+                   }
+               )
+               .GetBy("TestCommand")
+               .With(TestWpfControllers.TestCommand)
+               .Resolve<TestWpfControllers.IDependency1>(() => dependency1)
+               .Resolve<TestWpfControllers.IDependency2>(() => dependency2)
+               .Resolve<TestWpfControllers.IDependency3>(() => dependency3)
+               .RaisePreviewExecutedAsync(new object())
+       );
+        Then("the PreviewExecuted event should be handled", () => PreviewExecutedEventHandled);
+        Then("the dependency arguments should be injected", () => PreviewExecutedEventDependencyArgumentsHandled);
+
+        When("the PreviewCanExecute event is raised using the CommandHandlerBase", async () =>
+            await WpfController.CommandHandlersOf(new TestWpfControllers.CommandHandlerWithDependencyParametersControllerAsync
+                    {
+                        PreviewCanExecuteAssertionHandler = () => PreviewCanExecuteEventHandled = true,
+                        PreviewCanExecuteDependencyArgumentsHandler = (d1, d2, d3) => PreviewCanExecuteEventDependencyArgumentsHandled = d1 == dependency1 && d2 == dependency2 && d3 == dependency3
+                    }
+                )
+                .GetBy("TestCommand")
+                .With(TestWpfControllers.TestCommand)
+                .Resolve<TestWpfControllers.IDependency1>(() => dependency1)
+                .Resolve<TestWpfControllers.IDependency2>(() => dependency2)
+                .Resolve<TestWpfControllers.IDependency3>(() => dependency3)
+                .RaisePreviewCanExecuteAsync(new object())
+        );
+        Then("the PreviewCanExecute event should be handled", () => PreviewCanExecuteEventHandled);
+        Then("the dependency arguments should be injected", () => PreviewCanExecuteEventDependencyArgumentsHandled);
     }
 }

@@ -14,9 +14,10 @@ namespace Charites.Windows.Mvc;
 /// </summary>
 internal sealed class CommandHandlerExtension : IWpfControllerExtension
 {
-    private static readonly BindingFlags CommandHandlerBindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+    private const BindingFlags CommandHandlerBindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+    private const BindingFlags RoutedEventBindingFlags = BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy;
 
-    private static readonly Regex CommandHandlerNamingConventionRegex = new("^[^_]+_(?:Executed|CanExecute)(Async)?$", RegexOptions.Compiled);
+    private static readonly Regex CommandHandlerNamingConventionRegex = new("^[^_]+_(?:Preview)?(?:Executed|CanExecute)(?:Async)?$", RegexOptions.Compiled);
 
     private static readonly DependencyProperty CommandHandlerBasesProperty = DependencyProperty.RegisterAttached(
         "ShadowCommandHandlerBases", typeof(IDictionary<object, CommandHandlerBase>), typeof(CommandHandlerExtension), new PropertyMetadata()
@@ -55,19 +56,20 @@ internal sealed class CommandHandlerExtension : IWpfControllerExtension
         => controller.GetType()
             .GetFields(CommandHandlerBindingFlags)
             .Where(field => field.GetCustomAttributes<CommandHandlerAttribute>().Any())
-            .ForEach(field => AddCommandHandlers(field, rootElement, CreateCommandHandler(field.GetValue(controller) as Delegate), commandHandlers));
+            .ForEach(field => AddCommandHandlers(field, rootElement, handlerType => CreateCommandHandler(field.GetValue(controller) as Delegate, handlerType), commandHandlers));
 
     private void RetrieveCommandHandlersFromProperty(object controller, FrameworkElement? rootElement, CommandHandlerBase commandHandlers)
         => controller.GetType()
             .GetProperties(CommandHandlerBindingFlags)
             .Where(property => property.GetCustomAttributes<CommandHandlerAttribute>().Any())
-            .ForEach(property => AddCommandHandlers(property, rootElement, CreateCommandHandler(property.GetValue(controller, null) as Delegate), commandHandlers));
+            .Where(property => property.CanRead)
+            .ForEach(property => AddCommandHandlers(property, rootElement, handlerType => CreateCommandHandler(property.GetValue(controller, null) as Delegate, handlerType), commandHandlers));
 
     private void RetrieveCommandHandlersFromMethod(object controller, FrameworkElement? rootElement, CommandHandlerBase commandHandlers)
         => controller.GetType()
             .GetMethods(CommandHandlerBindingFlags)
             .Where(method => method.GetCustomAttributes<CommandHandlerAttribute>().Any())
-            .ForEach(method => AddCommandHandlers(method, rootElement, CreateCommandHandler(method, controller), commandHandlers));
+            .ForEach(method => AddCommandHandlers(method, rootElement, handlerType => CreateCommandHandler(method, controller, handlerType), commandHandlers));
 
     private void RetrieveCommandHandlersFromMethodUsingNamingConvention(object controller, FrameworkElement? rootElement, CommandHandlerBase commandHandlers)
         => controller.GetType()
@@ -75,12 +77,22 @@ internal sealed class CommandHandlerExtension : IWpfControllerExtension
             .Where(method => CommandHandlerNamingConventionRegex.IsMatch(method.Name))
             .Where(method => !method.GetCustomAttributes<CommandHandlerAttribute>(true).Any())
             .Where(method => !method.GetCustomAttributes<EventHandlerAttribute>(true).Any())
-            .Select(method => new
+            .Select(method =>
             {
-                MethodInfo = method,
-                CommandHandlerAttribute = new CommandHandlerAttribute { CommandName = method.Name[..method.Name.IndexOf("_", StringComparison.Ordinal)] }
+                var separatorIndex = method.Name.IndexOf("_", StringComparison.Ordinal);
+                return new
+                {
+                    MethodInfo = method,
+                    CommandHandlerAttribute = new CommandHandlerAttribute
+                    {
+                        CommandName = method.Name[..separatorIndex],
+                        Event = EnsureEventNameUsingNamingConvention(method.Name[(separatorIndex + 1)..])
+                    }
+                };
             })
-            .ForEach(x => AddCommandHandler(x.CommandHandlerAttribute, rootElement, CreateCommandHandler(x.MethodInfo, controller), commandHandlers));
+            .ForEach(x => AddCommandHandler(x.CommandHandlerAttribute, rootElement, handlerType => CreateCommandHandler(x.MethodInfo, controller, handlerType), commandHandlers));
+
+    private string EnsureEventNameUsingNamingConvention(string eventName) => eventName.EndsWith("Async") ? eventName[..^5] : eventName;
 
     private IDictionary<object, CommandHandlerBase> EnsureCommandHandlerBases(FrameworkElement? rootElement)
     {
@@ -93,77 +105,50 @@ internal sealed class CommandHandlerExtension : IWpfControllerExtension
         return commandHandlerBases;
     }
 
-    private Delegate? CreateCommandHandler(Delegate? @delegate)
-        => @delegate is null ? null : CreateCommandHandler(@delegate.Method, @delegate.Target);
+    private Delegate? CreateCommandHandler(Delegate? @delegate, Type handlerType) => @delegate is null ? null : CreateCommandHandler(@delegate.Method, @delegate.Target, handlerType);
 
-    private Delegate? CreateCommandHandler(MethodInfo method, object? target)
+    private Delegate? CreateCommandHandler(MethodInfo method, object? target, Type handlerType)
     {
-        var parameters = method.GetParameters().Where(parameter => parameter.GetCustomAttribute<FromDIAttribute>() is null).ToList();
-        switch (parameters.Count)
-        {
-            case 1:
-                if (parameters[0].ParameterType == typeof(ExecutedRoutedEventArgs))
-                {
-                    return CreateCommandHandler<ExecutedRoutedEventArgs, ExecutedRoutedEventHandler>(method, target);
-                }
-                else if (parameters[0].ParameterType == typeof(CanExecuteRoutedEventArgs))
-                {
-                    return CreateCommandHandler<CanExecuteRoutedEventArgs, CanExecuteRoutedEventHandler>(method, target);
-                }
-                else
-                {
-                    throw new InvalidOperationException($"The type of the parameter must be {typeof(ExecutedRoutedEventArgs)} or {typeof(CanExecuteRoutedEventArgs)}.");
-                }
-            case 2:
-                if (parameters[1].ParameterType == typeof(ExecutedRoutedEventArgs))
-                {
-                    return CreateCommandHandler<ExecutedRoutedEventArgs, ExecutedRoutedEventHandler>(method, target);
-                }
-                else if (parameters[1].ParameterType == typeof(CanExecuteRoutedEventArgs))
-                {
-                    return CreateCommandHandler<CanExecuteRoutedEventArgs, CanExecuteRoutedEventHandler>(method, target);
-                }
-                else
-                {
-                    throw new InvalidOperationException($"The type of the second parameter must be {typeof(ExecutedRoutedEventArgs)} or {typeof(CanExecuteRoutedEventArgs)}.");
-                }
-            default:
-                throw new InvalidOperationException("The length of the method parameters must be 1 or 2.");
-        }
-    }
-        
-    private Delegate? CreateCommandHandler<TRoutedEventArgs, THandler>(MethodInfo method, object? target) where TRoutedEventArgs : RoutedEventArgs
-    {
-        var action = new RoutedEventHandlerAction<TRoutedEventArgs>(method, target);
+        var action = new WpfEventHandlerAction(method, target);
         return action.GetType()
-            .GetMethod(nameof(RoutedEventHandlerAction<TRoutedEventArgs>.OnHandled))
-            ?.CreateDelegate(typeof(THandler), action);
+            .GetMethod(nameof(EventHandlerAction.OnHandled))
+            ?.CreateDelegate(handlerType, action);
     }
 
-    private void AddCommandHandlers(MemberInfo member, FrameworkElement? rootElement, Delegate? handler, CommandHandlerBase commandHandlers)
+    private void AddCommandHandlers(MemberInfo member, FrameworkElement? rootElement, Func<Type, Delegate?> handlerCreator, CommandHandlerBase commandHandlers)
     {
         member.GetCustomAttributes<CommandHandlerAttribute>(true)
-            .ForEach(commandHandler => AddCommandHandler(commandHandler, rootElement, handler, commandHandlers));
+            .ForEach(commandHandler => AddCommandHandler(commandHandler, rootElement, handlerCreator, commandHandlers));
     }
 
-    private void AddCommandHandler(CommandHandlerAttribute commandHandler, FrameworkElement? rootElement, Delegate? handler, CommandHandlerBase commandHandlers)
+    private void AddCommandHandler(CommandHandlerAttribute commandHandler, FrameworkElement? rootElement, Func<Type, Delegate?> handlerCreator, CommandHandlerBase commandHandlers)
     {
         if (rootElement is null)
         {
-            AddCommandHandler(commandHandler.CommandName, null, rootElement, handler, commandHandlers);
+            AddCommandHandler(commandHandler, null, rootElement, handlerCreator, commandHandlers);
         }
         else
         {
             FindCommand(rootElement, commandHandler.CommandName)
-                .ForEach(command => AddCommandHandler(commandHandler.CommandName, command, rootElement, handler, commandHandlers));
+                .ForEach(command => AddCommandHandler(commandHandler, command, rootElement, handlerCreator, commandHandlers));
         }
     }
 
-    private void AddCommandHandler(string commandName, ICommand? command, FrameworkElement? rootElement, Delegate? handler, CommandHandlerBase commandHandlers)
+    private void AddCommandHandler(CommandHandlerAttribute commandHandler, ICommand? command, FrameworkElement? rootElement, Func<Type, Delegate?> handlerCreator, CommandHandlerBase commandHandlers)
     {
-        if (handler is ExecutedRoutedEventHandler executedHandler) commandHandlers.Add(commandName, command, rootElement, executedHandler);
-        if (handler is CanExecuteRoutedEventHandler canExecuteHandler) commandHandlers.Add(commandName, command, rootElement, canExecuteHandler);
+        var routedEvent = RetrieveRoutedEvent(commandHandler.Event);
+        if (routedEvent is null) return;
+
+        commandHandlers.Add(commandHandler.CommandName, commandHandler.Event, command, rootElement, handlerCreator(routedEvent.HandlerType));
     }
+
+    private RoutedEvent? RetrieveRoutedEvent(string name)
+        => typeof(CommandManager).GetFields(RoutedEventBindingFlags)
+            .Where(field => field.Name == EnsureRoutedEventName(name))
+            .Select(field => field.GetValue(null))
+            .FirstOrDefault() as RoutedEvent;
+    private string EnsureRoutedEventName(string routedEventName)
+        => routedEventName.EndsWith("Event") ? routedEventName : $"{routedEventName}Event";
 
     private IEnumerable<ICommand> FindCommand(DependencyObject element, string commandName)
     {

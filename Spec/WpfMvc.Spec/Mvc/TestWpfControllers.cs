@@ -39,13 +39,23 @@ internal class TestWpfControllers
         [EventHandler(Event = nameof(FrameworkElement.DataContextChanged))]
         protected void OnDataContextChanged() { }
 
-        [CommandHandler(CommandName = nameof(TestCommand))]
+        [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
         protected void TestCommand_Executed(ExecutedRoutedEventArgs e) => ExecutedAssertionHandler?.Invoke();
 
-        [CommandHandler(CommandName = nameof(TestCommand))]
+        [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.CanExecute))]
         protected void TestCommand_CanExecute(CanExecuteRoutedEventArgs e)
         {
             CanExecuteAssertionHandler?.Invoke();
+            e.CanExecute = true;
+        }
+
+        [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewExecuted))]
+        protected void TestCommand_PreviewExecuted(ExecutedRoutedEventArgs e) => PreviewExecutedAssertionHandler?.Invoke();
+
+        [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewCanExecute))]
+        protected void TestCommand_PreviewCanExecute(CanExecuteRoutedEventArgs e)
+        {
+            PreviewCanExecuteAssertionHandler?.Invoke();
             e.CanExecute = true;
         }
 
@@ -54,6 +64,8 @@ internal class TestWpfControllers
         public Action? ChangedAssertionHandler { get; set; }
         public Action? ExecutedAssertionHandler { get; set; }
         public Action? CanExecuteAssertionHandler { get; set; }
+        public Action? PreviewExecutedAssertionHandler { get; set; }
+        public Action? PreviewCanExecuteAssertionHandler { get; set; }
     }
 
     [View(Key = "Charites.Windows.Mvc.TestDataContexts+TestDataContext")]
@@ -114,13 +126,13 @@ internal class TestWpfControllers
             await Task.Run(() => LoadedAssertionHandler?.Invoke());
         }
 
-        [CommandHandler(CommandName = nameof(TestCommand))]
+        [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
         private async Task TestCommand_ExecutedAsync(ExecutedRoutedEventArgs e)
         {
             await Task.Run(() => ExecutedAssertionHandler?.Invoke());
         }
 
-        [CommandHandler(CommandName = nameof(TestCommand))]
+        [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.CanExecute))]
         private async Task TestCommand_CanExecuteAsync(CanExecuteRoutedEventArgs e)
         {
             await Task.Run(() =>
@@ -130,9 +142,27 @@ internal class TestWpfControllers
             });
         }
 
+        [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewExecuted))]
+        private async Task TestCommand_PreviewExecutedAsync(ExecutedRoutedEventArgs e)
+        {
+            await Task.Run(() => PreviewExecutedAssertionHandler?.Invoke());
+        }
+
+        [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewCanExecute))]
+        private async Task TestCommand_PreviewCanExecuteAsync(CanExecuteRoutedEventArgs e)
+        {
+            await Task.Run(() =>
+            {
+                PreviewCanExecuteAssertionHandler?.Invoke();
+                e.CanExecute = true;
+            });
+        }
+
         public Action? LoadedAssertionHandler { get; set; }
         public Action? ExecutedAssertionHandler { get; set; }
         public Action? CanExecuteAssertionHandler { get; set; }
+        public Action? PreviewExecutedAssertionHandler { get; set; }
+        public Action? PreviewCanExecuteAssertionHandler { get; set; }
     }
 
     public class ExceptionTestWpfController
@@ -146,14 +176,14 @@ internal class TestWpfControllers
 
     public class CommandHandlerWithDependencyParametersController
     {
-        [CommandHandler(CommandName = nameof(TestCommand))]
+        [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
         private void TestCommand_Executed(ExecutedRoutedEventArgs e, [FromDI] IDependency1 dependency1, [FromDI] IDependency2 dependency2, [FromDI] IDependency3 dependency3)
         {
             ExecutedAssertionHandler?.Invoke();
             ExecutedDependencyArgumentsHandler?.Invoke(dependency1, dependency2, dependency3);
         }
 
-        [CommandHandler(CommandName = nameof(TestCommand))]
+        [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.CanExecute))]
         private void TestCommand_CanExecute(CanExecuteRoutedEventArgs e, [FromDI] IDependency1 dependency1, [FromDI] IDependency2 dependency2, [FromDI] IDependency3 dependency3)
         {
             CanExecuteAssertionHandler?.Invoke();
@@ -161,15 +191,34 @@ internal class TestWpfControllers
             e.CanExecute = true;
         }
 
+        [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewExecuted))]
+        private void TestCommand_PreviewExecuted(ExecutedRoutedEventArgs e, [FromDI] IDependency1 dependency1, [FromDI] IDependency2 dependency2, [FromDI] IDependency3 dependency3)
+        {
+            PreviewExecutedAssertionHandler?.Invoke();
+            PreviewExecutedDependencyArgumentsHandler?.Invoke(dependency1, dependency2, dependency3);
+        }
+
+        [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewCanExecute))]
+        private void TestCommand_PreviewCanExecute(CanExecuteRoutedEventArgs e, [FromDI] IDependency1 dependency1, [FromDI] IDependency2 dependency2, [FromDI] IDependency3 dependency3)
+        {
+            PreviewCanExecuteAssertionHandler?.Invoke();
+            PreviewCanExecuteDependencyArgumentsHandler?.Invoke(dependency1, dependency2, dependency3);
+            e.CanExecute = true;
+        }
+
         public Action? ExecutedAssertionHandler { get; set; }
         public Action<IDependency1, IDependency2, IDependency3>? ExecutedDependencyArgumentsHandler { get; set; }
         public Action? CanExecuteAssertionHandler { get; set; }
         public Action<IDependency1, IDependency2, IDependency3>? CanExecuteDependencyArgumentsHandler { get; set; }
+        public Action? PreviewExecutedAssertionHandler { get; set; }
+        public Action<IDependency1, IDependency2, IDependency3>? PreviewExecutedDependencyArgumentsHandler { get; set; }
+        public Action? PreviewCanExecuteAssertionHandler { get; set; }
+        public Action<IDependency1, IDependency2, IDependency3>? PreviewCanExecuteDependencyArgumentsHandler { get; set; }
     }
 
     public class CommandHandlerWithDependencyParametersControllerAsync
     {
-        [CommandHandler(CommandName = nameof(TestCommand))]
+        [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
         private async Task TestCommand_ExecutedAsync(ExecutedRoutedEventArgs e, [FromDI] IDependency1 dependency1, [FromDI] IDependency2 dependency2, [FromDI] IDependency3 dependency3)
         {
             await Task.Run(() =>
@@ -179,7 +228,7 @@ internal class TestWpfControllers
             });
         }
 
-        [CommandHandler(CommandName = nameof(TestCommand))]
+        [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.CanExecute))]
         private async Task TestCommand_CanExecuteAsync(CanExecuteRoutedEventArgs e, [FromDI] IDependency1 dependency1, [FromDI] IDependency2 dependency2, [FromDI] IDependency3 dependency3)
         {
             await Task.Run(() =>
@@ -190,10 +239,35 @@ internal class TestWpfControllers
             });
         }
 
+        [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewExecuted))]
+        private async Task TestCommand_PreviewExecutedAsync(ExecutedRoutedEventArgs e, [FromDI] IDependency1 dependency1, [FromDI] IDependency2 dependency2, [FromDI] IDependency3 dependency3)
+        {
+            await Task.Run(() =>
+            {
+                PreviewExecutedAssertionHandler?.Invoke();
+                PreviewExecutedDependencyArgumentsHandler?.Invoke(dependency1, dependency2, dependency3);
+            });
+        }
+
+        [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewCanExecute))]
+        private async Task TestCommand_PreviewCanExecuteAsync(CanExecuteRoutedEventArgs e, [FromDI] IDependency1 dependency1, [FromDI] IDependency2 dependency2, [FromDI] IDependency3 dependency3)
+        {
+            await Task.Run(() =>
+            {
+                PreviewCanExecuteAssertionHandler?.Invoke();
+                PreviewCanExecuteDependencyArgumentsHandler?.Invoke(dependency1, dependency2, dependency3);
+                e.CanExecute = true;
+            });
+        }
+
         public Action? ExecutedAssertionHandler { get; set; }
         public Action<IDependency1, IDependency2, IDependency3>? ExecutedDependencyArgumentsHandler { get; set; }
         public Action? CanExecuteAssertionHandler { get; set; }
         public Action<IDependency1, IDependency2, IDependency3>? CanExecuteDependencyArgumentsHandler { get; set; }
+        public Action? PreviewExecutedAssertionHandler { get; set; }
+        public Action<IDependency1, IDependency2, IDependency3>? PreviewExecutedDependencyArgumentsHandler { get; set; }
+        public Action? PreviewCanExecuteAssertionHandler { get; set; }
+        public Action<IDependency1, IDependency2, IDependency3>? PreviewCanExecuteDependencyArgumentsHandler { get; set; }
     }
 
     public interface IDependency1 {}
@@ -277,9 +351,85 @@ internal class TestWpfControllers
             public FrameworkElement? ChildElement => childElement;
         }
 
+        public class NoArgumentExecutedOnlyHandlerController
+        {
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
+            private Action executedHandler;
+
+            public NoArgumentExecutedOnlyHandlerController(Action executedAssertionHandler)
+            {
+                executedHandler = executedAssertionHandler;
+            }
+        }
+
+        public class NoArgumentExecutedAndPreviewExecutedHandlerController
+        {
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
+            private Action executedHandler;
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewExecuted))]
+            private Action previewExecutedHandler;
+
+            public NoArgumentExecutedAndPreviewExecutedHandlerController(Action executedAssertionHandler, Action previewExecutedAssertionHandler)
+            {
+                executedHandler = executedAssertionHandler;
+                previewExecutedHandler = previewExecutedAssertionHandler;
+            }
+        }
+
+        public class NoArgumentExecutedAndCanExecuteHandlerController
+        {
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
+            private Action executedHandler;
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.CanExecute))]
+            private Action canExecuteHandler;
+
+            [CommandHandler(CommandName = nameof(AnotherTestCommand), Event = nameof(CommandBinding.Executed))]
+            private Action? anotherExecutedHandler;
+
+            [CommandHandler(CommandName = nameof(AnotherTestCommand), Event = nameof(CommandBinding.CanExecute))]
+            private Action? anotherCanExecuteHandler;
+
+            public NoArgumentExecutedAndCanExecuteHandlerController(Action executedAssertionHandler, Action canExecuteAssertionHandler)
+            {
+                executedHandler = executedAssertionHandler;
+                canExecuteHandler = canExecuteAssertionHandler;
+            }
+
+            public NoArgumentExecutedAndCanExecuteHandlerController(Action executedAssertionHandler, Action canExecuteAssertionHandler, Action anotherExecutedAssertionHandler, Action anotherCanExecuteAssertionHandler) : this(executedAssertionHandler, canExecuteAssertionHandler)
+            {
+                anotherExecutedHandler = anotherExecutedAssertionHandler;
+                anotherCanExecuteHandler = anotherCanExecuteAssertionHandler;
+            }
+        }
+
+        public class NoArgumentExecutedAndPreviewExecutedAndCanExecuteAndPreviewCanExecuteHandlerController
+        {
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
+            private Action executedHandler;
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.CanExecute))]
+            private Action canExecuteHandler;
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewExecuted))]
+            private Action? previewExecutedHandler;
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewCanExecute))]
+            private Action? previewCanExecuteHandler;
+
+            public NoArgumentExecutedAndPreviewExecutedAndCanExecuteAndPreviewCanExecuteHandlerController(Action executedAssertionHandler, Action canExecuteAssertionHandler, Action previewExecutedAssertionHandler, Action previewCanExecuteAssertionHandler)
+            {
+                executedHandler = executedAssertionHandler;
+                canExecuteHandler = canExecuteAssertionHandler;
+                previewExecutedHandler = previewExecutedAssertionHandler;
+                previewCanExecuteHandler = previewCanExecuteAssertionHandler;
+            }
+        }
+
         public class OneArgumentExecutedOnlyHandlerController
         {
-            [CommandHandler(CommandName = nameof(TestCommand))]
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
             private Action<ExecutedRoutedEventArgs> executedHandler;
 
             public OneArgumentExecutedOnlyHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler)
@@ -288,18 +438,33 @@ internal class TestWpfControllers
             }
         }
 
-        public class OneArgumentExecutedAndCanExecuteHandlerController
+        public class OneArgumentExecutedAndPreviewExecutedHandlerController
         {
-            [CommandHandler(CommandName = nameof(TestCommand))]
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
             private Action<ExecutedRoutedEventArgs> executedHandler;
 
-            [CommandHandler(CommandName = nameof(TestCommand))]
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewExecuted))]
+            private Action<ExecutedRoutedEventArgs> previewExecutedHandler;
+
+            public OneArgumentExecutedAndPreviewExecutedHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler, Action<ExecutedRoutedEventArgs> previewExecutedAssertionHandler)
+            {
+                executedHandler = executedAssertionHandler;
+                previewExecutedHandler = previewExecutedAssertionHandler;
+            }
+        }
+
+        public class OneArgumentExecutedAndCanExecuteHandlerController
+        {
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
+            private Action<ExecutedRoutedEventArgs> executedHandler;
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.CanExecute))]
             private Action<CanExecuteRoutedEventArgs> canExecuteHandler;
 
-            [CommandHandler(CommandName = nameof(AnotherTestCommand))]
+            [CommandHandler(CommandName = nameof(AnotherTestCommand), Event = nameof(CommandBinding.Executed))]
             private Action<ExecutedRoutedEventArgs>? anotherExecutedHandler;
 
-            [CommandHandler(CommandName = nameof(AnotherTestCommand))]
+            [CommandHandler(CommandName = nameof(AnotherTestCommand), Event = nameof(CommandBinding.CanExecute))]
             private Action<CanExecuteRoutedEventArgs>? anotherCanExecuteHandler;
 
             public OneArgumentExecutedAndCanExecuteHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler, Action<CanExecuteRoutedEventArgs> canExecuteAssertionHandler)
@@ -323,9 +488,40 @@ internal class TestWpfControllers
             }
         }
 
+        public class OneArgumentExecutedAndPreviewExecutedAndCanExecuteAndPreviewCanExecuteHandlerController
+        {
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
+            private Action<ExecutedRoutedEventArgs> executedHandler;
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.CanExecute))]
+            private Action<CanExecuteRoutedEventArgs> canExecuteHandler;
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewExecuted))]
+            private Action<ExecutedRoutedEventArgs>? previewExecutedHandler;
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewCanExecute))]
+            private Action<CanExecuteRoutedEventArgs>? previewCanExecuteHandler;
+
+            public OneArgumentExecutedAndPreviewExecutedAndCanExecuteAndPreviewCanExecuteHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler, Action<CanExecuteRoutedEventArgs> canExecuteAssertionHandler, Action<ExecutedRoutedEventArgs> previewExecutedAssertionHandler, Action<CanExecuteRoutedEventArgs> previewCanExecuteAssertionHandler)
+            {
+                executedHandler = executedAssertionHandler;
+                canExecuteHandler = e =>
+                {
+                    e.CanExecute = true;
+                    canExecuteAssertionHandler(e);
+                };
+                previewExecutedHandler = previewExecutedAssertionHandler.Invoke;
+                previewCanExecuteHandler = e =>
+                {
+                    e.CanExecute = true;
+                    previewCanExecuteAssertionHandler.Invoke(e);
+                };
+            }
+        }
+
         public class ExecutedOnlyHandlerController
         {
-            [CommandHandler(CommandName = nameof(TestCommand))]
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
             private ExecutedRoutedEventHandler executedHandler;
 
             public ExecutedOnlyHandlerController(ExecutedRoutedEventHandler executedAssertionHandler)
@@ -334,18 +530,33 @@ internal class TestWpfControllers
             }
         }
 
-        public class ExecutedAndCanExecuteHandlerController
+        public class ExecutedAndPreviewExecutedHandlerController
         {
-            [CommandHandler(CommandName = nameof(TestCommand))]
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
             private ExecutedRoutedEventHandler executedHandler;
 
-            [CommandHandler(CommandName = nameof(TestCommand))]
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewExecuted))]
+            private ExecutedRoutedEventHandler previewExecutedHandler;
+
+            public ExecutedAndPreviewExecutedHandlerController(ExecutedRoutedEventHandler executedAssertionHandler, ExecutedRoutedEventHandler previewExecutedAssertionHandler)
+            {
+                executedHandler = executedAssertionHandler;
+                previewExecutedHandler = previewExecutedAssertionHandler;
+            }
+        }
+
+        public class ExecutedAndCanExecuteHandlerController
+        {
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
+            private ExecutedRoutedEventHandler executedHandler;
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.CanExecute))]
             private CanExecuteRoutedEventHandler canExecuteHandler;
 
-            [CommandHandler(CommandName = nameof(AnotherTestCommand))]
+            [CommandHandler(CommandName = nameof(AnotherTestCommand), Event = nameof(CommandBinding.Executed))]
             private ExecutedRoutedEventHandler? anotherExecutedHandler;
 
-            [CommandHandler(CommandName = nameof(AnotherTestCommand))]
+            [CommandHandler(CommandName = nameof(AnotherTestCommand), Event = nameof(CommandBinding.CanExecute))]
             private CanExecuteRoutedEventHandler? anotherCanExecuteHandler;
 
             public ExecutedAndCanExecuteHandlerController(ExecutedRoutedEventHandler executedAssertionHandler, CanExecuteRoutedEventHandler canExecuteAssertionHandler)
@@ -365,6 +576,37 @@ internal class TestWpfControllers
                 {
                     e.CanExecute = true;
                     anotherCanExecuteAssertionHandler.Invoke(s, e);
+                };
+            }
+        }
+
+        public class ExecutedAndPreviewExecutedAndCanExecuteAndPreviewCanExecuteHandlerController
+        {
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
+            private ExecutedRoutedEventHandler executedHandler;
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.CanExecute))]
+            private CanExecuteRoutedEventHandler canExecuteHandler;
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewExecuted))]
+            private ExecutedRoutedEventHandler? previewExecutedHandler;
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewCanExecute))]
+            private CanExecuteRoutedEventHandler? previewCanExecuteHandler;
+
+            public ExecutedAndPreviewExecutedAndCanExecuteAndPreviewCanExecuteHandlerController(ExecutedRoutedEventHandler executedAssertionHandler, CanExecuteRoutedEventHandler canExecuteAssertionHandler, ExecutedRoutedEventHandler previewExecutedAssertionHandler, CanExecuteRoutedEventHandler previewCanExecuteAssertionHandler)
+            {
+                executedHandler = executedAssertionHandler;
+                canExecuteHandler = (s, e) =>
+                {
+                    e.CanExecute = true;
+                    canExecuteAssertionHandler(s, e);
+                };
+                previewExecutedHandler = previewExecutedAssertionHandler.Invoke;
+                previewCanExecuteHandler = (s, e) =>
+                {
+                    e.CanExecute = true;
+                    previewCanExecuteAssertionHandler.Invoke(s, e);
                 };
             }
         }
@@ -432,9 +674,84 @@ internal class TestWpfControllers
             }
         }
 
+        public class NoArgumentExecutedOnlyHandlerController
+        {
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
+            private Action ExecutedHandler { get; }
+
+            public NoArgumentExecutedOnlyHandlerController(Action executedAssertionHandler)
+            {
+                ExecutedHandler = executedAssertionHandler;
+            }
+        }
+
+        public class NoArgumentExecutedAndPreviewExecutedHandlerController
+        {
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
+            private Action ExecutedHandler { get; }
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewExecuted))]
+            private Action PreviewExecutedHandler { get; }
+
+            public NoArgumentExecutedAndPreviewExecutedHandlerController(Action executedAssertionHandler, Action previewExecutedAssertionHandler)
+            {
+                ExecutedHandler = executedAssertionHandler;
+                PreviewExecutedHandler = previewExecutedAssertionHandler;
+            }
+        }
+
+        public class NoArgumentExecutedAndCanExecuteHandlerController
+        {
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
+            private Action ExecutedHandler { get; }
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.CanExecute))]
+            private Action CanExecuteHandler { get; }
+
+            [CommandHandler(CommandName = nameof(AnotherTestCommand), Event = nameof(CommandBinding.Executed))]
+            private Action? AnotherExecutedHandler { get; }
+
+            [CommandHandler(CommandName = nameof(AnotherTestCommand), Event = nameof(CommandBinding.CanExecute))]
+            private Action? AnotherCanExecuteHandler { get; }
+
+            public NoArgumentExecutedAndCanExecuteHandlerController(Action executedAssertionHandler, Action canExecuteAssertionHandler)
+            {
+                ExecutedHandler = executedAssertionHandler;
+                CanExecuteHandler = canExecuteAssertionHandler;
+            }
+
+            public NoArgumentExecutedAndCanExecuteHandlerController(Action executedAssertionHandler, Action canExecuteAssertionHandler, Action anotherExecutedAssertionHandler, Action anotherCanExecuteAssertionHandler) : this(executedAssertionHandler, canExecuteAssertionHandler)
+            {
+                AnotherExecutedHandler = anotherExecutedAssertionHandler;
+                AnotherCanExecuteHandler = anotherCanExecuteAssertionHandler;
+            }
+        }
+
+        public class NoArgumentExecutedAndPreviewExecutedAndCanExecuteAndPreviewCanExecuteHandlerController
+        {
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
+            private Action ExecutedHandler { get; }
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.CanExecute))]
+            private Action CanExecuteHandler { get; }
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewExecuted))]
+            private Action? PreviewExecutedHandler { get; }
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewCanExecute))]
+            private Action? PreviewCanExecuteHandler { get; }
+
+            public NoArgumentExecutedAndPreviewExecutedAndCanExecuteAndPreviewCanExecuteHandlerController(Action executedAssertionHandler, Action canExecuteAssertionHandler, Action previewExecutedAssertionHandler, Action previewCanExecuteAssertionHandler)
+            {
+                ExecutedHandler = executedAssertionHandler;
+                CanExecuteHandler = canExecuteAssertionHandler;
+                PreviewExecutedHandler = previewExecutedAssertionHandler;
+                PreviewCanExecuteHandler = previewCanExecuteAssertionHandler;
+            }
+        }
+
         public class OneArgumentExecutedOnlyHandlerController
         {
-            [CommandHandler(CommandName = nameof(TestCommand))]
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
             private Action<ExecutedRoutedEventArgs> ExecutedHandler { get; }
 
             public OneArgumentExecutedOnlyHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler)
@@ -443,18 +760,33 @@ internal class TestWpfControllers
             }
         }
 
-        public class OneArgumentExecutedAndCanExecuteHandlerController
+        public class OneArgumentExecutedAndPreviewExecutedHandlerController
         {
-            [CommandHandler(CommandName = nameof(TestCommand))]
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
             private Action<ExecutedRoutedEventArgs> ExecutedHandler { get; }
 
-            [CommandHandler(CommandName = nameof(TestCommand))]
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewExecuted))]
+            private Action<ExecutedRoutedEventArgs> PreviewExecutedHandler { get; }
+
+            public OneArgumentExecutedAndPreviewExecutedHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler, Action<ExecutedRoutedEventArgs> previewExecutedAssertionHandler)
+            {
+                ExecutedHandler = executedAssertionHandler;
+                PreviewExecutedHandler = previewExecutedAssertionHandler;
+            }
+        }
+
+        public class OneArgumentExecutedAndCanExecuteHandlerController
+        {
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
+            private Action<ExecutedRoutedEventArgs> ExecutedHandler { get; }
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.CanExecute))]
             private Action<CanExecuteRoutedEventArgs> CanExecuteHandler { get; }
 
-            [CommandHandler(CommandName = nameof(AnotherTestCommand))]
+            [CommandHandler(CommandName = nameof(AnotherTestCommand), Event = nameof(CommandBinding.Executed))]
             private Action<ExecutedRoutedEventArgs>? AnotherExecutedHandler { get; }
 
-            [CommandHandler(CommandName = nameof(AnotherTestCommand))]
+            [CommandHandler(CommandName = nameof(AnotherTestCommand), Event = nameof(CommandBinding.CanExecute))]
             private Action<CanExecuteRoutedEventArgs>? AnotherCanExecuteHandler { get; }
 
             public OneArgumentExecutedAndCanExecuteHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler, Action<CanExecuteRoutedEventArgs> canExecuteAssertionHandler)
@@ -478,9 +810,40 @@ internal class TestWpfControllers
             }
         }
 
+        public class OneArgumentExecutedAndPreviewExecutedAndCanExecuteAndPreviewCanExecuteHandlerController
+        {
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
+            private Action<ExecutedRoutedEventArgs> ExecutedHandler { get; }
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.CanExecute))]
+            private Action<CanExecuteRoutedEventArgs> CanExecuteHandler { get; }
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewExecuted))]
+            private Action<ExecutedRoutedEventArgs>? PreviewExecutedHandler { get; }
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewCanExecute))]
+            private Action<CanExecuteRoutedEventArgs>? PreviewCanExecuteHandler { get; }
+
+            public OneArgumentExecutedAndPreviewExecutedAndCanExecuteAndPreviewCanExecuteHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler, Action<CanExecuteRoutedEventArgs> canExecuteAssertionHandler, Action<ExecutedRoutedEventArgs> previewExecutedAssertionHandler, Action<CanExecuteRoutedEventArgs> previewCanExecuteAssertionHandler)
+            {
+                ExecutedHandler = executedAssertionHandler;
+                CanExecuteHandler = e =>
+                {
+                    e.CanExecute = true;
+                    canExecuteAssertionHandler(e);
+                };
+                PreviewExecutedHandler = previewExecutedAssertionHandler.Invoke;
+                PreviewCanExecuteHandler = e =>
+                {
+                    e.CanExecute = true;
+                    previewCanExecuteAssertionHandler.Invoke(e);
+                };
+            }
+        }
+
         public class ExecutedOnlyHandlerController
         {
-            [CommandHandler(CommandName = nameof(TestCommand))]
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
             private ExecutedRoutedEventHandler ExecutedHandler { get; }
 
             public ExecutedOnlyHandlerController(ExecutedRoutedEventHandler executedAssertionHandler)
@@ -489,18 +852,33 @@ internal class TestWpfControllers
             }
         }
 
-        public class ExecutedAndCanExecuteHandlerController
+        public class ExecutedAndPreviewExecutedHandlerController
         {
-            [CommandHandler(CommandName = nameof(TestCommand))]
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
             private ExecutedRoutedEventHandler ExecutedHandler { get; }
 
-            [CommandHandler(CommandName = nameof(TestCommand))]
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewExecuted))]
+            private ExecutedRoutedEventHandler PreviewExecutedHandler { get; }
+
+            public ExecutedAndPreviewExecutedHandlerController(ExecutedRoutedEventHandler executedAssertionHandler, ExecutedRoutedEventHandler previewExecutedAssertionHandler)
+            {
+                ExecutedHandler = executedAssertionHandler;
+                PreviewExecutedHandler = previewExecutedAssertionHandler;
+            }
+        }
+
+        public class ExecutedAndCanExecuteHandlerController
+        {
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
+            private ExecutedRoutedEventHandler ExecutedHandler { get; }
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.CanExecute))]
             private CanExecuteRoutedEventHandler CanExecuteHandler { get; }
 
-            [CommandHandler(CommandName = nameof(AnotherTestCommand))]
+            [CommandHandler(CommandName = nameof(AnotherTestCommand), Event = nameof(CommandBinding.Executed))]
             private ExecutedRoutedEventHandler? AnotherExecutedHandler { get; }
 
-            [CommandHandler(CommandName = nameof(AnotherTestCommand))]
+            [CommandHandler(CommandName = nameof(AnotherTestCommand), Event = nameof(CommandBinding.CanExecute))]
             private CanExecuteRoutedEventHandler? AnotherCanExecuteHandler { get; }
 
             public ExecutedAndCanExecuteHandlerController(ExecutedRoutedEventHandler executedAssertionHandler, CanExecuteRoutedEventHandler canExecuteAssertionHandler)
@@ -520,6 +898,37 @@ internal class TestWpfControllers
                 {
                     e.CanExecute = true;
                     anotherCanExecuteAssertionHandler.Invoke(s, e);
+                };
+            }
+        }
+
+        public class ExecutedAndPreviewExecutedAndCanExecuteAndPreviewCanExecuteHandlerController
+        {
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
+            private ExecutedRoutedEventHandler ExecutedHandler { get; }
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.CanExecute))]
+            private CanExecuteRoutedEventHandler CanExecuteHandler { get; }
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewExecuted))]
+            private ExecutedRoutedEventHandler? PreviewExecutedHandler { get; }
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewCanExecute))]
+            private CanExecuteRoutedEventHandler? PreviewCanExecuteHandler { get; }
+
+            public ExecutedAndPreviewExecutedAndCanExecuteAndPreviewCanExecuteHandlerController(ExecutedRoutedEventHandler executedAssertionHandler, CanExecuteRoutedEventHandler canExecuteAssertionHandler, ExecutedRoutedEventHandler previewExecutedAssertionHandler, CanExecuteRoutedEventHandler previewCanExecuteAssertionHandler)
+            {
+                ExecutedHandler = executedAssertionHandler;
+                CanExecuteHandler = (s, e) =>
+                {
+                    e.CanExecute = true;
+                    canExecuteAssertionHandler(s, e);
+                };
+                PreviewExecutedHandler = previewExecutedAssertionHandler.Invoke;
+                PreviewCanExecuteHandler = (s, e) =>
+                {
+                    e.CanExecute = true;
+                    previewCanExecuteAssertionHandler.Invoke(s, e);
                 };
             }
         }
@@ -599,9 +1008,98 @@ internal class TestWpfControllers
             }
         }
 
+        public class NoArgumentExecutedOnlyHandlerController
+        {
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
+            private void TestCommand_Executed() => ExecutedHandler();
+            private Action ExecutedHandler { get; }
+
+            public NoArgumentExecutedOnlyHandlerController(Action executedAssertionHandler)
+            {
+                ExecutedHandler = executedAssertionHandler;
+            }
+        }
+
+        public class NoArgumentExecutedAndCanExecuteHandlerController
+        {
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
+            private void TestCommand_Executed() => ExecutedHandler();
+            private Action ExecutedHandler { get; }
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.CanExecute))]
+            private void TestCommand_CanExecute() => CanExecuteHandler();
+            private Action CanExecuteHandler { get; }
+
+            [CommandHandler(CommandName = nameof(AnotherTestCommand), Event = nameof(CommandBinding.Executed))]
+            private void AnotherTestCommand_Executed() => AnotherExecutedHandler?.Invoke();
+            private Action? AnotherExecutedHandler { get; }
+
+            [CommandHandler(CommandName = nameof(AnotherTestCommand), Event = nameof(CommandBinding.CanExecute))]
+            private void AnotherTestCommand_CanExecute() => AnotherCanExecuteHandler?.Invoke();
+
+            private Action? AnotherCanExecuteHandler { get; }
+
+            public NoArgumentExecutedAndCanExecuteHandlerController(Action executedAssertionHandler, Action canExecuteAssertionHandler)
+            {
+                ExecutedHandler = executedAssertionHandler;
+                CanExecuteHandler = canExecuteAssertionHandler;
+            }
+
+            public NoArgumentExecutedAndCanExecuteHandlerController(Action executedAssertionHandler, Action canExecuteAssertionHandler, Action anotherExecutedAssertionHandler, Action anotherCanExecuteAssertionHandler) : this(executedAssertionHandler, canExecuteAssertionHandler)
+            {
+                AnotherExecutedHandler = anotherExecutedAssertionHandler;
+                AnotherCanExecuteHandler = anotherCanExecuteAssertionHandler;
+            }
+        }
+
+        public class NoArgumentExecutedAndPreviewExecutedHandlerController
+        {
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
+            private void TestCommand_Executed() => ExecutedHandler();
+            private Action ExecutedHandler { get; }
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewExecuted))]
+            private void TestCommand_PreviewExecuted() => PreviewExecutedHandler();
+            private Action PreviewExecutedHandler { get; }
+
+            public NoArgumentExecutedAndPreviewExecutedHandlerController(Action executedAssertionHandler, Action previewExecutedAssertionHandler)
+            {
+                ExecutedHandler = executedAssertionHandler;
+                PreviewExecutedHandler = previewExecutedAssertionHandler;
+            }
+        }
+
+        public class NoArgumentExecutedAndPreviewExecutedAndCanExecuteAndPreviewCanExecuteHandlerController
+        {
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
+            private void TestCommand_Executed() => ExecutedHandler();
+            private Action ExecutedHandler { get; }
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.CanExecute))]
+            private void TestCommand_CanExecute() => CanExecuteHandler();
+            private Action CanExecuteHandler { get; }
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewExecuted))]
+            private void AnotherTestCommand_PreviewExecuted() => PreviewExecutedHandler?.Invoke();
+            private Action? PreviewExecutedHandler { get; }
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewCanExecute))]
+            private void AnotherTestCommand_PreviewCanExecute() => PreviewCanExecuteHandler?.Invoke();
+
+            private Action? PreviewCanExecuteHandler { get; }
+
+            public NoArgumentExecutedAndPreviewExecutedAndCanExecuteAndPreviewCanExecuteHandlerController(Action executedAssertionHandler, Action canExecuteAssertionHandler, Action previewExecutedAssertionHandler, Action previewCanExecuteAssertionHandler)
+            {
+                ExecutedHandler = executedAssertionHandler;
+                CanExecuteHandler = canExecuteAssertionHandler;
+                PreviewExecutedHandler = previewExecutedAssertionHandler;
+                PreviewCanExecuteHandler = previewCanExecuteAssertionHandler;
+            }
+        }
+
         public class OneArgumentExecutedOnlyHandlerController
         {
-            [CommandHandler(CommandName = nameof(TestCommand))]
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
             public void TestCommand_Executed(ExecutedRoutedEventArgs e) => ExecutedHandler(e);
             private Action<ExecutedRoutedEventArgs> ExecutedHandler { get; }
 
@@ -611,13 +1109,30 @@ internal class TestWpfControllers
             }
         }
 
-        public class OneArgumentExecutedAndCanExecuteHandlerController
+        public class OneArgumentExecutedAndPreviewExecutedHandlerController
         {
-            [CommandHandler(CommandName = nameof(TestCommand))]
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
             public void TestCommand_Executed(ExecutedRoutedEventArgs e) => ExecutedHandler(e);
             private Action<ExecutedRoutedEventArgs> ExecutedHandler { get; }
 
-            [CommandHandler(CommandName = nameof(TestCommand))]
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewExecuted))]
+            public void TestCommand_PreviewExecuted(ExecutedRoutedEventArgs e) => PreviewExecutedHandler(e);
+            private Action<ExecutedRoutedEventArgs> PreviewExecutedHandler { get; }
+
+            public OneArgumentExecutedAndPreviewExecutedHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler, Action<ExecutedRoutedEventArgs> previewExecutedAssertionHandler)
+            {
+                ExecutedHandler = executedAssertionHandler;
+                PreviewExecutedHandler = previewExecutedAssertionHandler;
+            }
+        }
+
+        public class OneArgumentExecutedAndCanExecuteHandlerController
+        {
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
+            public void TestCommand_Executed(ExecutedRoutedEventArgs e) => ExecutedHandler(e);
+            private Action<ExecutedRoutedEventArgs> ExecutedHandler { get; }
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.CanExecute))]
             public void TestCommand_CanExecute(CanExecuteRoutedEventArgs e)
             {
                 e.CanExecute = true;
@@ -625,11 +1140,11 @@ internal class TestWpfControllers
             }
             private Action<CanExecuteRoutedEventArgs> CanExecuteHandler { get; }
 
-            [CommandHandler(CommandName = nameof(AnotherTestCommand))]
+            [CommandHandler(CommandName = nameof(AnotherTestCommand), Event = nameof(CommandBinding.Executed))]
             public void AnotherTestCommand_Executed(ExecutedRoutedEventArgs e) => AnotherExecutedHandler?.Invoke(e);
             private Action<ExecutedRoutedEventArgs>? AnotherExecutedHandler { get; }
 
-            [CommandHandler(CommandName = nameof(AnotherTestCommand))]
+            [CommandHandler(CommandName = nameof(AnotherTestCommand), Event = nameof(CommandBinding.CanExecute))]
             public void AnotherTestCommand_CanExecute(CanExecuteRoutedEventArgs e)
             {
                 e.CanExecute = true;
@@ -650,9 +1165,44 @@ internal class TestWpfControllers
             }
         }
 
+        public class OneArgumentExecutedAndPreviewExecutedAndCanExecuteAndPreviewCanExecuteHandlerController
+        {
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
+            public void TestCommand_Executed(ExecutedRoutedEventArgs e) => ExecutedHandler(e);
+            private Action<ExecutedRoutedEventArgs> ExecutedHandler { get; }
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.CanExecute))]
+            public void TestCommand_CanExecute(CanExecuteRoutedEventArgs e)
+            {
+                e.CanExecute = true;
+                CanExecuteHandler.Invoke(e);
+            }
+            private Action<CanExecuteRoutedEventArgs> CanExecuteHandler { get; }
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewExecuted))]
+            public void TestCommand_PreviewExecuted(ExecutedRoutedEventArgs e) => PreviewExecutedHandler?.Invoke(e);
+            private Action<ExecutedRoutedEventArgs>? PreviewExecutedHandler { get; }
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewCanExecute))]
+            public void TestCommand_PreviewCanExecute(CanExecuteRoutedEventArgs e)
+            {
+                e.CanExecute = true;
+                PreviewCanExecuteHandler?.Invoke(e);
+            }
+            private Action<CanExecuteRoutedEventArgs>? PreviewCanExecuteHandler { get; }
+
+            public OneArgumentExecutedAndPreviewExecutedAndCanExecuteAndPreviewCanExecuteHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler, Action<CanExecuteRoutedEventArgs> canExecuteAssertionHandler, Action<ExecutedRoutedEventArgs> previewExecutedAssertionHandler, Action<CanExecuteRoutedEventArgs> previewCanExecuteAssertionHandler)
+            {
+                ExecutedHandler = executedAssertionHandler;
+                CanExecuteHandler = canExecuteAssertionHandler;
+                PreviewExecutedHandler = previewExecutedAssertionHandler.Invoke;
+                PreviewCanExecuteHandler = previewCanExecuteAssertionHandler.Invoke;
+            }
+        }
+
         public class ExecutedOnlyHandlerController
         {
-            [CommandHandler(CommandName = nameof(TestCommand))]
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
             public void TestCommand_Executed(object? sender, ExecutedRoutedEventArgs e) => ExecutedHandler(sender, e);
             private ExecutedRoutedEventHandler ExecutedHandler { get; }
 
@@ -662,13 +1212,30 @@ internal class TestWpfControllers
             }
         }
 
-        public class ExecutedAndCanExecuteHandlerController
+        public class ExecutedAndPreviewExecutedHandlerController
         {
-            [CommandHandler(CommandName = nameof(TestCommand))]
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
             public void TestCommand_Executed(object? sender, ExecutedRoutedEventArgs e) => ExecutedHandler(sender, e);
             private ExecutedRoutedEventHandler ExecutedHandler { get; }
 
-            [CommandHandler(CommandName = nameof(TestCommand))]
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewExecuted))]
+            public void TestCommand_PreviewExecuted(object? sender, ExecutedRoutedEventArgs e) => PreviewExecutedHandler(sender, e);
+            private ExecutedRoutedEventHandler PreviewExecutedHandler { get; }
+
+            public ExecutedAndPreviewExecutedHandlerController(ExecutedRoutedEventHandler executedAssertionHandler, ExecutedRoutedEventHandler previewExecutedAssertionHandler)
+            {
+                ExecutedHandler = executedAssertionHandler;
+                PreviewExecutedHandler = previewExecutedAssertionHandler;
+            }
+        }
+
+        public class ExecutedAndCanExecuteHandlerController
+        {
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
+            public void TestCommand_Executed(object? sender, ExecutedRoutedEventArgs e) => ExecutedHandler(sender, e);
+            private ExecutedRoutedEventHandler ExecutedHandler { get; }
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.CanExecute))]
             public void TestCommand_CanExecute(object? sender, CanExecuteRoutedEventArgs e)
             {
                 e.CanExecute = true;
@@ -676,11 +1243,11 @@ internal class TestWpfControllers
             }
             private CanExecuteRoutedEventHandler CanExecuteHandler { get; }
 
-            [CommandHandler(CommandName = nameof(AnotherTestCommand))]
+            [CommandHandler(CommandName = nameof(AnotherTestCommand), Event = nameof(CommandBinding.Executed))]
             public void AnotherTestCommand_Executed(object? sender, ExecutedRoutedEventArgs e) => AnotherExecutedHandler?.Invoke(sender, e);
             private ExecutedRoutedEventHandler? AnotherExecutedHandler { get; }
 
-            [CommandHandler(CommandName = nameof(AnotherTestCommand))]
+            [CommandHandler(CommandName = nameof(AnotherTestCommand), Event = nameof(CommandBinding.CanExecute))]
             public void AnotherTestCommand_CanExecute(object? sender, CanExecuteRoutedEventArgs e)
             {
                 e.CanExecute = true;
@@ -698,6 +1265,41 @@ internal class TestWpfControllers
             {
                 AnotherExecutedHandler = anotherExecutedAssertionHandler.Invoke;
                 AnotherCanExecuteHandler = anotherCanExecuteAssertionHandler.Invoke;
+            }
+        }
+
+        public class ExecutedAndPreviewExecutedAndCanExecuteAndPreviewCanExecuteHandlerController
+        {
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
+            public void TestCommand_Executed(object? sender, ExecutedRoutedEventArgs e) => ExecutedHandler(sender, e);
+            private ExecutedRoutedEventHandler ExecutedHandler { get; }
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.CanExecute))]
+            public void TestCommand_CanExecute(object? sender, CanExecuteRoutedEventArgs e)
+            {
+                e.CanExecute = true;
+                CanExecuteHandler.Invoke(sender, e);
+            }
+            private CanExecuteRoutedEventHandler CanExecuteHandler { get; }
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewExecuted))]
+            public void TestCommand_PreviewExecuted(object? sender, ExecutedRoutedEventArgs e) => PreviewExecutedHandler?.Invoke(sender, e);
+            private ExecutedRoutedEventHandler? PreviewExecutedHandler { get; }
+
+            [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewCanExecute))]
+            public void TestCommand_PreviewCanExecute(object? sender, CanExecuteRoutedEventArgs e)
+            {
+                e.CanExecute = true;
+                PreviewCanExecuteHandler?.Invoke(sender, e);
+            }
+            private CanExecuteRoutedEventHandler? PreviewCanExecuteHandler { get; }
+
+            public ExecutedAndPreviewExecutedAndCanExecuteAndPreviewCanExecuteHandlerController(ExecutedRoutedEventHandler executedAssertionHandler, CanExecuteRoutedEventHandler canExecuteAssertionHandler, ExecutedRoutedEventHandler previewExecutedAssertionHandler, CanExecuteRoutedEventHandler previewCanExecuteAssertionHandler)
+            {
+                ExecutedHandler = executedAssertionHandler;
+                CanExecuteHandler = canExecuteAssertionHandler;
+                PreviewExecutedHandler = previewExecutedAssertionHandler.Invoke;
+                PreviewCanExecuteHandler = previewCanExecuteAssertionHandler.Invoke;
             }
         }
     }
@@ -781,38 +1383,68 @@ internal class TestWpfControllers
             }
         }
 
+        public class NoArgumentExecutedAndPreviewExecutedHandlerController
+        {
+            private void TestCommand_Executed() => ExecutedHandler();
+            private Action ExecutedHandler { get; }
+
+            private void TestCommand_PreviewExecuted() => PreviewExecutedHandler();
+            private Action PreviewExecutedHandler { get; }
+
+            public NoArgumentExecutedAndPreviewExecutedHandlerController(Action executedAssertionHandler, Action previewExecutedAssertionHandler)
+            {
+                ExecutedHandler = executedAssertionHandler;
+                PreviewExecutedHandler = previewExecutedAssertionHandler;
+            }
+        }
+
         public class NoArgumentExecutedAndCanExecuteHandlerController
         {
             private void TestCommand_Executed() => ExecutedHandler();
             private Action ExecutedHandler { get; }
 
-            private void TestCommand_CanExecute(CanExecuteRoutedEventArgs e)
-            {
-                e.CanExecute = true;
-                CanExecuteHandler.Invoke(e);
-            }
-            private Action<CanExecuteRoutedEventArgs> CanExecuteHandler { get; }
+            private void TestCommand_CanExecute() => CanExecuteHandler();
+            private Action CanExecuteHandler { get; }
 
             private void AnotherTestCommand_Executed() => AnotherExecutedHandler?.Invoke();
             private Action? AnotherExecutedHandler { get; }
 
-            private void AnotherTestCommand_CanExecute(CanExecuteRoutedEventArgs e)
-            {
-                e.CanExecute = true;
-                AnotherCanExecuteHandler?.Invoke(e);
-            }
-            private Action<CanExecuteRoutedEventArgs>? AnotherCanExecuteHandler { get; }
+            private void AnotherTestCommand_CanExecute() => AnotherCanExecuteHandler?.Invoke();
+            private Action? AnotherCanExecuteHandler { get; }
 
-            public NoArgumentExecutedAndCanExecuteHandlerController(Action executedAssertionHandler, Action<CanExecuteRoutedEventArgs> canExecuteAssertionHandler)
+            public NoArgumentExecutedAndCanExecuteHandlerController(Action executedAssertionHandler, Action canExecuteAssertionHandler)
             {
                 ExecutedHandler = executedAssertionHandler;
                 CanExecuteHandler = canExecuteAssertionHandler;
             }
 
-            public NoArgumentExecutedAndCanExecuteHandlerController(Action executedAssertionHandler, Action<CanExecuteRoutedEventArgs> canExecuteAssertionHandler, Action anotherExecutedAssertionHandler, Action<CanExecuteRoutedEventArgs> anotherCanExecuteAssertionHandler) : this(executedAssertionHandler, canExecuteAssertionHandler)
+            public NoArgumentExecutedAndCanExecuteHandlerController(Action executedAssertionHandler, Action canExecuteAssertionHandler, Action anotherExecutedAssertionHandler, Action anotherCanExecuteAssertionHandler) : this(executedAssertionHandler, canExecuteAssertionHandler)
             {
                 AnotherExecutedHandler = anotherExecutedAssertionHandler;
                 AnotherCanExecuteHandler = anotherCanExecuteAssertionHandler;
+            }
+        }
+
+        public class NoArgumentExecutedAndPreviewExecutedAndCanExecuteAndPreviewCanExecuteHandlerController
+        {
+            private void TestCommand_Executed() => ExecutedHandler();
+            private Action ExecutedHandler { get; }
+
+            private void TestCommand_CanExecute() => CanExecuteHandler();
+            private Action CanExecuteHandler { get; }
+
+            private void TestCommand_PreviewExecuted() => PreviewExecutedHandler?.Invoke();
+            private Action? PreviewExecutedHandler { get; }
+
+            private void TestCommand_PreviewCanExecute() => PreviewCanExecuteHandler?.Invoke();
+            private Action? PreviewCanExecuteHandler { get; }
+
+            public NoArgumentExecutedAndPreviewExecutedAndCanExecuteAndPreviewCanExecuteHandlerController(Action executedAssertionHandler, Action canExecuteAssertionHandler, Action previewExecutedAssertionHandler, Action previewCanExecuteAssertionHandler)
+            {
+                ExecutedHandler = executedAssertionHandler;
+                CanExecuteHandler = canExecuteAssertionHandler;
+                PreviewExecutedHandler = previewExecutedAssertionHandler;
+                PreviewCanExecuteHandler = previewCanExecuteAssertionHandler;
             }
         }
 
@@ -824,6 +1456,21 @@ internal class TestWpfControllers
             public OneArgumentExecutedOnlyHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler)
             {
                 ExecutedHandler = executedAssertionHandler;
+            }
+        }
+
+        public class OneArgumentExecutedAndPreviewExecutedHandlerController
+        {
+            private void TestCommand_Executed(ExecutedRoutedEventArgs e) => ExecutedHandler(e);
+            private Action<ExecutedRoutedEventArgs> ExecutedHandler { get; }
+
+            private void TestCommand_PreviewExecuted(ExecutedRoutedEventArgs e) => PreviewExecutedHandler(e);
+            private Action<ExecutedRoutedEventArgs> PreviewExecutedHandler { get; }
+
+            public OneArgumentExecutedAndPreviewExecutedHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler, Action<ExecutedRoutedEventArgs> previewExecutedAssertionHandler)
+            {
+                ExecutedHandler = executedAssertionHandler;
+                PreviewExecutedHandler = previewExecutedAssertionHandler;
             }
         }
 
@@ -862,6 +1509,37 @@ internal class TestWpfControllers
             }
         }
 
+        public class OneArgumentExecutedAndPreviewExecutedAndCanExecuteAndPreviewCanExecuteHandlerController
+        {
+            private void TestCommand_Executed(ExecutedRoutedEventArgs e) => ExecutedHandler(e);
+            private Action<ExecutedRoutedEventArgs> ExecutedHandler { get; }
+
+            private void TestCommand_CanExecute(CanExecuteRoutedEventArgs e)
+            {
+                e.CanExecute = true;
+                CanExecuteHandler.Invoke(e);
+            }
+            private Action<CanExecuteRoutedEventArgs> CanExecuteHandler { get; }
+
+            private void TestCommand_PreviewExecuted(ExecutedRoutedEventArgs e) => PreviewExecutedHandler?.Invoke(e);
+            private Action<ExecutedRoutedEventArgs>? PreviewExecutedHandler { get; }
+
+            private void TestCommand_PreviewCanExecute(CanExecuteRoutedEventArgs e)
+            {
+                e.CanExecute = true;
+                PreviewCanExecuteHandler?.Invoke(e);
+            }
+            private Action<CanExecuteRoutedEventArgs>? PreviewCanExecuteHandler { get; }
+
+            public OneArgumentExecutedAndPreviewExecutedAndCanExecuteAndPreviewCanExecuteHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler, Action<CanExecuteRoutedEventArgs> canExecuteAssertionHandler, Action<ExecutedRoutedEventArgs> previewExecutedAssertionHandler, Action<CanExecuteRoutedEventArgs> previewCanExecuteAssertionHandler)
+            {
+                ExecutedHandler = executedAssertionHandler;
+                CanExecuteHandler = canExecuteAssertionHandler;
+                PreviewExecutedHandler = previewExecutedAssertionHandler.Invoke;
+                PreviewCanExecuteHandler = previewCanExecuteAssertionHandler.Invoke;
+            }
+        }
+
         public class ExecutedOnlyHandlerController
         {
             private void TestCommand_Executed(object? sender, ExecutedRoutedEventArgs e) => ExecutedHandler(sender, e);
@@ -870,6 +1548,21 @@ internal class TestWpfControllers
             public ExecutedOnlyHandlerController(ExecutedRoutedEventHandler executedAssertionHandler)
             {
                 ExecutedHandler = executedAssertionHandler;
+            }
+        }
+
+        public class ExecutedAndPreviewExecutedHandlerController
+        {
+            private void TestCommand_Executed(object? sender, ExecutedRoutedEventArgs e) => ExecutedHandler(sender, e);
+            private ExecutedRoutedEventHandler ExecutedHandler { get; }
+
+            private void TestCommand_PreviewExecuted(object? sender, ExecutedRoutedEventArgs e) => PreviewExecutedHandler(sender, e);
+            private ExecutedRoutedEventHandler PreviewExecutedHandler { get; }
+
+            public ExecutedAndPreviewExecutedHandlerController(ExecutedRoutedEventHandler executedAssertionHandler, ExecutedRoutedEventHandler previewExecutedAssertionHandler)
+            {
+                ExecutedHandler = executedAssertionHandler;
+                PreviewExecutedHandler = previewExecutedAssertionHandler;
             }
         }
 
@@ -905,6 +1598,37 @@ internal class TestWpfControllers
             {
                 AnotherExecutedHandler = anotherExecutedAssertionHandler.Invoke;
                 AnotherCanExecuteHandler = anotherCanExecuteAssertionHandler.Invoke;
+            }
+        }
+
+        public class ExecutedAndPreviewExecutedAndCanExecuteAndPreviewCanExecuteHandlerController
+        {
+            private void TestCommand_Executed(object? sender, ExecutedRoutedEventArgs e) => ExecutedHandler(sender, e);
+            private ExecutedRoutedEventHandler ExecutedHandler { get; }
+
+            private void TestCommand_CanExecute(object? sender, CanExecuteRoutedEventArgs e)
+            {
+                e.CanExecute = true;
+                CanExecuteHandler.Invoke(sender, e);
+            }
+            private CanExecuteRoutedEventHandler CanExecuteHandler { get; }
+
+            private void TestCommand_PreviewExecuted(object? sender, ExecutedRoutedEventArgs e) => PreviewExecutedHandler?.Invoke(sender, e);
+            private ExecutedRoutedEventHandler? PreviewExecutedHandler { get; }
+
+            private void TestCommand_PreviewCanExecute(object? sender, CanExecuteRoutedEventArgs e)
+            {
+                e.CanExecute = true;
+                PreviewCanExecuteHandler?.Invoke(sender, e);
+            }
+            private CanExecuteRoutedEventHandler? PreviewCanExecuteHandler { get; }
+
+            public ExecutedAndPreviewExecutedAndCanExecuteAndPreviewCanExecuteHandlerController(ExecutedRoutedEventHandler executedAssertionHandler, CanExecuteRoutedEventHandler canExecuteAssertionHandler, ExecutedRoutedEventHandler previewExecutedAssertionHandler, CanExecuteRoutedEventHandler previewCanExecuteAssertionHandler)
+            {
+                ExecutedHandler = executedAssertionHandler;
+                CanExecuteHandler = canExecuteAssertionHandler;
+                PreviewExecutedHandler = previewExecutedAssertionHandler.Invoke;
+                PreviewCanExecuteHandler = previewCanExecuteAssertionHandler.Invoke;
             }
         }
     }
@@ -1004,6 +1728,29 @@ internal class TestWpfControllers
             }
         }
 
+        public class NoArgumentExecutedAndPreviewExecutedHandlerController
+        {
+            private Task TestCommand_ExecutedAsync()
+            {
+                ExecutedHandler();
+                return Task.CompletedTask;
+            }
+            private Action ExecutedHandler { get; }
+
+            private Task TestCommand_PreviewExecutedAsync()
+            {
+                PreviewExecutedHandler();
+                return Task.CompletedTask;
+            }
+            private Action PreviewExecutedHandler { get; }
+
+            public NoArgumentExecutedAndPreviewExecutedHandlerController(Action executedAssertionHandler, Action previewExecutedAssertionHandler)
+            {
+                ExecutedHandler = executedAssertionHandler;
+                PreviewExecutedHandler = previewExecutedAssertionHandler;
+            }
+        }
+
         public class NoArgumentExecutedAndCanExecuteHandlerController
         {
             private Task TestCommand_ExecutedAsync()
@@ -1013,13 +1760,12 @@ internal class TestWpfControllers
             }
             private Action ExecutedHandler { get; }
 
-            private Task TestCommand_CanExecuteAsync(CanExecuteRoutedEventArgs e)
+            private Task TestCommand_CanExecuteAsync()
             {
-                e.CanExecute = true;
-                CanExecuteHandler.Invoke(e);
+                CanExecuteHandler();
                 return Task.CompletedTask;
             }
-            private Action<CanExecuteRoutedEventArgs> CanExecuteHandler { get; }
+            private Action CanExecuteHandler { get; }
 
             private Task AnotherTestCommand_ExecutedAsync()
             {
@@ -1028,24 +1774,62 @@ internal class TestWpfControllers
             }
             private Action? AnotherExecutedHandler { get; }
 
-            private Task AnotherTestCommand_CanExecuteAsync(CanExecuteRoutedEventArgs e)
+            private Task AnotherTestCommand_CanExecuteAsync()
             {
-                e.CanExecute = true;
-                AnotherCanExecuteHandler?.Invoke(e);
+                AnotherCanExecuteHandler?.Invoke();
                 return Task.CompletedTask;
             }
-            private Action<CanExecuteRoutedEventArgs>? AnotherCanExecuteHandler { get; }
+            private Action? AnotherCanExecuteHandler { get; }
 
-            public NoArgumentExecutedAndCanExecuteHandlerController(Action executedAssertionHandler, Action<CanExecuteRoutedEventArgs> canExecuteAssertionHandler)
+            public NoArgumentExecutedAndCanExecuteHandlerController(Action executedAssertionHandler, Action canExecuteAssertionHandler)
             {
                 ExecutedHandler = executedAssertionHandler;
                 CanExecuteHandler = canExecuteAssertionHandler;
             }
 
-            public NoArgumentExecutedAndCanExecuteHandlerController(Action executedAssertionHandler, Action<CanExecuteRoutedEventArgs> canExecuteAssertionHandler, Action anotherExecutedAssertionHandler, Action<CanExecuteRoutedEventArgs> anotherCanExecuteAssertionHandler) : this(executedAssertionHandler, canExecuteAssertionHandler)
+            public NoArgumentExecutedAndCanExecuteHandlerController(Action executedAssertionHandler, Action canExecuteAssertionHandler, Action anotherExecutedAssertionHandler, Action anotherCanExecuteAssertionHandler) : this(executedAssertionHandler, canExecuteAssertionHandler)
             {
                 AnotherExecutedHandler = anotherExecutedAssertionHandler;
                 AnotherCanExecuteHandler = anotherCanExecuteAssertionHandler;
+            }
+        }
+
+        public class NoArgumentExecutedAndPreviewExecutedAndCanExecuteAndPreviewCanExecuteHandlerController
+        {
+            private Task TestCommand_ExecutedAsync()
+            {
+                ExecutedHandler();
+                return Task.CompletedTask;
+            }
+            private Action ExecutedHandler { get; }
+
+            private Task TestCommand_CanExecuteAsync()
+            {
+                CanExecuteHandler();
+                return Task.CompletedTask;
+            }
+            private Action CanExecuteHandler { get; }
+
+            private Task TestCommand_PreviewExecutedAsync()
+            {
+                PreviewExecutedHandler?.Invoke();
+                return Task.CompletedTask;
+            }
+            private Action? PreviewExecutedHandler { get; }
+
+            private Task TestCommand_PreviewCanExecuteAsync()
+            {
+                PreviewCanExecuteHandler?.Invoke();
+                return Task.CompletedTask;
+            }
+            private Action? PreviewCanExecuteHandler { get; }
+
+            public NoArgumentExecutedAndPreviewExecutedAndCanExecuteAndPreviewCanExecuteHandlerController(Action executedAssertionHandler, Action canExecuteAssertionHandler, Action previewExecutedAssertionHandler, Action previewCanExecuteAssertionHandler)
+            {
+                ExecutedHandler = executedAssertionHandler;
+                CanExecuteHandler = canExecuteAssertionHandler;
+                PreviewExecutedHandler = previewExecutedAssertionHandler;
+                PreviewCanExecuteHandler = previewCanExecuteAssertionHandler;
             }
         }
 
@@ -1061,6 +1845,29 @@ internal class TestWpfControllers
             public OneArgumentExecutedOnlyHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler)
             {
                 ExecutedHandler = executedAssertionHandler;
+            }
+        }
+
+        public class OneArgumentExecutedAndPreviewExecutedHandlerController
+        {
+            private Task TestCommand_ExecutedAsync(ExecutedRoutedEventArgs e)
+            {
+                ExecutedHandler(e);
+                return Task.CompletedTask;
+            }
+            private Action<ExecutedRoutedEventArgs> ExecutedHandler { get; }
+
+            private Task TestCommand_PreviewExecutedAsync(ExecutedRoutedEventArgs e)
+            {
+                PreviewExecutedHandler(e);
+                return Task.CompletedTask;
+            }
+            private Action<ExecutedRoutedEventArgs> PreviewExecutedHandler { get; }
+
+            public OneArgumentExecutedAndPreviewExecutedHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler, Action<ExecutedRoutedEventArgs> previewExecutedAssertionHandler)
+            {
+                ExecutedHandler = executedAssertionHandler;
+                PreviewExecutedHandler = previewExecutedAssertionHandler;
             }
         }
 
@@ -1109,6 +1916,47 @@ internal class TestWpfControllers
             }
         }
 
+        public class OneArgumentExecutedAndPreviewExecutedAndCanExecuteAndPreviewCanExecuteHandlerController
+        {
+            private Task TestCommand_ExecutedAsync(ExecutedRoutedEventArgs e)
+            {
+                ExecutedHandler(e);
+                return Task.CompletedTask;
+            }
+            private Action<ExecutedRoutedEventArgs> ExecutedHandler { get; }
+
+            private Task TestCommand_CanExecuteAsync(CanExecuteRoutedEventArgs e)
+            {
+                e.CanExecute = true;
+                CanExecuteHandler.Invoke(e);
+                return Task.CompletedTask;
+            }
+            private Action<CanExecuteRoutedEventArgs> CanExecuteHandler { get; }
+
+            private Task TestCommand_PreviewExecutedAsync(ExecutedRoutedEventArgs e)
+            {
+                PreviewExecutedHandler?.Invoke(e);
+                return Task.CompletedTask;
+            }
+            private Action<ExecutedRoutedEventArgs>? PreviewExecutedHandler { get; }
+
+            private Task TestCommand_PreviewCanExecuteAsync(CanExecuteRoutedEventArgs e)
+            {
+                e.CanExecute = true;
+                PreviewCanExecuteHandler?.Invoke(e);
+                return Task.CompletedTask;
+            }
+            private Action<CanExecuteRoutedEventArgs>? PreviewCanExecuteHandler { get; }
+
+            public OneArgumentExecutedAndPreviewExecutedAndCanExecuteAndPreviewCanExecuteHandlerController(Action<ExecutedRoutedEventArgs> executedAssertionHandler, Action<CanExecuteRoutedEventArgs> canExecuteAssertionHandler, Action<ExecutedRoutedEventArgs> previewExecutedAssertionHandler, Action<CanExecuteRoutedEventArgs> previewCanExecuteAssertionHandler)
+            {
+                ExecutedHandler = executedAssertionHandler;
+                CanExecuteHandler = canExecuteAssertionHandler;
+                PreviewExecutedHandler = previewExecutedAssertionHandler.Invoke;
+                PreviewCanExecuteHandler = previewCanExecuteAssertionHandler.Invoke;
+            }
+        }
+
         public class ExecutedOnlyHandlerController
         {
             private Task TestCommand_ExecutedAsync(object? sender, ExecutedRoutedEventArgs e)
@@ -1121,6 +1969,29 @@ internal class TestWpfControllers
             public ExecutedOnlyHandlerController(ExecutedRoutedEventHandler executedAssertionHandler)
             {
                 ExecutedHandler = executedAssertionHandler;
+            }
+        }
+
+        public class ExecutedAndPreviewExecutedHandlerController
+        {
+            private Task TestCommand_ExecutedAsync(object? sender, ExecutedRoutedEventArgs e)
+            {
+                ExecutedHandler(sender, e);
+                return Task.CompletedTask;
+            }
+            private ExecutedRoutedEventHandler ExecutedHandler { get; }
+
+            private Task TestCommand_PreviewExecutedAsync(object? sender, ExecutedRoutedEventArgs e)
+            {
+                PreviewExecutedHandler(sender, e);
+                return Task.CompletedTask;
+            }
+            private ExecutedRoutedEventHandler PreviewExecutedHandler { get; }
+
+            public ExecutedAndPreviewExecutedHandlerController(ExecutedRoutedEventHandler executedAssertionHandler, ExecutedRoutedEventHandler previewExecutedAssertionHandler)
+            {
+                ExecutedHandler = executedAssertionHandler;
+                PreviewExecutedHandler = previewExecutedAssertionHandler;
             }
         }
 
@@ -1166,6 +2037,47 @@ internal class TestWpfControllers
             {
                 AnotherExecutedHandler = anotherExecutedAssertionHandler.Invoke;
                 AnotherCanExecuteHandler = anotherCanExecuteAssertionHandler.Invoke;
+            }
+        }
+
+        public class ExecutedAndPreviewExecutedAndCanExecuteAndPreviewCanExecuteHandlerController
+        {
+            private Task TestCommand_ExecutedAsync(object? sender, ExecutedRoutedEventArgs e)
+            {
+                ExecutedHandler(sender, e);
+                return Task.CompletedTask;
+            }
+            private ExecutedRoutedEventHandler ExecutedHandler { get; }
+
+            private Task TestCommand_CanExecuteAsync(object? sender, CanExecuteRoutedEventArgs e)
+            {
+                e.CanExecute = true;
+                CanExecuteHandler.Invoke(sender, e);
+                return Task.CompletedTask;
+            }
+            private CanExecuteRoutedEventHandler CanExecuteHandler { get; }
+
+            private Task TestCommand_PreviewExecutedAsync(object? sender, ExecutedRoutedEventArgs e)
+            {
+                PreviewExecutedHandler?.Invoke(sender, e);
+                return Task.CompletedTask;
+            }
+            private ExecutedRoutedEventHandler? PreviewExecutedHandler { get; }
+
+            private Task TestCommand_PreviewCanExecuteAsync(object? sender, CanExecuteRoutedEventArgs e)
+            {
+                e.CanExecute = true;
+                PreviewCanExecuteHandler?.Invoke(sender, e);
+                return Task.CompletedTask;
+            }
+            private CanExecuteRoutedEventHandler? PreviewCanExecuteHandler { get; }
+
+            public ExecutedAndPreviewExecutedAndCanExecuteAndPreviewCanExecuteHandlerController(ExecutedRoutedEventHandler executedAssertionHandler, CanExecuteRoutedEventHandler canExecuteAssertionHandler, ExecutedRoutedEventHandler previewExecutedAssertionHandler, CanExecuteRoutedEventHandler previewCanExecuteAssertionHandler)
+            {
+                ExecutedHandler = executedAssertionHandler;
+                CanExecuteHandler = canExecuteAssertionHandler;
+                PreviewExecutedHandler = previewExecutedAssertionHandler.Invoke;
+                PreviewCanExecuteHandler = previewCanExecuteAssertionHandler.Invoke;
             }
         }
     }
