@@ -1,39 +1,31 @@
-﻿// Copyright (C) 2018-2021 Fievus
+﻿// Copyright (C) 2022 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
-using System.Windows;
 using System.Windows.Controls;
 using Carna;
 using Charites.Windows.Mvc;
-using NSubstitute;
 
-namespace Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login
+namespace Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login;
+
+[Context("When the root element is loaded", RequiresSta = true)]
+class LoginContentControllerSpec_Loaded : FixtureSteppable
 {
-    [Context("When the root element is loaded", RequiresSta = true)]
-    class LoginContentControllerSpec_Loaded : FixtureSteppable
+    PasswordBox PasswordBox { get; } = new() { Name = "PasswordBox"};
+    LoginContent Content { get; } = new();
+    LoginContentController Controller { get; } = new();
+
+    [Background("a controller to which the PasswordBox and the login content are set")]
+    public LoginContentControllerSpec_Loaded()
     {
-        PasswordBox PasswordBox { get; } = new PasswordBox { Name = "PasswordBox"};
-        LoginContent Content { get; } = new LoginContent();
-        LoginContentController Controller { get; } = new LoginContentController(Substitute.For<IContentNavigator>(), null);
+        WpfController.SetDataContext(Content, Controller);
+    }
 
-        [Background("a controller to which the PasswordBox and the login content are set")]
-        public LoginContentControllerSpec_Loaded()
-        {
-            WpfController.SetDataContext(Content, Controller);
-            WpfController.SetElement(PasswordBox, Controller, true);
-        }
-
-        [Example("Adds the PasswordChanged event handler that sets the password of the PasswordBox to the LoginContent")]
-        void Ex01()
-        {
-            When("the Loaded event is raised", () =>
-                WpfController.EventHandlersOf(Controller)
-                    .GetBy(null)
-                    .Raise(FrameworkElement.LoadedEvent.Name)
-            );
-            When("the password is set to the PasswordBox", () => PasswordBox.Password = "password");
-            Then("the password of the login content should be set", () => Content.Password.Value == PasswordBox.Password);
-        }
+    [Example("Adds the PasswordChanged event handler that sets the password of the PasswordBox to the LoginContent")]
+    void Ex01()
+    {
+        When("the PasswordBox is set", () => WpfController.SetElement(PasswordBox, Controller, true));
+        When("the password is set to the PasswordBox", () => PasswordBox.Password = "password");
+        Then("the password of the login content should be set", () => Content.Password.Value == PasswordBox.Password);
     }
 }

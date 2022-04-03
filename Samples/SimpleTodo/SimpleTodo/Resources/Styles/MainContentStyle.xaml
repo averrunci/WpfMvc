@@ -1,5 +1,5 @@
 ﻿<!--
-Copyright (C) 2018 Fievus
+Copyright (C) 2022 Fievus
 
 This software may be modified and distributed under the terms
 of the MIT license.  See the LICENSE file for details.
@@ -16,6 +16,7 @@ of the MIT license.  See the LICENSE file for details.
         <Setter Property="Background" Value="#fafafa"/>
         <Setter Property="Margin" Value="10"/>
         <Setter Property="Padding" Value="0,10"/>
+        <Setter Property="CornerRadius" Value="8"/>
     </Style>
     
     <Style x:Key="HeaderGridStyle" TargetType="Grid">

@@ -1,8 +1,7 @@
-﻿// Copyright (C) 2018-2021 Fievus
+﻿// Copyright (C) 2022 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
-using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -10,60 +9,60 @@ using Charites.Windows.Samples.SimpleLoginDemo.Presentation.Properties;
 using Charites.Windows.Mvc;
 using Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents.User;
 
-namespace Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login
+namespace Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login;
+
+[View(Key = nameof(LoginContent))]
+public class LoginContentController
 {
-    [View(Key = nameof(LoginContent))]
-    public class LoginContentController
+    [DataContext]
+    private LoginContent? Content { get; set; }
+
+    [Element]
+    private void SetPasswordBox(PasswordBox? passwordBox)
     {
-        private readonly IContentNavigator navigator;
-        private readonly IUserAuthentication userAuthentication;
+        this.passwordBox.IfPresent(UnsubscribePasswordBoxEvent);
+        this.passwordBox = passwordBox;
+        this.passwordBox.IfPresent(SubscribePasswordBoxEvent);
+    }
+    private PasswordBox? passwordBox;
 
-        [DataContext]
-        private LoginContent Content { get; set; }
+    private void SubscribePasswordBoxEvent(PasswordBox passwordBox)
+    {
+        passwordBox.PasswordChanged += PasswordBox_PasswordChanged;
+    }
 
-        [Element]
-        private PasswordBox PasswordBox { get; set; }
+    private void UnsubscribePasswordBoxEvent(PasswordBox passwordBox)
+    {
+        passwordBox.PasswordChanged -= PasswordBox_PasswordChanged;
+    }
 
-        public LoginContentController(IContentNavigator navigator, IUserAuthentication userAuthentication)
+    private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
+    {
+        Content.IfPresent(x => x.Password.Value = passwordBox?.Password ?? string.Empty);
+    }
+
+    private void Login_CanExecute(CanExecuteRoutedEventArgs e)
+    {
+        e.CanExecute = !string.IsNullOrEmpty(Content?.UserId.Value) && !string.IsNullOrEmpty(Content?.Password.Value);
+    }
+
+    private async Task Login_ExecutedAsync([FromDI] IUserAuthentication userAuthentication, [FromDI] IContentNavigator navigator)
+    {
+        if (Content is null) return;
+
+        Content.Message.Value = string.Empty;
+
+        if (!Content.IsValid) return;
+
+        var currentContent = Content;
+        var result = await userAuthentication.AuthenticateAsync(currentContent.UserId.Value, currentContent.Password.Value);
+        if (result.Success)
         {
-            this.navigator = navigator ?? throw new ArgumentNullException(nameof(navigator));
-            this.userAuthentication = userAuthentication;
+            navigator.NavigateTo(new UserContent(currentContent.UserId.Value));
         }
-
-        [EventHandler(Event = nameof(FrameworkElement.Loaded))]
-        private void Initialize()
+        else
         {
-            PasswordBox.PasswordChanged += (s, e) => { Content.Password.Value = PasswordBox.Password; };
-        }
-
-        [CommandHandler(CommandName = nameof(SimpleLoginCommands.Login))]
-        private void CanExecuteLogin(CanExecuteRoutedEventArgs e)
-        {
-            e.CanExecute = !string.IsNullOrEmpty(Content.UserId.Value) && !string.IsNullOrEmpty(Content.Password.Value);
-        }
-
-        [CommandHandler(CommandName = nameof(SimpleLoginCommands.Login))]
-        private void ExecuteLogin(ExecutedRoutedEventArgs e)
-        {
-            Content.Message.Value = string.Empty;
-
-            if (userAuthentication == null)
-            {
-                Content.Message.Value = Resources.LoginNotAvailable;
-                return;
-            }
-
-            if (!Content.IsValid) return;
-           
-            var result = userAuthentication.Authenticate(Content.UserId.Value, Content.Password.Value);
-            if (result.Success)
-            {
-                navigator.NavigateTo(new UserContent(Content.UserId.Value));
-            }
-            else
-            {
-                Content.Message.Value = Resources.LoginFailureMessage;
-            }
+            currentContent.Message.Value = Resources.LoginFailureMessage;
         }
     }
 }

@@ -9,7 +9,7 @@ namespace Charites.Windows.Samples.SimpleLoginDemo.Presentation
 {
     public static class SimpleLoginCommands
     {
-        public static readonly RoutedUICommand Login = new RoutedUICommand(Resources.LoginCommandText, nameof(Login), typeof(SimpleLoginCommands));
-        public static readonly RoutedUICommand Logout = new RoutedUICommand(Resources.LogoutCommandText, nameof(Logout), typeof(SimpleLoginCommands));
+        public static readonly RoutedUICommand Login = new(Resources.LoginCommandText, nameof(Login), typeof(SimpleLoginCommands));
+        public static readonly RoutedUICommand Logout = new(Resources.LogoutCommandText, nameof(Logout), typeof(SimpleLoginCommands));
     }
 }

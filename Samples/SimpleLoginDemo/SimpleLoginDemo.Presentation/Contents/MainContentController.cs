@@ -1,53 +1,52 @@
-﻿// Copyright (C) 2021 Fievus
+﻿// Copyright (C) 2022 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
-using System;
+
 using System.Windows;
 using Charites.Windows.Mvc;
 using Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login;
 
-namespace Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents
+namespace Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents;
+
+[View(Key = nameof(MainContent))]
+public class MainContentController : IDisposable
 {
-    [View(Key = nameof(MainContent))]
-    public class MainContentController : IDisposable
+    private readonly IContentNavigator navigator;
+
+    [DataContext]
+    private MainContent? Content { get; set; }
+
+    public MainContentController(IContentNavigator navigator)
     {
-        private readonly IContentNavigator navigator;
+        this.navigator = navigator;
 
-        [DataContext]
-        private MainContent Content { get; set; }
+        SubscribeContentNavigatorEvent();
+    }
 
-        public MainContentController(IContentNavigator navigator)
-        {
-            this.navigator = navigator ?? throw new ArgumentNullException(nameof(navigator));
+    public void Dispose()
+    {
+        UnsubscribeContentNavigatorEvent();
+    }
 
-            SubscribeContentNavigatorEvent();
-        }
+    private void SubscribeContentNavigatorEvent()
+    {
+        navigator.Navigated += OnContentNavigated;
+    }
 
-        public void Dispose()
-        {
-            UnsubscribeContentNavigatorEvent();
-        }
+    private void UnsubscribeContentNavigatorEvent()
+    {
+        navigator.Navigated -= OnContentNavigated;
+    }
 
-        private void SubscribeContentNavigatorEvent()
-        {
-            navigator.Navigated += OnContentNavigated;
-        }
+    private void OnContentNavigated(object? sender, ContentNavigatedEventArgs e)
+    {
+        Content.IfPresent(x => x.Content.Value = e.Content);
+    }
 
-        private void UnsubscribeContentNavigatorEvent()
-        {
-            navigator.Navigated -= OnContentNavigated;
-        }
-
-        private void OnContentNavigated(object sender, ContentNavigatedEventArgs e)
-        {
-            Content.Content.Value = e.Content;
-        }
-
-        [EventHandler(Event = nameof(FrameworkElement.Loaded))]
-        private void Initialize()
-        {
-            navigator.NavigateTo(new LoginContent());
-        }
+    [EventHandler(Event = nameof(FrameworkElement.Loaded))]
+    private void Initialize()
+    {
+        navigator.NavigateTo(new LoginContent());
     }
 }

@@ -1,126 +1,100 @@
-﻿// Copyright (C) 2018-2021 Fievus
+﻿// Copyright (C) 2022 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
-using System;
 using Carna;
 using Charites.Windows.Mvc;
 using Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents.User;
 using Charites.Windows.Samples.SimpleLoginDemo.Presentation.Properties;
 using NSubstitute;
 
-namespace Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login
+namespace Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login;
+
+[Context("When the login button is clicked")]
+class LoginContentControllerSpec_LoginButtonClick : FixtureSteppable
 {
-    [Context("When the login button is clicked")]
-    class LoginContentControllerSpec_LoginButtonClick : FixtureSteppable
+    LoginContentController Controller { get; } = new();
+
+    LoginContent LoginContent { get; } = new() { Message = { Value = "message" } };
+    IContentNavigator Navigator { get; } = Substitute.For<IContentNavigator>();
+    IUserAuthentication UserAuthentication { get; } = Substitute.For<IUserAuthentication>();
+
+    public LoginContentControllerSpec_LoginButtonClick()
     {
-        LoginContentController Controller { get; set; }
+        WpfController.SetDataContext(LoginContent, Controller);
+    }
 
-        LoginContent LoginContent { get; } = new LoginContent { Message = { Value = "message" } };
-        IContentNavigator Navigator { get; } = Substitute.For<IContentNavigator>();
-        IUserAuthentication UserAuthentication { get; } = Substitute.For<IUserAuthentication>();
-
-        public LoginContentControllerSpec_LoginButtonClick()
+    [Example("When the user is authenticated")]
+    void Ex01()
+    {
+        When("the valid user id and password are set", () =>
         {
-            Controller = new LoginContentController(Navigator, UserAuthentication);
+            LoginContent.UserId.Value = "user";
+            LoginContent.Password.Value = "password";
 
-            WpfController.SetDataContext(LoginContent, Controller);
-        }
-
-        [Example("When the user is authenticated")]
-        void Ex01()
+            UserAuthentication.AuthenticateAsync(LoginContent.UserId.Value, LoginContent.Password.Value)
+                .Returns(UserAuthenticationResult.Succeeded());
+        });
+        When("the login command is executed", async () =>
+            await WpfController.CommandHandlersOf(Controller)
+                .GetBy(SimpleLoginCommands.Login.Name)
+                .With(SimpleLoginCommands.Login)
+                .Resolve<IContentNavigator>(() => Navigator)
+                .Resolve<IUserAuthentication>(() => UserAuthentication)
+                .RaiseExecutedAsync(LoginContent)
+        );
+        Then("the content should be navigated to the UserContent", () =>
         {
-            When("the valid user id and password are set", () =>
-            {
-                LoginContent.UserId.Value = "user";
-                LoginContent.Password.Value = "password";
+            Navigator.Received(1).NavigateTo(Arg.Is<UserContent>(content => content.Id == LoginContent.UserId.Value));
+        });
+    }
 
-                UserAuthentication.Authenticate(LoginContent.UserId.Value, LoginContent.Password.Value)
-                    .Returns(UserAuthenticationResult.Succeeded());
-            });
-            When("the login command is executed", () =>
-                WpfController.CommandHandlersOf(Controller)
-                    .GetBy(SimpleLoginCommands.Login.Name)
-                    .With(SimpleLoginCommands.Login)
-                    .RaiseExecuted(LoginContent)
-            );
-            Then("the content should be navigated to the UserContent", () =>
-            {
-                Navigator.Received(1).NavigateTo(Arg.Is<UserContent>(content => content.Id == LoginContent.UserId.Value));
-            });
-        }
-
-        [Example("When the IContentNavigator is not specified")]
-        void Ex02()
+    [Example("When the login content is not valid")]
+    void Ex02()
+    {
+        When("the invalid user id and password are set", () =>
         {
-            When("a controller to which the IContentNavigator is not specified is created", () => new LoginContentController(null, UserAuthentication));
-            Then<ArgumentNullException>($"{typeof(ArgumentNullException)} should be thrown");
-        }
-
-        [Example("When the IUserAuthentication is not specified")]
-        void Ex03()
+            LoginContent.UserId.Value = string.Empty;
+            LoginContent.Password.Value = string.Empty;
+        });
+        When("the login command is executed", async () =>
+            await WpfController.CommandHandlersOf(Controller)
+                .GetBy(SimpleLoginCommands.Login.Name)
+                .With(SimpleLoginCommands.Login)
+                .Resolve<IContentNavigator>(() => Navigator)
+                .Resolve<IUserAuthentication>(() => UserAuthentication)
+                .RaiseExecutedAsync(LoginContent)
+        );
+        Then("the content should not be navigated to any contents", () =>
         {
-            Given("a controller to which the IUserAuthentication is not specified", () =>
-            {
-                Controller = new LoginContentController(Navigator, null);
-                WpfController.SetDataContext(LoginContent, Controller);
-            });
-            When("the login command is executed", () =>
-                WpfController.CommandHandlersOf(Controller)
-                    .GetBy(SimpleLoginCommands.Login.Name)
-                    .With(SimpleLoginCommands.Login)
-                    .RaiseExecuted(LoginContent)
-            );
-            Then("the content should not be navigated to any contents", () =>
-            {
-                Navigator.DidNotReceive().NavigateTo(Arg.Any<object>());
-            });
-            Then("the LoginNotAvailable message should be set", () => LoginContent.Message.Value == Resources.LoginNotAvailable);
-        }
+            Navigator.DidNotReceive().NavigateTo(Arg.Any<object>());
+        });
+        Then("the message of the login content should be empty", () => LoginContent.Message.Value == string.Empty);
+    }
 
-        [Example("When the login content is not valid")]
-        void Ex04()
+    [Example("When the user is not authenticated")]
+    void Ex03()
+    {
+        When("the no authenticated user id and password are set", () =>
         {
-            When("the invalid user id and password are set", () =>
-            {
-                LoginContent.UserId.Value = null;
-                LoginContent.Password.Value = null;
-            });
-            When("the login command is executed", () =>
-                WpfController.CommandHandlersOf(Controller)
-                    .GetBy(SimpleLoginCommands.Login.Name)
-                    .With(SimpleLoginCommands.Login)
-                    .RaiseExecuted(LoginContent)
-            );
-            Then("the content should not be navigated to any contents", () =>
-            {
-                Navigator.DidNotReceive().NavigateTo(Arg.Any<object>());
-            });
-            Then("the message of the login content should be empty", () => LoginContent.Message.Value == string.Empty);
-        }
+            LoginContent.UserId.Value = "user";
+            LoginContent.Password.Value = "password";
 
-        [Example("When the user is not authenticated")]
-        void Ex05()
+            UserAuthentication.AuthenticateAsync(LoginContent.UserId.Value, LoginContent.Password.Value)
+                .Returns(UserAuthenticationResult.Failed());
+        });
+        When("the login command is executed", async () =>
+            await WpfController.CommandHandlersOf(Controller)
+                .GetBy(SimpleLoginCommands.Login.Name)
+                .With(SimpleLoginCommands.Login)
+                .Resolve<IContentNavigator>(() => Navigator)
+                .Resolve<IUserAuthentication>(() => UserAuthentication)
+                .RaiseExecutedAsync(LoginContent)
+        );
+        Then("the content should not be navigated to any contents", () =>
         {
-            When("the no authenticated user id and password are set", () =>
-            {
-                LoginContent.UserId.Value = "user";
-                LoginContent.Password.Value = "password";
-
-                UserAuthentication.Authenticate(LoginContent.UserId.Value, LoginContent.Password.Value)
-                    .Returns(UserAuthenticationResult.Failed());
-            });
-            When("the login command is executed", () =>
-                WpfController.CommandHandlersOf(Controller)
-                    .GetBy(SimpleLoginCommands.Login.Name)
-                    .With(SimpleLoginCommands.Login)
-                    .RaiseExecuted(LoginContent)
-            );
-            Then("the content should not be navigated to any contents", () =>
-            {
-                Navigator.DidNotReceive().NavigateTo(Arg.Any<object>());
-            });
-            Then("the LoginFailureMessage message should be set", () => LoginContent.Message.Value == Resources.LoginFailureMessage);
-        }
+            Navigator.DidNotReceive().NavigateTo(Arg.Any<object>());
+        });
+        Then("the LoginFailureMessage message should be set", () => LoginContent.Message.Value == Resources.LoginFailureMessage);
     }
 }
