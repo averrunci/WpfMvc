@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <VSTemplate Version="3.0.0" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" Type="Project">
   <TemplateData>
-    <Name>WPF Mvc App (.NET Core)</Name>
-    <Description>Windows Presentation Foundation client application with the Model-View-Controller architecture</Description>
+    <Name>WPF Mvc App</Name>
+    <Description>A project template for creating a .NET Windows Presentation Foundation (WPF) application with the Model-View-Controller architecture.</Description>
     <Icon Package="{b3bae735-386c-4030-8329-ef48eeda4036}" ID="4602" />
     <ProjectType>CSharp</ProjectType>
     <SortOrder>1000</SortOrder>

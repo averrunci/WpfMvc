@@ -1,9 +1,8 @@
-namespace $safeprojectname$
+namespace $safeprojectname$;
+
+public class $safeitemrootname$
 {
-    public class $safeitemrootname$
+    public $safeitemrootname$()
     {
-        public $safeitemrootname$()
-        {
-        }
     }
 }

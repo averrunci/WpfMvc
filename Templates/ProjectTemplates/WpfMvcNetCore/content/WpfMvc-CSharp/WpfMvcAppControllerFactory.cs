@@ -1,16 +1,13 @@
-﻿using System;
-using Charites.Windows.Mvc;
+﻿using Charites.Windows.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace WpfMvcApp
+namespace WpfMvcApp;
+
+public class WpfMvcAppControllerFactory : IWpfControllerFactory
 {
-    public class WpfMvcAppControllerFactory : IWpfControllerFactory
-    {
-        private readonly IServiceProvider services;
+    private readonly IServiceProvider services;
 
-        public WpfMvcAppControllerFactory(IServiceProvider services)
-            => this.services = services ?? throw new ArgumentNullException(nameof(services));
+    public WpfMvcAppControllerFactory(IServiceProvider services) => this.services = services;
 
-        public object Create(Type controllerType) => services.GetRequiredService(controllerType);
-    }
+    public object Create(Type controllerType) => services.GetRequiredService(controllerType);
 }

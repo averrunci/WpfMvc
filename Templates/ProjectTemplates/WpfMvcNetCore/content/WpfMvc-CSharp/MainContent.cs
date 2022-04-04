@@ -1,9 +1,8 @@
-namespace WpfMvcApp
+namespace WpfMvcApp;
+
+public class MainContent
 {
-    public class MainContent
+    public MainContent()
     {
-        public MainContent()
-        {
-        }
     }
 }

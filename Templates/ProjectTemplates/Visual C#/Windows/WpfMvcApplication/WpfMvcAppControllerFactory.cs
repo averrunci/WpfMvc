@@ -1,16 +1,13 @@
-﻿using System;
-using Charites.Windows.Mvc;
+﻿using Charites.Windows.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace $safeprojectname$
+namespace $safeprojectname$;
+
+public class $safeitemrootname$ : IWpfControllerFactory
 {
-    public class $safeitemrootname$ : IWpfControllerFactory
-    {
-        private readonly IServiceProvider services;
+    private readonly IServiceProvider services;
 
-        public $safeitemrootname$(IServiceProvider services)
-            => this.services = services ?? throw new ArgumentNullException(nameof(services));
+    public $safeitemrootname$(IServiceProvider services) => this.services = services;
 
-        public object Create(Type controllerType) => services.GetRequiredService(controllerType);
-    }
+    public object Create(Type controllerType) => services.GetRequiredService(controllerType);
 }

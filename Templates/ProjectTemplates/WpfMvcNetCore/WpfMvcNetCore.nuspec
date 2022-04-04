@@ -2,8 +2,8 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>Wpfvc.ProjectTemplates</id>
-    <version>3.1.1</version>
-    <title>Windows Forms Mvc Application</title>
+    <version>4.0.0</version>
+    <title>WPF Mvc Application</title>
     <authors>averrunci</authors>
     <owners>averrunci</owners>
     <license type="expression">MIT</license>
@@ -11,7 +11,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>WPF Mvc application Project Template.</description>
     <language>en-US</language>
-    <copyright>Copyright (C) 2021 Fievus</copyright>
+    <copyright>Copyright (C) 2022 Fievus</copyright>
     <tags>wpf mvc charites</tags>
     <packageTypes>
       <packageType name="Template"/>
