@@ -1,5 +1,26 @@
 # Release note
 
+## v4.0.0
+
+### Add
+
+- Add the Resolve method to the CommandHandlerBase.Executor class to be able to inject dependencies of parameters that are specified by the FromDI attribute.
+- Add the Event property to the CommandHandlerAttribute class. This property must be set to handle command events.
+- Add the following methods to the CommandHandlerBase.Executor class so that the PreviewExecuted and PreviewCanExecute event can be raised.
+  - RaisePreviewExecuted
+  - RaisePreviewCanExecute
+  - RaisePreviewExecutedAsync
+  - RaisePreviewCanExecuteAsync
+
+### Changes
+
+- Change the target framework version to .NET 6.0.
+- Change Charites version to 2.0.0.
+- Change Charites.Bindings version to 2.1.0.
+- Enable Nullable reference types.
+- Change to prefer to resolve parameters with the specified resolver when they are resolved by dependecies.
+- Change the CommandHandlerExtension class and the CommandHandlerBase class so that the PreviewExecuted and PreviewCanExecute event can be handled.
+
 ## v3.1.1
 
 ### Changes
@@ -60,7 +81,7 @@ Fixed to be able to handle the DataContextChanged event.
 
 - Move bindings properties to the Charites.Bindings assembly.
 - Move attributes and base implementations to the Charites assembly.
-- Remove the Controllers attached property of the UwpController. The controller is specified using the ViewAttribute.
+- Remove the Controllers attached property of the WpfController. The controller is specified using the ViewAttribute.
 - Change the namespace from Fievus to Charites.
 - Change the testing framework from NUnit to Carna.
 

@@ -121,7 +121,7 @@ private void ActionButton_Click(RoutedEventArgs e)
 
 ``` csharp
 [EventHandler(ElementName = "ActionButton", Event = "Click")]
-private void ActionButton_Click(object sender, RoutedEventArgs e)
+private void ActionButton_Click(object? sender, RoutedEventArgs e)
 {
     // implements the action.
 }
@@ -139,7 +139,7 @@ private void ActionButton_Click(RoutedEventArgs e)
     // implements the action.
 }
 
-private void ActionButton_Click(object sender, RoutedEventArgs e)
+private void ActionButton_Click(object? sender, RoutedEventArgs e)
 {
     // implements the action.
 }
@@ -158,7 +158,7 @@ private async Task ActionButton_ClickAsync(RoutedEventArgs e)
     // implements the action.
 }
 
-private async Task ActionButton_ClickAsync(object sender, RoutedEventArgs e)
+private async Task ActionButton_ClickAsync(object? sender, RoutedEventArgs e)
 {
     // implements the action.
 }
@@ -170,39 +170,89 @@ This attribute is specified to the method to handle a command event.
 It is also specified to the property or the field that is defined with a delegate.
 The method is declared as follows;
 
+- No argument.
+
+``` csharp
+[CommandHandler(CommandName = "ActionCommand", Event = "Executed")]
+private void ActionCommand_Executed()
+{
+    // implements the action of the command Executed event.
+}
+
+[CommandHandler(CommandName = "ActionCommand", Event = "PreviewExecuted")]
+private void ActionCommand_PreviewExecuted()
+{
+    // implements the action of the command PreviewExecuted event.
+}
+```
+
 - One argument that is a ExecutedRoutedEventArgs / CanExecuteRoutedEventArgs.
 
 ``` csharp
-[CommandHandler(CommandName = "ActionCommand")]
+[CommandHandler(CommandName = "ActionCommand", Event = "Executed")]
 private void ActionCommand_Executed(ExecutedRoutedEVentArgs e)
 {
     // implements the action of the command Executed event.
 }
 
-[CommandHandler(CommandName = "ActionCommand")]
+[CommandHandler(CommandName = "ActionCommand", Event = "CanExecute")]
 private void ActionCommand_CanExecute(CanExecuteRoutedEventArgs e)
 {
-    // implements the action of the command CanExecuted event.
+    // implements the action of the command CanExecute event.
+}
+
+[CommandHandler(CommandName = "ActionCommand", Event = "PreviewExecuted")]
+private void ActionCommand_PreviewExecuted(ExecutedRoutedEVentArgs e)
+{
+    // implements the action of the command EPreviewxecuted event.
+}
+
+[CommandHandler(CommandName = "ActionCommand", Event = "PreviewCanExecute")]
+private void ActionCommand_PreviewCanExecute(CanExecuteRoutedEventArgs e)
+{
+    // implements the action of the command PreviewCanExecute event.
 }
 ```
 
 - Two arguments that are an object and a ExecutedRoutedEventArgs / CanExecuteRoutedEventArgs
 
 ``` csharp
-[CommandHandler(CommandName = "ActionCommand")]
-private void ActionCommand_Executed(object sender, ExecutedRoutedEVentArgs e)
+[CommandHandler(CommandName = "ActionCommand", Event = "Executed")]
+private void ActionCommand_Executed(object? sender, ExecutedRoutedEVentArgs e)
 {
     // implements the action of the command Executed event.
 }
-[CommandHandler(CommandName = "ActionCommand")]
-private void ActionCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+[CommandHandler(CommandName = "ActionCommand", Event = "CanExecute")]
+private void ActionCommand_CanExecute(object? sender, CanExecuteRoutedEventArgs e)
 {
-    // implements the action of the command CanExecuted event.
+    // implements the action of the command CanExecute event.
+}
+
+[CommandHandler(CommandName = "ActionCommand", Event = "PreviewExecuted")]
+private void ActionCommand_PreviewExecuted(object? sender, ExecutedRoutedEVentArgs e)
+{
+    // implements the action of the command PreviewExecuted event.
+}
+[CommandHandler(CommandName = "ActionCommand", Event = "PreviewCanExecute")]
+private void ActionCommand_PreviewCanExecute(object? sender, CanExecuteRoutedEventArgs e)
+{
+    // implements the action of the command PreviewCanExecute event.
 }
 ```
 
-If the method name is "[ElementName]_Executed" or "[ElementName]_CanExecute", this attribute does not have to be specified.
+If the method name is "[ElementName]_Executed", "[ElementName]_CanExecute", "[ElementName]_PreviewExecuted", or "[ElementName]_PreviewCanExecute", this attribute does not have to be specified.
+
 ``` csharp
+private void ActionCommand_Executed()
+{
+    // implements the action of the command Executed event.
+}
+
+private void ActionCommand_PreviewExecuted()
+{
+    // implements the action of the command PreviewExecuted event.
+}
+
 private void ActionCommand_Executed(ExecutedRoutedEventArgs e)
 {
     // implements the action of the command Executed event.
@@ -213,20 +263,50 @@ private void ActionCommand_CanExecute(CanExecuteRoutedEventArgs e)
     // implements the action of the command CanExecute event.
 }
 
-private void ActionCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+private void ActionCommand_PreviewExecuted(ExecutedRoutedEventArgs e)
+{
+    // implements the action of the command PreviewExecuted event.
+}
+
+private void ActionCommand_PreviewCanExecute(CanExecuteRoutedEventArgs e)
+{
+    // implements the action of the command PreviewCanExecute event.
+}
+
+private void ActionCommand_Executed(object? sender, ExecutedRoutedEventArgs e)
 {
     // implements the action of the command Executed event.
 }
 
-private void ActionCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+private void ActionCommand_CanExecute(object? sender, CanExecuteRoutedEventArgs e)
 {
     // implements the action of the command CanExecute event.
+}
+
+private void ActionCommand_PreviewExecuted(object? sender, ExecutedRoutedEventArgs e)
+{
+    // implements the action of the command PreviewExecuted event.
+}
+
+private void ActionCommand_PreviewCanExecute(object? sender, CanExecuteRoutedEventArgs e)
+{
+    // implements the action of the command PreviewCanExecute event.
 }
 ```
 
 If the method is an async method, its suffix can be "Async".
 
 ``` csharp
+private async Task ActionCommand_ExecutedAsync()
+{
+    // implements the action of the command Executed event.
+}
+
+private async Task ActionCommand_PreviewExecutedAsync()
+{
+    // implements the action of the command PreviewExecuted action.
+}
+
 private async Task ActionCommand_ExecutedAsync(ExecutedRoutedEventArgs e)
 {
     // implements the action of the command Executed event.
@@ -237,14 +317,34 @@ private async Task ActionCommand_CanExecuteAsync(CanExecuteRoutedEventArgs e)
     // implements the action of the command CanExecute event.
 }
 
-private async Task ActionCommand_ExecutedAsync(object sender, ExecutedRoutedEventArgs e)
+private async Task ActionCommand_PreviewExecutedAsync(ExecutedRoutedEventArgs e)
+{
+    // implements the action of the command PreviewExecuted event.
+}
+
+private async Task ActionCommand_PreviewCanExecuteAsync(CanExecuteRoutedEventArgs e)
+{
+    // implements the action of the command PreviewCanExecute event.
+}
+
+private async Task ActionCommand_ExecutedAsync(object? sender, ExecutedRoutedEventArgs e)
 {
     // implements the action of the command Executed event.
 }
 
-private async Task ActionCommand_CanExecuteAsync(object sender, CanExecuteRoutedEventArgs e)
+private async Task ActionCommand_CanExecuteAsync(object? sender, CanExecuteRoutedEventArgs e)
 {
     // implements the action of the command CanExecute event.
+}
+
+private async Task ActionCommand_PreviewExecutedAsync(object? sender, ExecutedRoutedEventArgs e)
+{
+    // implements the action of the command PreviewExecuted event.
+}
+
+private async Task ActionCommand_PreviewCanExecuteAsync(object? sender, CanExecuteRoutedEventArgs e)
+{
+    // implements the action of the command PreviewCanExecute event.
 }
 ```
 
@@ -263,7 +363,22 @@ private void ActionButton_Click(RoutedEventArgs e, [FromDI] IDataLoader dataLoad
     // implements the action.
 }
 
-private void ActionButton_Click(object sender, RoutedEventArgs e, [FromDI] IDataLoader dataLoader)
+private void ActionButton_Click(object? sender, RoutedEventArgs e, [FromDI] IDataLoader dataLoader)
+{
+    // implements the action.
+}
+
+private void ActionCommand_Executed([FromDI] IDataLoader dataLoader)
+{
+    // implements the action.
+}
+
+private void ActionCommand_Executed(ExecutedRoutedEventArgs e, [FromDI] IDataLoader dataLoader)
+{
+    // implements the action.
+}
+
+private void ActionCommand_Executed(object? sender, ExecutedRoutedEventArgs e, [FromDI] IDataLoader dataLoader)
 {
     // implements the action.
 }
@@ -279,34 +394,34 @@ The implementation is as follows;
 
 ``` csharp
 [DataContext]
-private DataContexType dataContext;
+private DataContexType? dataContext;
 ```
 
 - Property
 
 ``` csharp
 [DataContext]
-public DataContexType DataContext { get; set; }
+public DataContexType? DataContext { get; set; }
 ```
 
 - Method
 
 ``` csharp
 [DataContext]
-public void SetDataContext(DataContexType dataContext)
+public void SetDataContext(DataContexType? dataContext)
 {
     this.dataContext = dataContext;
 }
-private DataContexType dataContext;
+private DataContexType? dataContext;
 ```
 
 If the method name is "SetDataContext", this attribute does not have to be specified.
 ``` csharp
-private void SetDataContext(DataContextType dataContext)
+private void SetDataContext(DataContextType? dataContext)
 {
     this.dataContext = dataContext;
 }
-private DatacontextType dataContext;
+private DatacontextType? dataContext;
 ```
 
 ### ElementAttribute
@@ -323,25 +438,25 @@ The implementation to inject an element the name of which is "Element" is as fol
 
 ``` csharp
 [Element(Name = "Element")]
-private UIElement element;
+private UIElement? element;
 ```
 
 - Property
 
 ``` csharp
 [Element]
-public UIElement Element { get; set; }
+public UIElement? Element { get; set; }
 ```
 
 - Method
 
 ``` csharp
 [Element]
-public void SetElement(UIElement element)
+public void SetElement(UIElement? element)
 {
     this.element = element;
 }
-private UIElement element;
+private UIElement? element;
 ```
 
 ## NuGet
