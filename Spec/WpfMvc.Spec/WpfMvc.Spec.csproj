@@ -22,6 +22,6 @@
     <ProjectReference Include="..\..\Source\WpfMvc\WpfMvc.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Carna.ConsoleRunner" Version="2.0.0" />
+    <PackageReference Include="Carna.ConsoleRunner" Version="2.1.0" />
   </ItemGroup>
 </Project>
