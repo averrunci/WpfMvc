@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "carna-runner": {
+      "version": "2.1.0",
+      "commands": [
+        "carna-runner"
+      ]
+    }
+  }
+}

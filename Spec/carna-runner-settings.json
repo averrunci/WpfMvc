@@ -1,11 +1,11 @@
 {
   "assemblies": [
-    "WpfMvc.Spec/bin/Debug/WpfMvc.Spec.dll"
+    "WpfMvc.Spec\\bin\\Debug\\net6.0-windows\\WpfMvc.Spec.dll"
   ],
   "reporters": [
     {
       "reporter": {
-        "type": "Carna.ConsoleRunner.Reporters.ConsoleFixtureReporter,CarnaConsoleRunner",
+        "type": "Carna.ConsoleRunner.Reporters.ConsoleFixtureReporter,carna-runner",
         "options": {
           "full": true,
           "stepVisible": true
