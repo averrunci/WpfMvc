@@ -4,7 +4,7 @@
 // of the MIT license.  See the LICENSE file for details.
 namespace Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login;
 
-public interface IUserAuthentication
+public interface ILoginCommand
 {
-    Task<UserAuthenticationResult> AuthenticateAsync(string userId, string password);
+    Task<LoginAuthenticationResult> AuthenticateAsync(LoginContent loginContent);
 }

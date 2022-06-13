@@ -16,12 +16,6 @@ class MainContentControllerSpec : FixtureSteppable
     MainContent MainContent { get; } = new();
     MainContentController Controller { get; } = new();
 
-    [Background("a controller that has a to-do item")]
-    public MainContentControllerSpec()
-    {
-        WpfController.SetDataContext(MainContent, Controller);
-    }
-
     [Example("A to-do item is added when the Enter key is pressed")]
     void Ex01()
     {
@@ -30,6 +24,7 @@ class MainContentControllerSpec : FixtureSteppable
             WpfController.EventHandlersOf(Controller)
                 .GetBy("TodoContentTextBox")
                 .With(new KeyEventArgs(Keyboard.PrimaryDevice, Substitute.For<PresentationSource>(), 0, Key.Enter))
+                .ResolveFromDataContext(MainContent)
                 .Raise(UIElement.KeyDownEvent.Name)
         );
         Then("a to-do item should be added", () => MainContent.TodoItems.Count == 1);
@@ -43,6 +38,7 @@ class MainContentControllerSpec : FixtureSteppable
             WpfController.EventHandlersOf(Controller)
                 .GetBy("TodoContentTextBox")
                 .With(new KeyEventArgs(Keyboard.PrimaryDevice, Substitute.For<PresentationSource>(), 0, Key.Tab))
+                .ResolveFromDataContext(MainContent)
                 .Raise(UIElement.KeyDownEvent.Name)
         );
         Then("a to-do item should not be added", () => !MainContent.TodoItems.Any());

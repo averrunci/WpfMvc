@@ -24,7 +24,6 @@ class TodoItemControllerSpec : FixtureSteppable
     public TodoItemControllerSpec()
     {
         TodoItem.RemoveRequested += RemoveRequestedHandler;
-        WpfController.SetDataContext(TodoItem, Controller);
     }
 
     [Example("Switches a content to an edit mode when the element is double clicked")]
@@ -40,6 +39,7 @@ class TodoItemControllerSpec : FixtureSteppable
             WpfController.EventHandlersOf(Controller)
                 .GetBy("TodoContentTextBlock")
                 .With(e)
+                .ResolveFromDataContext(TodoItem)
                 .Raise(UIElement.MouseLeftButtonDownEvent.Name);
         });
         Then("the to-do item should be editing", () => TodoItem.Editing.Value);
@@ -59,6 +59,7 @@ class TodoItemControllerSpec : FixtureSteppable
             WpfController.EventHandlersOf(Controller)
                 .GetBy("TodoContentTextBlock")
                 .With(e)
+                .ResolveFromDataContext(TodoItem)
                 .Raise(UIElement.MouseLeftButtonDownEvent.Name);
         });
         When("the content is modified", () => TodoItem.EditContent.Value = ModifiedContent);
@@ -66,6 +67,7 @@ class TodoItemControllerSpec : FixtureSteppable
             WpfController.EventHandlersOf(Controller)
                 .GetBy("TodoContentTextBox")
                 .With(new KeyEventArgs(Keyboard.PrimaryDevice, Substitute.For<PresentationSource>(), 0, Key.Enter))
+                .ResolveFromDataContext(TodoItem)
                 .Raise(UIElement.KeyDownEvent.Name)
         );
         Then("the to-do item should not be editing", () => !TodoItem.Editing.Value);
@@ -85,12 +87,14 @@ class TodoItemControllerSpec : FixtureSteppable
             WpfController.EventHandlersOf(Controller)
                 .GetBy("TodoContentTextBlock")
                 .With(e)
+                .ResolveFromDataContext(TodoItem)
                 .Raise(UIElement.MouseLeftButtonDownEvent.Name);
         });
         When("the content is modified", () => TodoItem.EditContent.Value = ModifiedContent);
         When("the focus is lost ", () =>
             WpfController.EventHandlersOf(Controller)
                 .GetBy("TodoContentTextBox")
+                .ResolveFromDataContext(TodoItem)
                 .Raise(UIElement.LostFocusEvent.Name)
         );
         Then("the to-do item should not be editing", () => !TodoItem.Editing.Value);
@@ -110,6 +114,7 @@ class TodoItemControllerSpec : FixtureSteppable
             WpfController.EventHandlersOf(Controller)
                 .GetBy("TodoContentTextBlock")
                 .With(e)
+                .ResolveFromDataContext(TodoItem)
                 .Raise(UIElement.MouseLeftButtonDownEvent.Name);
         });
         When("the content is modified", () => TodoItem.EditContent.Value = ModifiedContent);
@@ -117,6 +122,7 @@ class TodoItemControllerSpec : FixtureSteppable
             WpfController.EventHandlersOf(Controller)
                 .GetBy("TodoContentTextBox")
                 .With(new KeyEventArgs(Keyboard.PrimaryDevice, Substitute.For<PresentationSource>(), 0, Key.Escape))
+                .ResolveFromDataContext(TodoItem)
                 .Raise(UIElement.KeyDownEvent.Name)
         );
         Then("the to-do item should not be editing", () => !TodoItem.Editing.Value);
@@ -130,6 +136,7 @@ class TodoItemControllerSpec : FixtureSteppable
             WpfController.CommandHandlersOf(Controller)
                 .GetBy(SimpleTodoCommands.DeleteTodoItem.Name)
                 .With(SimpleTodoCommands.DeleteTodoItem)
+                .ResolveFromDataContext(TodoItem)
                 .RaiseExecuted(TodoItem)
         );
         Then("it should be requested to remove the to-do item", () =>

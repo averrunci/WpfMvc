@@ -7,12 +7,12 @@
     <Nullable>enable</Nullable>
     <OutputType>Library</OutputType>
     <RootNamespace>Charites.Windows.Samples.SimpleLoginDemo.Adapter</RootNamespace>
-    <Version>4.0.0</Version>
+    <Version>4.1.0</Version>
     <Authors>averrunci</Authors>
     <Copyright>Copyright (C) 2022 Fievus</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <AssemblyVersion>4.0.0</AssemblyVersion>
-    <FileVersion>4.0.0</FileVersion>
+    <AssemblyVersion>4.1.0</AssemblyVersion>
+    <FileVersion>4.1.0</FileVersion>
     <NeutralLanguage>en-US</NeutralLanguage>
   </PropertyGroup>
 
@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SimpleLoginDemo.Core\SimpleLoginDemo.Core.csproj" />
     <ProjectReference Include="..\SimpleLoginDemo.Presentation\SimpleLoginDemo.Presentation.csproj" />
   </ItemGroup>
 

@@ -29,7 +29,7 @@ class UserContentControllerSpec : FixtureSteppable
             WpfController.CommandHandlersOf(Controller)
                 .GetBy(SimpleLoginCommands.Logout.Name)
                 .With(SimpleLoginCommands.Logout)
-                .Resolve<IContentNavigator>(() => Navigator)
+                .ResolveFromDI<IContentNavigator>(() => Navigator)
                 .RaiseExecuted(UserContent)
         );
         Then("the content should be navigated to the LoginContent", () =>

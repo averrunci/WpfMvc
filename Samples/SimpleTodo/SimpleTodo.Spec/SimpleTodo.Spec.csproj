@@ -4,17 +4,17 @@
     <TargetFramework>net6.0-windows</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <OutputType>Exe</OutputType>
     <RootNamespace>Charites.Windows.Samples.SimpleTodo</RootNamespace>
     <UseWPF>true</UseWPF>
     <DisableWinExeOutputInference>true</DisableWinExeOutputInference>
-    <Version>4.0.0</Version>
+    <Version>4.1.0</Version>
     <Authors>averrunci</Authors>
     <Copyright>Copyright (C) 2022 Fievus</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <AssemblyVersion>4.0.0</AssemblyVersion>
-    <FileVersion>4.0.0</FileVersion>
+    <AssemblyVersion>4.1.0</AssemblyVersion>
+    <FileVersion>4.1.0</FileVersion>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,7 +29,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Carna.ConsoleRunner" Version="2.0.0" />
+    <PackageReference Include="Carna" Version="2.1.0">
+      <IncludeAssets>compile</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="NSubstitute" Version="4.3.0" />
   </ItemGroup>
 </Project>

@@ -10,13 +10,10 @@ namespace Charites.Windows.Samples.SimpleTodo.Contents;
 [View(Key = nameof(MainContent))]
 public class MainContentController
 {
-    [DataContext]
-    private MainContent? Content { get; set; }
-
-    private void TodoContentTextBox_KeyDown(KeyEventArgs e)
+    private void TodoContentTextBox_KeyDown(KeyEventArgs e, [FromDataContext] MainContent content)
     {
         if (e.Key != Key.Enter) return;
 
-        Content?.AddCurrentTodoContent();
+        content.AddCurrentTodoContent();
     }
 }

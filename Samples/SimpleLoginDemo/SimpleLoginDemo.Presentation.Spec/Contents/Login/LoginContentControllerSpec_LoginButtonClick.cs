@@ -17,7 +17,7 @@ class LoginContentControllerSpec_LoginButtonClick : FixtureSteppable
 
     LoginContent LoginContent { get; } = new() { Message = { Value = "message" } };
     IContentNavigator Navigator { get; } = Substitute.For<IContentNavigator>();
-    IUserAuthentication UserAuthentication { get; } = Substitute.For<IUserAuthentication>();
+    ILoginCommand LoginCommand { get; } = Substitute.For<ILoginCommand>();
 
     public LoginContentControllerSpec_LoginButtonClick()
     {
@@ -32,15 +32,15 @@ class LoginContentControllerSpec_LoginButtonClick : FixtureSteppable
             LoginContent.UserId.Value = "user";
             LoginContent.Password.Value = "password";
 
-            UserAuthentication.AuthenticateAsync(LoginContent.UserId.Value, LoginContent.Password.Value)
-                .Returns(UserAuthenticationResult.Succeeded());
+            LoginCommand.AuthenticateAsync(LoginContent)
+                .Returns(LoginAuthenticationResult.Succeeded());
         });
         When("the login command is executed", async () =>
             await WpfController.CommandHandlersOf(Controller)
                 .GetBy(SimpleLoginCommands.Login.Name)
                 .With(SimpleLoginCommands.Login)
-                .Resolve<IContentNavigator>(() => Navigator)
-                .Resolve<IUserAuthentication>(() => UserAuthentication)
+                .ResolveFromDI<IContentNavigator>(() => Navigator)
+                .ResolveFromDI<ILoginCommand>(() => LoginCommand)
                 .RaiseExecutedAsync(LoginContent)
         );
         Then("the content should be navigated to the UserContent", () =>
@@ -61,8 +61,8 @@ class LoginContentControllerSpec_LoginButtonClick : FixtureSteppable
             await WpfController.CommandHandlersOf(Controller)
                 .GetBy(SimpleLoginCommands.Login.Name)
                 .With(SimpleLoginCommands.Login)
-                .Resolve<IContentNavigator>(() => Navigator)
-                .Resolve<IUserAuthentication>(() => UserAuthentication)
+                .ResolveFromDI<IContentNavigator>(() => Navigator)
+                .ResolveFromDI<ILoginCommand>(() => LoginCommand)
                 .RaiseExecutedAsync(LoginContent)
         );
         Then("the content should not be navigated to any contents", () =>
@@ -80,15 +80,15 @@ class LoginContentControllerSpec_LoginButtonClick : FixtureSteppable
             LoginContent.UserId.Value = "user";
             LoginContent.Password.Value = "password";
 
-            UserAuthentication.AuthenticateAsync(LoginContent.UserId.Value, LoginContent.Password.Value)
-                .Returns(UserAuthenticationResult.Failed());
+            LoginCommand.AuthenticateAsync(LoginContent)
+                .Returns(LoginAuthenticationResult.Failed());
         });
         When("the login command is executed", async () =>
             await WpfController.CommandHandlersOf(Controller)
                 .GetBy(SimpleLoginCommands.Login.Name)
                 .With(SimpleLoginCommands.Login)
-                .Resolve<IContentNavigator>(() => Navigator)
-                .Resolve<IUserAuthentication>(() => UserAuthentication)
+                .ResolveFromDI<IContentNavigator>(() => Navigator)
+                .ResolveFromDI<ILoginCommand>(() => LoginCommand)
                 .RaiseExecutedAsync(LoginContent)
         );
         Then("the content should not be navigated to any contents", () =>

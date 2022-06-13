@@ -10,62 +10,59 @@ using Charites.Windows.Mvc;
 
 namespace Charites.Windows.Samples.SimpleTodo.Contents;
 
-[View(Key = nameof(Contents.TodoItem))]
+[View(Key = nameof(TodoItem))]
 public class TodoItemController
 {
-    [DataContext]
-    private TodoItem? TodoItem { get; set; }
-
     [Element]
-    private TextBox? TodoContentTextBox { get; set; }
-
-    [EventHandler(Event = nameof(FrameworkElement.Loaded))]
-    private void OnLoaded()
+    private void SetTodoContentTextBox(TextBox todoContentTextBox)
     {
-        if (TodoContentTextBox is not null) TodoContentTextBox.IsVisibleChanged += TodoContentTextBox_IsVisibleChanged;
+        if (this.todoContentTextBox is not null) this.todoContentTextBox.IsVisibleChanged -= TodoContentTextBox_IsVisibleChanged;
+        this.todoContentTextBox = todoContentTextBox;
+        if (this.todoContentTextBox is not null) this.todoContentTextBox.IsVisibleChanged += TodoContentTextBox_IsVisibleChanged;
     }
+    private TextBox? todoContentTextBox;
 
     private void TodoContentTextBox_IsVisibleChanged(object? sender, DependencyPropertyChangedEventArgs e)
     {
-        if (sender is not TextBox todoContentTextBox) return;
+        if (sender is not TextBox textBox) return;
         if (!((bool)e.NewValue)) return;
 
-        todoContentTextBox.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
+        textBox.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
         {
-            todoContentTextBox.Focus();
-            todoContentTextBox.SelectAll();
+            textBox.Focus();
+            textBox.SelectAll();
         }));
     }
 
-    private void TodoContentTextBlock_MouseLeftButtonDown(MouseButtonEventArgs e)
+    private void TodoContentTextBlock_MouseLeftButtonDown(MouseButtonEventArgs e, [FromDataContext] TodoItem todoItem)
     {
         if (e.ClickCount is not 2) return;
 
-        TodoItem?.StartEdit();
+        todoItem.StartEdit();
     }
 
-    private void TodoContentTextBox_KeyDown(KeyEventArgs e)
+    private void TodoContentTextBox_KeyDown(KeyEventArgs e, [FromDataContext] TodoItem todoItem)
     {
         switch (e.Key)
         {
             case Key.Enter:
-                TodoItem?.CompleteEdit();
+                todoItem.CompleteEdit();
                 break;
             case Key.Escape:
-                TodoItem?.CancelEdit();
+                todoItem.CancelEdit();
                 break;
         }
     }
 
-    private void TodoContentTextBox_LostFocus()
+    private void TodoContentTextBox_LostFocus([FromDataContext] TodoItem todoItem)
     {
-        if (!(TodoItem?.Editing.Value ?? false)) return;
+        if (!todoItem.Editing.Value) return;
 
-        TodoItem.CompleteEdit();
+        todoItem.CompleteEdit();
     }
 
-    private void DeleteTodoItem_Executed()
+    private void DeleteTodoItem_Executed([FromDataContext] TodoItem todoItem)
     {
-        TodoItem?.Remove();
+        todoItem.Remove();
     }
 }

@@ -4,15 +4,15 @@
 // of the MIT license.  See the LICENSE file for details.
 namespace Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login;
 
-public class UserAuthenticationResult
+public class LoginAuthenticationResult
 {
     public bool Success { get; }
 
-    protected UserAuthenticationResult(bool success)
+    protected LoginAuthenticationResult(bool success)
     {
         Success = success;
     }
 
-    public static UserAuthenticationResult Succeeded() => new(true);
-    public static UserAuthenticationResult Failed() => new(false);
+    public static LoginAuthenticationResult Succeeded() => new(true);
+    public static LoginAuthenticationResult Failed() => new(false);
 }

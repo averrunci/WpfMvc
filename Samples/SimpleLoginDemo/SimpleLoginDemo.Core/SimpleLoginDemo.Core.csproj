@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Charites.Windows.Samples.SimpleLoginDemo.Core</RootNamespace>
+    <Version>4.1.0</Version>
+    <Authors>averrunci</Authors>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Copyright>Copyright (C) 2022 Fievus</Copyright>
+    <AssemblyVersion>4.1.0</AssemblyVersion>
+    <FileVersion>4.1.0</FileVersion>
+    <NeutralLanguage>en-US</NeutralLanguage>
+  </PropertyGroup>
+
+</Project>

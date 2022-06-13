@@ -35,5 +35,6 @@ internal static class Program
                     return (ContentNavigator)navigator;
                 })
             .AddControllers()
-            .AddPresentationAdapters();
+            .AddCommands()
+            .AddFeatures();
 }

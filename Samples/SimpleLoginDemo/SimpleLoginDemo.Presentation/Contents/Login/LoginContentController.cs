@@ -46,7 +46,7 @@ public class LoginContentController
         e.CanExecute = !string.IsNullOrEmpty(Content?.UserId.Value) && !string.IsNullOrEmpty(Content?.Password.Value);
     }
 
-    private async Task Login_ExecutedAsync([FromDI] IUserAuthentication userAuthentication, [FromDI] IContentNavigator navigator)
+    private async Task Login_ExecutedAsync([FromDI] ILoginCommand loginCommand, [FromDI] IContentNavigator navigator)
     {
         if (Content is null) return;
 
@@ -55,7 +55,7 @@ public class LoginContentController
         if (!Content.IsValid) return;
 
         var currentContent = Content;
-        var result = await userAuthentication.AuthenticateAsync(currentContent.UserId.Value, currentContent.Password.Value);
+        var result = await loginCommand.AuthenticateAsync(currentContent);
         if (result.Success)
         {
             navigator.NavigateTo(new UserContent(currentContent.UserId.Value));
