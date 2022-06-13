@@ -7,15 +7,13 @@ using Carna;
 
 namespace Charites.Windows.Mvc;
 
-[Context("Attaching and detaching a controller")]
+[Context(
+    "Attaching and detaching a controller",
+    typeof(WpfControllerSpec_AttachingAndDetachingController_IsEnabled),
+    typeof(WpfControllerSpec_AttachingAndDetachingController_IsEnabledBeforeDataContextIsSet)
+)]
 class WpfControllerSpec_AttachingAndDetachingController : FixtureSteppable
 {
-    [Context]
-    WpfControllerSpec_AttachingAndDetachingController_IsEnabled IsEnabled => default!;
-
-    [Context]
-    WpfControllerSpec_AttachingAndDetachingController_IsEnabledBeforeDataContextIsSet IsEnabledBeforeDataContextIsSet => default!;
-
     TestElement Element { get; set; } = default!;
     TestWpfControllers.TestWpfController Controller { get; set; } = default!;
 

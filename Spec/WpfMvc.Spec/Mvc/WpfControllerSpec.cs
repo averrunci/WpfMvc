@@ -6,27 +6,16 @@ using Carna;
 
 namespace Charites.Windows.Mvc;
 
-[Specification("WpfController Spec")]
+[Specification(
+    "WpfController Spec",
+    typeof(WpfControllerSpec_EventHandlerDataContextElementInjection),
+    typeof(WpfControllerSpec_CommandHandlerInjection),
+    typeof(WpfControllerSpec_AttachingAndDetachingController),
+    typeof(WpfControllerSpec_ExecuteHandler),
+    typeof(WpfControllerSpec_WpfControllerExtension),
+    typeof(WpfControllerSpec_RoutedEventHandlerInjectionForAttachedEvent),
+    typeof(WpfControllerSpec_UnhandledException)
+)]
 class WpfControllerSpec
 {
-    [Context]
-    WpfControllerSpec_EventHandlerDataContextElementInjection EventHandlerDataContextElementInjection => default!;
-
-    [Context]
-    WpfControllerSpec_CommandHandlerInjection CommandHandlerInjection => default!;
-
-    [Context]
-    WpfControllerSpec_AttachingAndDetachingController AttachingAndDetachingController => default!;
-
-    [Context]
-    WpfControllerSpec_ExecuteHandler ExecuteHandler => default!;
-
-    [Context]
-    WpfControllerSpec_WpfControllerExtension WpfControllerExtension => default!;
-
-    [Context]
-    WpfControllerSpec_RoutedEventHandlerInjectionForAttachedEvent RoutedEventHandlerInjectionForAttachedEvent => default!;
-
-    [Context]
-    WpfControllerSpec_UnhandledException UnhandledException => default!;
 }
