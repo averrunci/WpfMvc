@@ -174,100 +174,100 @@ internal class TestWpfControllers
         }
     }
 
-    public class CommandHandlerWithDependencyParametersController
+    public class CommandHandlerWithAttributedParametersController
     {
         [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
-        private void TestCommand_Executed(ExecutedRoutedEventArgs e, [FromDI] IDependency1 dependency1, [FromDI] IDependency2 dependency2, [FromDI] IDependency3 dependency3)
+        private void TestCommand_Executed(ExecutedRoutedEventArgs e, [FromDI] IDependency1 dependency1, [FromDI] IDependency2 dependency2, [FromDI] IDependency3 dependency3, [FromElement] TestElement element, [FromDataContext] TestDataContexts.TestDataContext dataContext)
         {
             ExecutedAssertionHandler?.Invoke();
-            ExecutedDependencyArgumentsHandler?.Invoke(dependency1, dependency2, dependency3);
+            ExecutedAttributedArgumentsHandler?.Invoke(dependency1, dependency2, dependency3, element, dataContext);
         }
 
         [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.CanExecute))]
-        private void TestCommand_CanExecute(CanExecuteRoutedEventArgs e, [FromDI] IDependency1 dependency1, [FromDI] IDependency2 dependency2, [FromDI] IDependency3 dependency3)
+        private void TestCommand_CanExecute(CanExecuteRoutedEventArgs e, [FromDI] IDependency1 dependency1, [FromDI] IDependency2 dependency2, [FromDI] IDependency3 dependency3, [FromElement] TestElement element, [FromDataContext] TestDataContexts.TestDataContext dataContext)
         {
             CanExecuteAssertionHandler?.Invoke();
-            CanExecuteDependencyArgumentsHandler?.Invoke(dependency1, dependency2, dependency3);
+            CanExecuteAttributedArgumentsHandler?.Invoke(dependency1, dependency2, dependency3, element, dataContext);
             e.CanExecute = true;
         }
 
         [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewExecuted))]
-        private void TestCommand_PreviewExecuted(ExecutedRoutedEventArgs e, [FromDI] IDependency1 dependency1, [FromDI] IDependency2 dependency2, [FromDI] IDependency3 dependency3)
+        private void TestCommand_PreviewExecuted(ExecutedRoutedEventArgs e, [FromDI] IDependency1 dependency1, [FromDI] IDependency2 dependency2, [FromDI] IDependency3 dependency3, [FromElement] TestElement element, [FromDataContext] TestDataContexts.TestDataContext dataContext)
         {
             PreviewExecutedAssertionHandler?.Invoke();
-            PreviewExecutedDependencyArgumentsHandler?.Invoke(dependency1, dependency2, dependency3);
+            PreviewExecutedAttributedArgumentsHandler?.Invoke(dependency1, dependency2, dependency3, element, dataContext);
         }
 
         [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewCanExecute))]
-        private void TestCommand_PreviewCanExecute(CanExecuteRoutedEventArgs e, [FromDI] IDependency1 dependency1, [FromDI] IDependency2 dependency2, [FromDI] IDependency3 dependency3)
+        private void TestCommand_PreviewCanExecute(CanExecuteRoutedEventArgs e, [FromDI] IDependency1 dependency1, [FromDI] IDependency2 dependency2, [FromDI] IDependency3 dependency3, [FromElement] TestElement element, [FromDataContext] TestDataContexts.TestDataContext dataContext)
         {
             PreviewCanExecuteAssertionHandler?.Invoke();
-            PreviewCanExecuteDependencyArgumentsHandler?.Invoke(dependency1, dependency2, dependency3);
+            PreviewCanExecuteAttributedArgumentsHandler?.Invoke(dependency1, dependency2, dependency3, element, dataContext);
             e.CanExecute = true;
         }
 
         public Action? ExecutedAssertionHandler { get; set; }
-        public Action<IDependency1, IDependency2, IDependency3>? ExecutedDependencyArgumentsHandler { get; set; }
+        public Action<IDependency1, IDependency2, IDependency3, TestElement, TestDataContexts.TestDataContext>? ExecutedAttributedArgumentsHandler { get; set; }
         public Action? CanExecuteAssertionHandler { get; set; }
-        public Action<IDependency1, IDependency2, IDependency3>? CanExecuteDependencyArgumentsHandler { get; set; }
+        public Action<IDependency1, IDependency2, IDependency3, TestElement, TestDataContexts.TestDataContext>? CanExecuteAttributedArgumentsHandler { get; set; }
         public Action? PreviewExecutedAssertionHandler { get; set; }
-        public Action<IDependency1, IDependency2, IDependency3>? PreviewExecutedDependencyArgumentsHandler { get; set; }
+        public Action<IDependency1, IDependency2, IDependency3, TestElement, TestDataContexts.TestDataContext>? PreviewExecutedAttributedArgumentsHandler { get; set; }
         public Action? PreviewCanExecuteAssertionHandler { get; set; }
-        public Action<IDependency1, IDependency2, IDependency3>? PreviewCanExecuteDependencyArgumentsHandler { get; set; }
+        public Action<IDependency1, IDependency2, IDependency3, TestElement, TestDataContexts.TestDataContext>? PreviewCanExecuteAttributedArgumentsHandler { get; set; }
     }
 
-    public class CommandHandlerWithDependencyParametersControllerAsync
+    public class CommandHandlerWithAttributedParametersControllerAsync
     {
         [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.Executed))]
-        private async Task TestCommand_ExecutedAsync(ExecutedRoutedEventArgs e, [FromDI] IDependency1 dependency1, [FromDI] IDependency2 dependency2, [FromDI] IDependency3 dependency3)
+        private async Task TestCommand_ExecutedAsync(ExecutedRoutedEventArgs e, [FromDI] IDependency1 dependency1, [FromDI] IDependency2 dependency2, [FromDI] IDependency3 dependency3, [FromElement(Name = "Element")] TestElement element, [FromDataContext] TestDataContexts.TestDataContext dataContext)
         {
+            ExecutedAttributedArgumentsHandler?.Invoke(dependency1, dependency2, dependency3, element, dataContext);
             await Task.Run(() =>
             {
                 ExecutedAssertionHandler?.Invoke();
-                ExecutedDependencyArgumentsHandler?.Invoke(dependency1, dependency2, dependency3);
             });
         }
 
         [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.CanExecute))]
-        private async Task TestCommand_CanExecuteAsync(CanExecuteRoutedEventArgs e, [FromDI] IDependency1 dependency1, [FromDI] IDependency2 dependency2, [FromDI] IDependency3 dependency3)
+        private async Task TestCommand_CanExecuteAsync(CanExecuteRoutedEventArgs e, [FromDI] IDependency1 dependency1, [FromDI] IDependency2 dependency2, [FromDI] IDependency3 dependency3, [FromElement(Name = "Element")] TestElement element, [FromDataContext] TestDataContexts.TestDataContext dataContext)
         {
+            CanExecuteAttributedArgumentsHandler?.Invoke(dependency1, dependency2, dependency3, element, dataContext);
             await Task.Run(() =>
             {
                 CanExecuteAssertionHandler?.Invoke();
-                CanExecuteDependencyArgumentsHandler?.Invoke(dependency1, dependency2, dependency3);
                 e.CanExecute = true;
             });
         }
 
         [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewExecuted))]
-        private async Task TestCommand_PreviewExecutedAsync(ExecutedRoutedEventArgs e, [FromDI] IDependency1 dependency1, [FromDI] IDependency2 dependency2, [FromDI] IDependency3 dependency3)
+        private async Task TestCommand_PreviewExecutedAsync(ExecutedRoutedEventArgs e, [FromDI] IDependency1 dependency1, [FromDI] IDependency2 dependency2, [FromDI] IDependency3 dependency3, [FromElement(Name = "Element")] TestElement element, [FromDataContext] TestDataContexts.TestDataContext dataContext)
         {
+            PreviewExecutedAttributedArgumentsHandler?.Invoke(dependency1, dependency2, dependency3, element, dataContext);
             await Task.Run(() =>
             {
                 PreviewExecutedAssertionHandler?.Invoke();
-                PreviewExecutedDependencyArgumentsHandler?.Invoke(dependency1, dependency2, dependency3);
             });
         }
 
         [CommandHandler(CommandName = nameof(TestCommand), Event = nameof(CommandBinding.PreviewCanExecute))]
-        private async Task TestCommand_PreviewCanExecuteAsync(CanExecuteRoutedEventArgs e, [FromDI] IDependency1 dependency1, [FromDI] IDependency2 dependency2, [FromDI] IDependency3 dependency3)
+        private async Task TestCommand_PreviewCanExecuteAsync(CanExecuteRoutedEventArgs e, [FromDI] IDependency1 dependency1, [FromDI] IDependency2 dependency2, [FromDI] IDependency3 dependency3, [FromElement(Name = "Element")] TestElement element, [FromDataContext] TestDataContexts.TestDataContext dataContext)
         {
+            PreviewCanExecuteAttributedArgumentsHandler?.Invoke(dependency1, dependency2, dependency3, element, dataContext);
             await Task.Run(() =>
             {
                 PreviewCanExecuteAssertionHandler?.Invoke();
-                PreviewCanExecuteDependencyArgumentsHandler?.Invoke(dependency1, dependency2, dependency3);
                 e.CanExecute = true;
             });
         }
 
         public Action? ExecutedAssertionHandler { get; set; }
-        public Action<IDependency1, IDependency2, IDependency3>? ExecutedDependencyArgumentsHandler { get; set; }
+        public Action<IDependency1, IDependency2, IDependency3, TestElement, TestDataContexts.TestDataContext>? ExecutedAttributedArgumentsHandler { get; set; }
         public Action? CanExecuteAssertionHandler { get; set; }
-        public Action<IDependency1, IDependency2, IDependency3>? CanExecuteDependencyArgumentsHandler { get; set; }
+        public Action<IDependency1, IDependency2, IDependency3, TestElement, TestDataContexts.TestDataContext>? CanExecuteAttributedArgumentsHandler { get; set; }
         public Action? PreviewExecutedAssertionHandler { get; set; }
-        public Action<IDependency1, IDependency2, IDependency3>? PreviewExecutedDependencyArgumentsHandler { get; set; }
+        public Action<IDependency1, IDependency2, IDependency3, TestElement, TestDataContexts.TestDataContext>? PreviewExecutedAttributedArgumentsHandler { get; set; }
         public Action? PreviewCanExecuteAssertionHandler { get; set; }
-        public Action<IDependency1, IDependency2, IDependency3>? PreviewCanExecuteDependencyArgumentsHandler { get; set; }
+        public Action<IDependency1, IDependency2, IDependency3, TestElement, TestDataContexts.TestDataContext>? PreviewCanExecuteAttributedArgumentsHandler { get; set; }
     }
 
     public interface IDependency1 {}

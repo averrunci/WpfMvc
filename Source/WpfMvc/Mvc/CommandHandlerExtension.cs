@@ -23,6 +23,30 @@ internal sealed class CommandHandlerExtension : IWpfControllerExtension
         "ShadowCommandHandlerBases", typeof(IDictionary<object, CommandHandlerBase>), typeof(CommandHandlerExtension), new PropertyMetadata()
     );
 
+    private readonly List<Type> parameterResolverTypes = new();
+
+    public CommandHandlerExtension()
+    {
+        Add<WpfEventHandlerParameterFromDIResolver>();
+        Add<WpfEventHandlerParameterFromElementResolver>();
+        Add<WpfEventHandlerParameterFromDataContextResolver>();
+    }
+
+    public void Add<TResolver>() where TResolver : IEventHandlerParameterResolver => Add(typeof(TResolver));
+    public void Add(Type resolverType)
+    {
+        if (!typeof(IEventHandlerParameterResolver).IsAssignableFrom(resolverType))
+            throw new ArgumentException($"The resolver type ({resolverType}) must implement the {typeof(IEventHandlerParameterResolver)} interface.", nameof(resolverType));
+        if (!resolverType.IsClass) throw new ArgumentException($"The resolver type ({resolverType}) must be a class.", nameof(resolverType));
+        if (resolverType.IsAbstract) throw new ArgumentException($"The resolver type ({resolverType}) must not be an abstract.", nameof(resolverType));
+        if (parameterResolverTypes.Contains(resolverType)) return;
+
+        parameterResolverTypes.Add(resolverType);
+    }
+
+    public void Remove<TResolver>() where TResolver : IEventHandlerParameterResolver => Remove(typeof(TResolver));
+    public void Remove(Type resolverType) => parameterResolverTypes.Remove(resolverType);
+
     void IControllerExtension<FrameworkElement>.Attach(object controller, FrameworkElement element)
     {
         RetrieveCommandHandlers(element, controller).AddCommandHandler();
@@ -41,7 +65,7 @@ internal sealed class CommandHandlerExtension : IWpfControllerExtension
         var commandHandlerBases = EnsureCommandHandlerBases(rootElement);
         if (commandHandlerBases.ContainsKey(controller)) { return commandHandlerBases[controller]; }
 
-        var commandHandlers = new CommandHandlerBase();
+        var commandHandlers = new CommandHandlerBase(CreateParameterResolver(rootElement));
         commandHandlerBases[controller] = commandHandlers;
 
         RetrieveCommandHandlersFromField(controller, rootElement, commandHandlers);
@@ -56,20 +80,20 @@ internal sealed class CommandHandlerExtension : IWpfControllerExtension
         => controller.GetType()
             .GetFields(CommandHandlerBindingFlags)
             .Where(field => field.GetCustomAttributes<CommandHandlerAttribute>().Any())
-            .ForEach(field => AddCommandHandlers(field, rootElement, handlerType => CreateCommandHandler(field.GetValue(controller) as Delegate, handlerType), commandHandlers));
+            .ForEach(field => AddCommandHandlers(field, rootElement, handlerType => CreateCommandHandler(field.GetValue(controller) as Delegate, handlerType, rootElement), commandHandlers));
 
     private void RetrieveCommandHandlersFromProperty(object controller, FrameworkElement? rootElement, CommandHandlerBase commandHandlers)
         => controller.GetType()
             .GetProperties(CommandHandlerBindingFlags)
             .Where(property => property.GetCustomAttributes<CommandHandlerAttribute>().Any())
             .Where(property => property.CanRead)
-            .ForEach(property => AddCommandHandlers(property, rootElement, handlerType => CreateCommandHandler(property.GetValue(controller, null) as Delegate, handlerType), commandHandlers));
+            .ForEach(property => AddCommandHandlers(property, rootElement, handlerType => CreateCommandHandler(property.GetValue(controller, null) as Delegate, handlerType, rootElement), commandHandlers));
 
     private void RetrieveCommandHandlersFromMethod(object controller, FrameworkElement? rootElement, CommandHandlerBase commandHandlers)
         => controller.GetType()
             .GetMethods(CommandHandlerBindingFlags)
             .Where(method => method.GetCustomAttributes<CommandHandlerAttribute>().Any())
-            .ForEach(method => AddCommandHandlers(method, rootElement, handlerType => CreateCommandHandler(method, controller, handlerType), commandHandlers));
+            .ForEach(method => AddCommandHandlers(method, rootElement, handlerType => CreateCommandHandler(method, controller, handlerType, rootElement), commandHandlers));
 
     private void RetrieveCommandHandlersFromMethodUsingNamingConvention(object controller, FrameworkElement? rootElement, CommandHandlerBase commandHandlers)
         => controller.GetType()
@@ -90,7 +114,7 @@ internal sealed class CommandHandlerExtension : IWpfControllerExtension
                     }
                 };
             })
-            .ForEach(x => AddCommandHandler(x.CommandHandlerAttribute, rootElement, handlerType => CreateCommandHandler(x.MethodInfo, controller, handlerType), commandHandlers));
+            .ForEach(x => AddCommandHandler(x.CommandHandlerAttribute, rootElement, handlerType => CreateCommandHandler(x.MethodInfo, controller, handlerType, rootElement), commandHandlers));
 
     private string EnsureEventNameUsingNamingConvention(string eventName) => eventName.EndsWith("Async") ? eventName[..^5] : eventName;
 
@@ -105,11 +129,11 @@ internal sealed class CommandHandlerExtension : IWpfControllerExtension
         return commandHandlerBases;
     }
 
-    private Delegate? CreateCommandHandler(Delegate? @delegate, Type handlerType) => @delegate is null ? null : CreateCommandHandler(@delegate.Method, @delegate.Target, handlerType);
+    private Delegate? CreateCommandHandler(Delegate? @delegate, Type handlerType, FrameworkElement? element) => @delegate is null ? null : CreateCommandHandler(@delegate.Method, @delegate.Target, handlerType, element);
 
-    private Delegate? CreateCommandHandler(MethodInfo method, object? target, Type handlerType)
+    private Delegate? CreateCommandHandler(MethodInfo method, object? target, Type handlerType, FrameworkElement? element)
     {
-        var action = new WpfEventHandlerAction(method, target);
+        var action = new WpfEventHandlerAction(method, target, new ParameterDependencyResolver(CreateParameterResolver(element)));
         return action.GetType()
             .GetMethod(nameof(EventHandlerAction.OnHandled))
             ?.CreateDelegate(handlerType, action);
@@ -165,4 +189,11 @@ internal sealed class CommandHandlerExtension : IWpfControllerExtension
             }
         }
     }
+
+    private IEnumerable<IEventHandlerParameterResolver> CreateParameterResolver(FrameworkElement? element)
+        => parameterResolverTypes
+            .Where(t => t.IsClass && !t.IsAbstract)
+            .Select(t => Activator.CreateInstance(t, element) as IEventHandlerParameterResolver)
+            .OfType<IEventHandlerParameterResolver>()
+            .ToList();
 }

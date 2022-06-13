@@ -16,6 +16,13 @@ internal sealed class WpfEventHandlerExtension : EventHandlerExtension<Framework
         "ShadowEventHandlerBases", typeof(IDictionary<object, EventHandlerBase<FrameworkElement, WpfEventHandlerItem>>), typeof(WpfEventHandlerExtension), new PropertyMetadata(default(IDictionary<object, EventHandlerBase<FrameworkElement, WpfEventHandlerItem>>))
     );
 
+    public WpfEventHandlerExtension()
+    {
+        Add<WpfEventHandlerParameterFromDIResolver>();
+        Add<WpfEventHandlerParameterFromElementResolver>();
+        Add<WpfEventHandlerParameterFromDataContextResolver>();
+    }
+
     protected override IDictionary<object, EventHandlerBase<FrameworkElement, WpfEventHandlerItem>> EnsureEventHandlerBases(FrameworkElement? element)
     {
         if (element is null) return new Dictionary<object, EventHandlerBase<FrameworkElement, WpfEventHandlerItem>>();
@@ -35,8 +42,9 @@ internal sealed class WpfEventHandlerExtension : EventHandlerExtension<Framework
         {
             eventHandlers.Add(new DataContextChangedEventHandlerItem(
                 eventHandlerAttribute.ElementName, targetElement,
-                eventHandlerAttribute.Event, handlerCreator(typeof(DependencyPropertyChangedEventHandler)), eventHandlerAttribute.HandledEventsToo)
-            );
+                eventHandlerAttribute.Event, handlerCreator(typeof(DependencyPropertyChangedEventHandler)), eventHandlerAttribute.HandledEventsToo,
+                CreateParameterResolver(element)
+            ));
             return;
         }
 
@@ -45,24 +53,26 @@ internal sealed class WpfEventHandlerExtension : EventHandlerExtension<Framework
         eventHandlers.Add(new WpfEventHandlerItem(
             eventHandlerAttribute.ElementName, targetElement,
             eventHandlerAttribute.Event, routedEvent, eventInfo,
-            handlerCreator(routedEvent?.HandlerType ?? eventInfo?.EventHandlerType), eventHandlerAttribute.HandledEventsToo
+            handlerCreator(routedEvent?.HandlerType ?? eventInfo?.EventHandlerType), eventHandlerAttribute.HandledEventsToo,
+            CreateParameterResolver(element)
         ));
     }
 
     protected override bool FilterMethodUsingNamingConvention(MethodInfo method)
         => base.FilterMethodUsingNamingConvention(method) && !method.GetCustomAttributes<CommandHandlerAttribute>(true).Any();
 
-    protected override Delegate? CreateEventHandler(MethodInfo method, object? target, Type? handlerType)
+    protected override Delegate? CreateEventHandler(MethodInfo method, object? target, Type? handlerType, FrameworkElement? element)
     {
-        if (handlerType != typeof(DependencyPropertyChangedEventHandler)) return base.CreateEventHandler(method, target, handlerType);
+        if (handlerType != typeof(DependencyPropertyChangedEventHandler)) return base.CreateEventHandler(method, target, handlerType, element);
 
-        var action = new DataContextChangedEventHandlerAction(method, target);
+        var action = new DataContextChangedEventHandlerAction(method, target, CreateParameterDependencyResolver(CreateParameterResolver(element)));
         return action.GetType()
             .GetMethod(nameof(DataContextChangedEventHandlerAction.OnHandled))
             ?.CreateDelegate(handlerType, action);
     }
 
-    protected override EventHandlerAction CreateEventHandlerAction(MethodInfo method, object? target) => new WpfEventHandlerAction(method, target);
+    protected override EventHandlerAction CreateEventHandlerAction(MethodInfo method, object? target, FrameworkElement? element)
+        => new WpfEventHandlerAction(method, target, CreateParameterDependencyResolver(CreateParameterResolver(element)));
 
     protected override void OnEventHandlerAdded(EventHandlerBase<FrameworkElement, WpfEventHandlerItem> eventHandlers, FrameworkElement element)
     {

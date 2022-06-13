@@ -8,12 +8,9 @@ namespace Charites.Windows.Mvc;
 
 internal sealed class WpfEventHandlerAction : EventHandlerAction
 {
-    public WpfEventHandlerAction(MethodInfo method, object? target) : base(method, target)
+    public WpfEventHandlerAction(MethodInfo method, object? target, IParameterDependencyResolver parameterDependencyResolver) : base(method, target, parameterDependencyResolver)
     {
     }
 
     protected override bool HandleUnhandledException(Exception exc) => WpfController.HandleUnhandledException(exc);
-
-    protected override IParameterDependencyResolver CreateParameterDependencyResolver(IDictionary<Type, Func<object?>>? dependencyResolver)
-        => dependencyResolver is null ? new WpfParameterDependencyResolver() : new WpfParameterDependencyResolver(dependencyResolver);
 }

@@ -8,7 +8,7 @@ namespace Charites.Windows.Mvc;
 
 internal sealed class DataContextChangedEventHandlerItem : WpfEventHandlerItem
 {
-    public DataContextChangedEventHandlerItem(string elementName, FrameworkElement? element, string eventName, Delegate? handler, bool handledEventsToo) : base(elementName, element, eventName, null, null, handler, handledEventsToo)
+    public DataContextChangedEventHandlerItem(string elementName, FrameworkElement? element, string eventName, Delegate? handler, bool handledEventsToo, IEnumerable<IEventHandlerParameterResolver> parameterResolver) : base(elementName, element, eventName, null, null, handler, handledEventsToo, parameterResolver)
     {
     }
 

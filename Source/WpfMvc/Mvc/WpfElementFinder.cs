@@ -6,9 +6,8 @@ using System.Windows;
 
 namespace Charites.Windows.Mvc;
 
-internal sealed class WpfElementInjector : ElementInjector<FrameworkElement>, IWpfElementInjector
+internal sealed class WpfElementFinder : IWpfElementFinder
 {
-    public WpfElementInjector(IElementFinder<FrameworkElement> elementFinder) : base(elementFinder)
-    {
-    }
+    public object? FindElement(FrameworkElement? rootElement, string elementName)
+        => rootElement.FindElement<object>(elementName);
 }

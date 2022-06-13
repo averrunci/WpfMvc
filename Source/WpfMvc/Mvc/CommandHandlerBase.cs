@@ -13,6 +13,7 @@ namespace Charites.Windows.Mvc;
 /// </summary>
 public class CommandHandlerBase
 {
+    private readonly IEnumerable<IEventHandlerParameterResolver> parameterResolver;
     private readonly ICollection<CommandHandlerItem> items = new Collection<CommandHandlerItem>();
 
     /// <summary>
@@ -20,6 +21,19 @@ public class CommandHandlerBase
     /// </summary>
     public CommandHandlerBase()
     {
+        parameterResolver = Enumerable.Empty<IEventHandlerParameterResolver>();
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CommandHandlerBase"/> class
+    /// with the specified resolver to resolve parameters of a command event handler.
+    /// </summary>
+    /// <param name="parameterResolver">
+    /// The resolver to resolve to parameters of a command event handler.
+    /// </param>
+    public CommandHandlerBase(IEnumerable<IEventHandlerParameterResolver> parameterResolver)
+    {
+        this.parameterResolver = parameterResolver;
     }
 
     /// <summary>
@@ -35,7 +49,7 @@ public class CommandHandlerBase
         var item = items.FirstOrDefault(i => i.Has(commandName, element));
         if (item is null)
         {
-            items.Add(item = new CommandHandlerItem(commandName, command, element));
+            items.Add(item = new CommandHandlerItem(commandName, command, element, parameterResolver));
         }
 
         item.Apply(eventName, handler);
@@ -76,7 +90,7 @@ public class CommandHandlerBase
         private readonly IEnumerable<CommandHandlerItem> items;
         private object? sender;
         private ICommand? command;
-        private readonly IDictionary<Type, Func<object?>> dependencyResolver = new Dictionary<Type, Func<object?>>();
+        private readonly EventHandlerParameterResolverBase parameterResolverBase = new();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Executor"/> class,
@@ -122,23 +136,67 @@ public class CommandHandlerBase
         /// <returns>
         /// The instance of the <see cref="Executor"/> class.
         /// </returns>
+        [Obsolete("This method is obsolete. Use the ResolveFromDI<T>(Func<object?>) method instead.")]
         public Executor Resolve<T>(Func<object?> resolver)
         {
-            dependencyResolver[typeof(T)] = resolver;
+            return ResolveFromDI<T>(resolver);
+        }
+
+        /// <summary>
+        /// Resolves a parameter specified by the specified attribute type using the specified resolver.
+        /// </summary>
+        /// <typeparam name="TAttribute">The type of the attribute that specified to the parameter.</typeparam>
+        /// <param name="resolver">The resolver to resolve the parameter specified by the specified attribute type.</param>
+        /// <returns>The instance of the <see cref="Executor"/>.</returns>
+        public Executor Resolve<TAttribute>(IEventHandlerParameterResolver resolver) where TAttribute : Attribute
+        {
+            parameterResolverBase.Add<TAttribute>(resolver);
             return this;
+        }
+
+        /// <summary>
+        /// Resolves a parameter specified by the <see cref="FromDIAttribute"/> attribute using the specified resolver.
+        /// </summary>
+        /// <typeparam name="T">The type of the parameter.</typeparam>
+        /// <param name="resolver">The function to resolve the parameter of the specified type.</param>
+        /// <returns>The instance of the <see cref="Executor"/>.</returns>
+        public Executor ResolveFromDI<T>(Func<object?> resolver)
+        {
+            return Resolve<FromDIAttribute>(new DefaultCommandHandlerParameterFromDIResolver(typeof(T), resolver));
+        }
+
+        /// <summary>
+        /// Resolves a parameter specified by the <see cref="FromElementAttribute"/> attribute using the specified name and element.
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
+        /// <param name="element">The element to inject to the parameter.</param>
+        /// <returns>The instance of the <see cref="Executor"/>.</returns>
+        public Executor ResolveFromElement(string name, FrameworkElement? element)
+        {
+            return Resolve<FromElementAttribute>(new DefaultCommandHandlerParameterFromElementResolver(name, element));
+        }
+
+        /// <summary>
+        /// Resolves a parameter specified by the <see cref="FromDataContextAttribute"/> attribute using the specified data context.
+        /// </summary>
+        /// <param name="dataContext">The data context to inject to the parameter.</param>
+        /// <returns>The instance of the <see cref="Executor"/>.</returns>
+        public Executor ResolveFromDataContext(object? dataContext)
+        {
+            return Resolve<FromDataContextAttribute>(new DefaultCommandHandlerParameterFromDataContextResolver(dataContext));
         }
 
         /// <summary>
         /// Raises the command Executed event using the specified parameter.
         /// </summary>
         /// <param name="parameter">The parameter of the command.</param>
-        public void RaiseExecuted(object? parameter = null) => items.ForEach(i => i.RaiseExecuted(command, sender, parameter, dependencyResolver));
+        public void RaiseExecuted(object? parameter = null) => items.ForEach(i => i.RaiseExecuted(command, sender, parameter, parameterResolverBase));
 
         /// <summary>
         /// Raises the command PreviewExecuted event using the specified parameter.
         /// </summary>
         /// <param name="parameter">The parameter of the command.</param>
-        public void RaisePreviewExecuted(object? parameter = null) => items.ForEach(i => i.RaisePreviewExecuted(command, sender, parameter, dependencyResolver));
+        public void RaisePreviewExecuted(object? parameter = null) => items.ForEach(i => i.RaisePreviewExecuted(command, sender, parameter, parameterResolverBase));
 
         /// <summary>
         /// Raises the command CanExecute event using the specified parameter.
@@ -146,7 +204,7 @@ public class CommandHandlerBase
         /// <param name="parameter">The parameter of the command.</param>
         /// <returns><see cref="CanExecuteRoutedEventArgs"/> used to raise the CanExecute event.</returns>
         public IEnumerable<CanExecuteRoutedEventArgs> RaiseCanExecute(object? parameter = null)
-            => items.Select(item => item.RaiseCanExecute(command, sender, parameter, dependencyResolver))
+            => items.Select(item => item.RaiseCanExecute(command, sender, parameter, parameterResolverBase))
                 .OfType<CanExecuteRoutedEventArgs>()
                 .ToList()
                 .AsReadOnly();
@@ -157,7 +215,7 @@ public class CommandHandlerBase
         /// <param name="parameter">The parameter of the command.</param>
         /// <returns><see cref="CanExecuteRoutedEventArgs"/> used to raise the PreviewCanExecute event.</returns>
         public IEnumerable<CanExecuteRoutedEventArgs> RaisePreviewCanExecute(object? parameter = null)
-            => items.Select(item => item.RaisePreviewCanExecute(command, sender, parameter, dependencyResolver))
+            => items.Select(item => item.RaisePreviewCanExecute(command, sender, parameter, parameterResolverBase))
                 .OfType<CanExecuteRoutedEventArgs>()
                 .ToList()
                 .AsReadOnly();
@@ -171,7 +229,7 @@ public class CommandHandlerBase
         {
             foreach (var item in items)
             {
-                await item.RaiseExecutedAsync(command, sender, parameter, dependencyResolver);
+                await item.RaiseExecutedAsync(command, sender, parameter, parameterResolverBase);
             }
         }
 
@@ -185,7 +243,7 @@ public class CommandHandlerBase
             var args = new List<CanExecuteRoutedEventArgs>();
             foreach (var item in items)
             {
-                var e = await item.RaiseCanExecuteAsync(command, sender, parameter, dependencyResolver);
+                var e = await item.RaiseCanExecuteAsync(command, sender, parameter, parameterResolverBase);
                 if (e is not null) args.Add(e);
             }
             return args.AsReadOnly();
@@ -200,7 +258,7 @@ public class CommandHandlerBase
         {
             foreach (var item in items)
             {
-                await item.RaisePreviewExecutedAsync(command, sender, parameter, dependencyResolver);
+                await item.RaisePreviewExecutedAsync(command, sender, parameter, parameterResolverBase);
             }
         }
 
@@ -214,7 +272,7 @@ public class CommandHandlerBase
             var args = new List<CanExecuteRoutedEventArgs>();
             foreach (var item in items)
             {
-                var e = await item.RaisePreviewCanExecuteAsync(command, sender, parameter, dependencyResolver);
+                var e = await item.RaisePreviewCanExecuteAsync(command, sender, parameter, parameterResolverBase);
                 if (e is not null) args.Add(e);
             }
             return args.AsReadOnly();

@@ -39,6 +39,20 @@ public class WpfController
     public static IDataContextInjector DataContextInjector { get; set; } = new DataContextInjector();
 
     /// <summary>
+    /// Gets or sets the finder to find an element in a view.
+    /// </summary>
+    public static IWpfElementFinder ElementFinder
+    {
+        get => elementFinder;
+        set
+        {
+            elementFinder = value;
+            EnsureElementInjector();
+        }
+    }
+    private static IWpfElementFinder elementFinder = new WpfElementFinder();
+
+    /// <summary>
     /// Gets or sets the finder to find a key of an element.
     /// </summary>
     public static IWpfElementKeyFinder ElementKeyFinder
@@ -55,7 +69,7 @@ public class WpfController
     /// <summary>
     /// Gets or sets the injector to inject elements in a view to a controller.
     /// </summary>
-    public static IWpfElementInjector ElementInjector { get; set; } = new WpfElementInjector();
+    public static IWpfElementInjector ElementInjector { get; set; } = new WpfElementInjector(ElementFinder);
 
     /// <summary>
     /// Gets or sets the finder to find a type of a controller that controls a view.
@@ -181,8 +195,6 @@ public class WpfController
 
     static WpfController()
     {
-        EnsureControllerTypeFinder();
-
         Assembly.GetExecutingAssembly().GetTypes()
             .Where(type => typeof(IWpfControllerExtension).IsAssignableFrom(type))
             .Where(type => type.IsClass && !type.IsAbstract)
@@ -194,6 +206,11 @@ public class WpfController
     private static void EnsureControllerTypeFinder()
     {
         ControllerTypeFinder = new WpfControllerTypeFinder(ElementKeyFinder, DataContextFinder);
+    }
+
+    private static void EnsureElementInjector()
+    {
+        ElementInjector = new WpfElementInjector(ElementFinder);
     }
 
     /// <summary>

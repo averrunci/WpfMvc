@@ -6,9 +6,9 @@ using System.Windows;
 
 namespace Charites.Windows.Mvc;
 
-internal sealed class WpfElementInjector : ElementInjector<FrameworkElement>, IWpfElementInjector
+/// <summary>
+/// Provides the function to find an element in a view.
+/// </summary>
+public interface IWpfElementFinder : IElementFinder<FrameworkElement>
 {
-    public WpfElementInjector(IElementFinder<FrameworkElement> elementFinder) : base(elementFinder)
-    {
-    }
 }
