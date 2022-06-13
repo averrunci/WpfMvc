@@ -384,6 +384,82 @@ private void ActionCommand_Executed(object? sender, ExecutedRoutedEventArgs e, [
 }
 ```
 
+### FromElementAttribute
+
+This attribute is specified to the parameter.
+Its parameter value is injected from the element of the specified parameter name in the view to which the controller is attached.
+If the name of the element is different from the parameter name,
+the name of the element is specified to the Name property of the FromElementAttribute.
+
+``` csharp
+private void ActionButton_Click([FromElement] UIElement element)
+{
+    // implements the action.
+}
+
+private void ActionButton_Click(RoutedEventArgs e, [FromElement(Name = "Element")] UIElement element)
+{
+    // implements the action.
+}
+
+private void ActionButton_Click(object? sender, RoutedEventArgs e, [FromElement] UIElement element)
+{
+    // implements the action.
+}
+
+private void ActionCommand_Executed([FromElement] UIElement element)
+{
+    // implements the action.
+}
+
+private void ActionCommand_Executed(ExecutedRoutedEventArgs e, [FromElement] UIElement element)
+{
+    // implements the action.
+}
+
+private void ActionCommand_Executed(object? sender, ExecutedRoutedEventArgs e, [FromElement] UIElement element)
+{
+    // implements the action.
+}
+```
+
+### FromDataContextAttribute
+
+This attribute is specified to the parameter. Its parameter value is injected from the data context of the view
+to which the controller is attached.
+
+``` csharp
+private void ActionButton_Click([DataContext] DataContextType dataContext)
+{
+    // implements the action.
+}
+
+private void ActionButton_Click(RoutedEventArgs e, [DataContext] DataContextType dataContext)
+{
+    // implements the action.
+}
+
+private void ActionButton_Click(object? sender, RoutedEventArgs e, [DataContext] DataContextType dataContext)
+{
+    // implements the action.
+}
+
+private void ActionCommand_Executed([DataContext] DataContextType dataContext)
+{
+    // implements the action.
+}
+
+private void ActionCommand_Executed(ExecutedRoutedEventArgs e, [DataContext] DataContextType dataContext)
+{
+    // implements the action.
+}
+
+private void ActionCommand_Executed(object? sender, ExecutedRoutedEventArgs e, [DataContext] DataContextType dataContext)
+{
+    // implements the action.
+}
+```
+
 ### DataContextAttribute
 
 This attribute is specified to the field, property, or method to which a DataContext is injected.

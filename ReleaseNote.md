@@ -1,5 +1,20 @@
 # Release note
 
+## v4.1.0
+
+### Add
+
+- Add the IWpfElementFinder interface that extends the IElementFinder&lt;FrameworkElement&gt; interface.
+- Add the ElementFinder property to the WpfController class.
+
+### Changes
+
+- Change Charites version to 2.1.0.
+- Change the WpfEventHandlerExtension and the CommandHandlerExtension so that event handlers that have parameters attributed by the following attribute can be injected . 
+  - FromDIAttribute
+  - FromElementAttribute
+  - FromDataContextAttribute
+
 ## v4.0.0
 
 ### Add
