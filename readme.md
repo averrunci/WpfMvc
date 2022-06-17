@@ -429,32 +429,32 @@ This attribute is specified to the parameter. Its parameter value is injected fr
 to which the controller is attached.
 
 ``` csharp
-private void ActionButton_Click([DataContext] DataContextType dataContext)
+private void ActionButton_Click([FromDataContext] DataContextType dataContext)
 {
     // implements the action.
 }
 
-private void ActionButton_Click(RoutedEventArgs e, [DataContext] DataContextType dataContext)
+private void ActionButton_Click(RoutedEventArgs e, [FromDataContext] DataContextType dataContext)
 {
     // implements the action.
 }
 
-private void ActionButton_Click(object? sender, RoutedEventArgs e, [DataContext] DataContextType dataContext)
+private void ActionButton_Click(object? sender, RoutedEventArgs e, [FromDataContext] DataContextType dataContext)
 {
     // implements the action.
 }
 
-private void ActionCommand_Executed([DataContext] DataContextType dataContext)
+private void ActionCommand_Executed([FromDataContext] DataContextType dataContext)
 {
     // implements the action.
 }
 
-private void ActionCommand_Executed(ExecutedRoutedEventArgs e, [DataContext] DataContextType dataContext)
+private void ActionCommand_Executed(ExecutedRoutedEventArgs e, [FromDataContext] DataContextType dataContext)
 {
     // implements the action.
 }
 
-private void ActionCommand_Executed(object? sender, ExecutedRoutedEventArgs e, [DataContext] DataContextType dataContext)
+private void ActionCommand_Executed(object? sender, ExecutedRoutedEventArgs e, [FromDataContext] DataContextType dataContext)
 {
     // implements the action.
 }
