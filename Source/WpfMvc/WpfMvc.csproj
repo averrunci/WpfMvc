@@ -27,7 +27,7 @@
     <DocumentationFile>..\..\Binary\Release\net6.0-windows\WpfMvc.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Charites" Version="2.1.0" />
+    <PackageReference Include="Charites" Version="2.2.0" />
     <PackageReference Include="Charites.Bindings" Version="2.2.0" />
   </ItemGroup>
 </Project>
