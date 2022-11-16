@@ -49,7 +49,7 @@ internal sealed class WpfEventHandlerExtension : EventHandlerExtension<Framework
         }
 
         var routedEvent = RetrieveRoutedEvent(targetElement, eventHandlerAttribute.Event);
-        var eventInfo = RetrieveEventInfo(element, eventHandlerAttribute.Event);
+        var eventInfo = RetrieveEventInfo(targetElement, eventHandlerAttribute.Event);
         eventHandlers.Add(new WpfEventHandlerItem(
             eventHandlerAttribute.ElementName, targetElement,
             eventHandlerAttribute.Event, routedEvent, eventInfo,
