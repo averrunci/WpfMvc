@@ -1,5 +1,16 @@
 # Release note
 
+## v4.2.0
+
+### Changes
+
+- Change Charites version to 2.2.0.
+- Change Charites.Binding version to 2.2.0.
+
+### Bug fix
+
+- Fixed an issure where events that are not a routed event can't be handled.
+
 ## v4.1.0
 
 ### Add
