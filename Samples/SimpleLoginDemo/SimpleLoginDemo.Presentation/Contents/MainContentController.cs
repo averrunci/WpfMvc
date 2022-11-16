@@ -10,43 +10,44 @@ using Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login;
 namespace Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents;
 
 [View(Key = nameof(MainContent))]
-public class MainContentController : IDisposable
+public class MainContentController : ControllerBase<MainContent>, IDisposable
 {
     private readonly IContentNavigator navigator;
-
-    [DataContext]
-    private MainContent? Content { get; set; }
 
     public MainContentController(IContentNavigator navigator)
     {
         this.navigator = navigator;
 
-        SubscribeContentNavigatorEvent();
+        SubscribeToContentNavigatorEvent();
     }
 
     public void Dispose()
     {
-        UnsubscribeContentNavigatorEvent();
+        UnsubscribeFromContentNavigatorEvent();
     }
 
-    private void SubscribeContentNavigatorEvent()
+    private void SubscribeToContentNavigatorEvent()
     {
         navigator.Navigated += OnContentNavigated;
     }
 
-    private void UnsubscribeContentNavigatorEvent()
+    private void UnsubscribeFromContentNavigatorEvent()
     {
         navigator.Navigated -= OnContentNavigated;
     }
 
-    private void OnContentNavigated(object? sender, ContentNavigatedEventArgs e)
+    private void Navigate(MainContent content, object navigatedContent)
     {
-        Content.IfPresent(x => x.Content.Value = e.Content);
+        content.Content.Value = navigatedContent;
     }
 
-    [EventHandler(Event = nameof(FrameworkElement.Loaded))]
-    private void Initialize()
+    private void NavigateToLoginContent()
     {
         navigator.NavigateTo(new LoginContent());
     }
+
+    private void OnContentNavigated(object? sender, ContentNavigatedEventArgs e) => DataContext.IfPresent(e.Content, Navigate);
+
+    [EventHandler(Event = nameof(FrameworkElement.Loaded))]
+    private void Initialize() => NavigateToLoginContent();
 }

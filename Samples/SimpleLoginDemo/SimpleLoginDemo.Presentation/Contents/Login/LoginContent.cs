@@ -29,6 +29,8 @@ public class LoginContent
         }
     }
 
+    public bool CanExecute => !string.IsNullOrEmpty(UserId.Value) && !string.IsNullOrEmpty(Password.Value);
+
     public LoginContent()
     {
         UserId.EnableValidation(() => UserId);

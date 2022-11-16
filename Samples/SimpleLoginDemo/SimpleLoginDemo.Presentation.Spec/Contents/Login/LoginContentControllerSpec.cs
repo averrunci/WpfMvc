@@ -6,15 +6,12 @@ using Carna;
 
 namespace Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login;
 
-[Specification("LoginContentController Spec")]
+[Specification(
+    "LoginContentController Spec",
+    typeof(LoginContentControllerSpec_PasswordBox_PasswordChanged),
+    typeof(LoginContentControllerSpec_LoginCommandCanExecute),
+    typeof(LoginContentControllerSpec_LoginButtonClick)
+)]
 class LoginContentControllerSpec
 {
-    [Context]
-    LoginContentControllerSpec_Loaded Loaded => default!;
-
-    [Context]
-    LoginContentControllerSpec_LoginCommandCanExecute LoginCommandCanExecute => default!;
-
-    [Context]
-    LoginContentControllerSpec_LoginButtonClick LoginButtonClick => default!;
 }

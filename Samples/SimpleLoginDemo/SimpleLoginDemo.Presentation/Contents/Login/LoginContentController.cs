@@ -12,57 +12,36 @@ using Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents.User;
 namespace Charites.Windows.Samples.SimpleLoginDemo.Presentation.Contents.Login;
 
 [View(Key = nameof(LoginContent))]
-public class LoginContentController
+public class LoginContentController : ControllerBase<LoginContent>
 {
-    [DataContext]
-    private LoginContent? Content { get; set; }
-
-    [Element]
-    private void SetPasswordBox(PasswordBox? passwordBox)
+    private void SetPasswordValue(LoginContent content, PasswordBox passwordBox)
     {
-        this.passwordBox.IfPresent(UnsubscribePasswordBoxEvent);
-        this.passwordBox = passwordBox;
-        this.passwordBox.IfPresent(SubscribePasswordBoxEvent);
-    }
-    private PasswordBox? passwordBox;
-
-    private void SubscribePasswordBoxEvent(PasswordBox passwordBox)
-    {
-        passwordBox.PasswordChanged += PasswordBox_PasswordChanged;
+        content.Password.Value = passwordBox.Password;
     }
 
-    private void UnsubscribePasswordBoxEvent(PasswordBox passwordBox)
+    private void SetCanExecute(LoginContent content, CanExecuteRoutedEventArgs e)
     {
-        passwordBox.PasswordChanged -= PasswordBox_PasswordChanged;
+        e.CanExecute = content.CanExecute;
     }
 
-    private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
+    private async Task LoginAsync(LoginContent content, ILoginCommand loginCommand, IContentNavigator navigator)
     {
-        Content.IfPresent(x => x.Password.Value = passwordBox?.Password ?? string.Empty);
-    }
+        content.Message.Value = string.Empty;
 
-    private void Login_CanExecute(CanExecuteRoutedEventArgs e)
-    {
-        e.CanExecute = !string.IsNullOrEmpty(Content?.UserId.Value) && !string.IsNullOrEmpty(Content?.Password.Value);
-    }
+        if (!content.IsValid) return;
 
-    private async Task Login_ExecutedAsync([FromDI] ILoginCommand loginCommand, [FromDI] IContentNavigator navigator)
-    {
-        if (Content is null) return;
-
-        Content.Message.Value = string.Empty;
-
-        if (!Content.IsValid) return;
-
-        var currentContent = Content;
-        var result = await loginCommand.AuthenticateAsync(currentContent);
+        var result = await loginCommand.AuthenticateAsync(content);
         if (result.Success)
         {
-            navigator.NavigateTo(new UserContent(currentContent.UserId.Value));
+            navigator.NavigateTo(new UserContent(content.UserId.Value));
         }
         else
         {
-            currentContent.Message.Value = Resources.LoginFailureMessage;
+            content.Message.Value = Resources.LoginFailureMessage;
         }
     }
+
+    private void PasswordBox_PasswordChanged(object? sender, RoutedEventArgs e) => DataContext.IfPresent(sender as PasswordBox, SetPasswordValue);
+    private void Login_CanExecute(CanExecuteRoutedEventArgs e) => DataContext.IfPresent(e, SetCanExecute);
+    private Task Login_ExecutedAsync([FromDI] ILoginCommand loginCommand, [FromDI] IContentNavigator navigator) => DataContext.IfPresentAsync(loginCommand, navigator, LoginAsync);
 }

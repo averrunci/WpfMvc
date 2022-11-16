@@ -13,19 +13,10 @@ namespace Charites.Windows.Samples.SimpleTodo.Contents;
 [View(Key = nameof(TodoItem))]
 public class TodoItemController
 {
-    [Element]
-    private void SetTodoContentTextBox(TextBox todoContentTextBox)
-    {
-        if (this.todoContentTextBox is not null) this.todoContentTextBox.IsVisibleChanged -= TodoContentTextBox_IsVisibleChanged;
-        this.todoContentTextBox = todoContentTextBox;
-        if (this.todoContentTextBox is not null) this.todoContentTextBox.IsVisibleChanged += TodoContentTextBox_IsVisibleChanged;
-    }
-    private TextBox? todoContentTextBox;
-
     private void TodoContentTextBox_IsVisibleChanged(object? sender, DependencyPropertyChangedEventArgs e)
     {
         if (sender is not TextBox textBox) return;
-        if (!((bool)e.NewValue)) return;
+        if (!(bool)e.NewValue) return;
 
         textBox.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
         {

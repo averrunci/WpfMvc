@@ -10,7 +10,7 @@ using NSubstitute;
 
 namespace Charites.Windows.Samples.SimpleTodo.Contents;
 
-[Specification("TodoItemController Spec", RequiresSta = true)]
+[Specification("TodoItemController Spec")]
 class TodoItemControllerSpec : FixtureSteppable
 {
     const string InitialContent = "Todo Item";

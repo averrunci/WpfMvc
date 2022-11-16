@@ -7,13 +7,13 @@
     <RootNamespace>Charites.Windows.Samples.SimpleTodo</RootNamespace>
     <UseWPF>true</UseWPF>
     <DisableWinExeOutputInference>true</DisableWinExeOutputInference>
-    <Version>4.1.0</Version>
+    <Version>4.2.0</Version>
     <Authors>averrunci</Authors>
     <Copyright>Copyright (C) 2022 Fievus</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <AssemblyVersion>4.1.0</AssemblyVersion>
-    <FileVersion>4.1.0</FileVersion>
+    <AssemblyVersion>4.2.0</AssemblyVersion>
+    <FileVersion>4.2.0</FileVersion>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
@@ -32,7 +32,7 @@
     <PackageReference Include="Carna" Version="2.1.0">
       <IncludeAssets>compile</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="NSubstitute" Version="4.3.0" />
+    <PackageReference Include="NSubstitute" Version="4.4.0" />
   </ItemGroup>
 
   <ItemGroup>

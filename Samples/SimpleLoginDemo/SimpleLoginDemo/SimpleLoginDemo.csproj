@@ -9,12 +9,12 @@
     <UseWPF>true</UseWPF>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Copyright>Copyright (C) 2022 Fievus</Copyright>
-    <Version>4.1.0</Version>
+    <Version>4.2.0</Version>
     <Authors>averrunci</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <AssemblyVersion>4.1.0</AssemblyVersion>
-    <FileVersion>4.1.0</FileVersion>
+    <AssemblyVersion>4.2.0</AssemblyVersion>
+    <FileVersion>4.2.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
