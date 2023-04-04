@@ -78,11 +78,15 @@ internal sealed class WpfEventHandlerExtension : EventHandlerExtension<Framework
     {
         base.OnEventHandlerAdded(eventHandlers, element);
 
-        eventHandlers.GetBy(element.Name)
+        RaiseDataContextChanged(eventHandlers, element, element.Name);
+        if (!string.IsNullOrEmpty(element.Name)) RaiseDataContextChanged(eventHandlers, element);
+    }
+
+    private void RaiseDataContextChanged(EventHandlerBase<FrameworkElement, WpfEventHandlerItem> eventHandlers, FrameworkElement element, string? elementName = null)
+        => eventHandlers.GetBy(elementName)
             .From(element)
             .With(new DependencyPropertyChangedEventArgs(FrameworkElement.DataContextProperty, null, element.DataContext))
             .Raise(nameof(FrameworkElement.DataContextChanged));
-    }
 
     private RoutedEvent? RetrieveRoutedEvent(FrameworkElement? element, string name)
     {
