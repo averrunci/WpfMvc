@@ -5,14 +5,14 @@
     <Nullable>enable</Nullable>
     <RootNamespace>Charites.Windows</RootNamespace>
     <UseWPF>true</UseWPF>
-    <Version>4.2.0</Version>
-    <AssemblyVersion>4.2.0</AssemblyVersion>
-    <FileVersion>4.2.0</FileVersion>
+    <Version>4.2.1</Version>
+    <AssemblyVersion>4.2.1</AssemblyVersion>
+    <FileVersion>4.2.1</FileVersion>
     <NeutralLanguage>en-US</NeutralLanguage>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Description>The specification class library for Windows Presentation Foundation with Model View Controller.</Description>
     <Authors>averrunci</Authors>
-    <Copyright>Copyright (C) 2022 Fievus</Copyright>
+    <Copyright>Copyright (C) 2022-2023 Fievus</Copyright>
     <PackageProjectUrl>https://github.com/averrunci/WpfMvc</PackageProjectUrl>
     <PackageTags>wpf mvc charites</PackageTags>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>

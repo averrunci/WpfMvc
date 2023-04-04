@@ -1,5 +1,11 @@
 # Release note
 
+## v4.2.1
+
+### Bug fix
+
+- Fixed an issue that DataContextChanged event can't be handled on attaching a controller when a name of a root element is specified and a name of its event handler is not specified.
+
 ## v4.2.0
 
 ### Changes
