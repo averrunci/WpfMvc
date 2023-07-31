@@ -9,9 +9,9 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/averrunci/WpfMvc</PackageProjectUrl>
     <Authors>averrunci</Authors>
-    <Version>4.2.1</Version>
-    <AssemblyVersion>4.2.1</AssemblyVersion>
-    <FileVersion>4.2.1</FileVersion>
+    <Version>4.2.2</Version>
+    <AssemblyVersion>4.2.2</AssemblyVersion>
+    <FileVersion>4.2.2</FileVersion>
     <Description>The class library for Windows Presentation Foundation with Model View Controller.</Description>
     <Copyright>Copyright (C) 2022-2023 Fievus</Copyright>
     <PackageTags>wpf mvc charites</PackageTags>

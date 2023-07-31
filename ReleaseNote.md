@@ -1,5 +1,9 @@
 # Release note
 
+## v4.2.2
+
+- Improve a performance for the WpfControllerTypeFinder.
+
 ## v4.2.1
 
 ### Bug fix
