@@ -69,48 +69,48 @@ internal class TestWpfControllers
     }
 
     [View(Key = "Charites.Windows.Mvc.TestDataContexts+TestDataContext")]
-    public class TestWpfController : TestWpfControllerBase { }
+    public class TestWpfController : TestWpfControllerBase;
 
     [View(Key = "Charites.Windows.Mvc.TestDataContexts+MultiTestDataContext")]
-    public class MultiTestWpfControllerA : TestWpfControllerBase { }
+    public class MultiTestWpfControllerA : TestWpfControllerBase;
 
     [View(Key = "Charites.Windows.Mvc.TestDataContexts+MultiTestDataContext")]
-    public class MultiTestWpfControllerB : TestWpfControllerBase { }
+    public class MultiTestWpfControllerB : TestWpfControllerBase;
 
     [View(Key = "Charites.Windows.Mvc.TestDataContexts+MultiTestDataContext")]
-    public class MultiTestWpfControllerC : TestWpfControllerBase { }
+    public class MultiTestWpfControllerC : TestWpfControllerBase;
 
     public class TestController {[DataContext] public object? DataContext { get; set; } }
 
     [View(Key = "AttachingTestDataContext")]
-    public class TestDataContextController : TestController { }
+    public class TestDataContextController : TestController;
 
     [View(Key = "BaseAttachingTestDataContext")]
-    public class BaseTestDataContextController : TestController { }
+    public class BaseTestDataContextController : TestController;
 
     [View(Key = "Charites.Windows.Mvc.TestDataContexts+AttachingTestDataContextFullName")]
-    public class TestDataContextFullNameController : TestController { }
+    public class TestDataContextFullNameController : TestController;
 
     [View(Key = "Charites.Windows.Mvc.TestDataContexts+BaseAttachingTestDataContextFullName")]
-    public class BaseTestDataContextFullNameController : TestController { }
+    public class BaseTestDataContextFullNameController : TestController;
 
     [View(Key = "GenericAttachingTestDataContext`1")]
-    public class GenericTestDataContextController : TestController { }
+    public class GenericTestDataContextController : TestController;
 
     [View(Key = "Charites.Windows.Mvc.TestDataContexts+GenericAttachingTestDataContextFullName`1[System.String]")]
-    public class GenericTestDataContextFullNameController : TestController { }
+    public class GenericTestDataContextFullNameController : TestController;
 
     [View(Key = "Charites.Windows.Mvc.TestDataContexts+GenericAttachingTestDataContextFullName`1")]
-    public class GenericTestDataContextFullNameWithoutParametersController : TestController { }
+    public class GenericTestDataContextFullNameWithoutParametersController : TestController;
 
     [View(Key = "IAttachingTestDataContext")]
-    public class InterfaceImplementedTestDataContextController : TestController { }
+    public class InterfaceImplementedTestDataContextController : TestController;
 
     [View(Key = "Charites.Windows.Mvc.TestDataContexts+IAttachingTestDataContextFullName")]
-    public class InterfaceImplementedTestDataContextFullNameController : TestController { }
+    public class InterfaceImplementedTestDataContextFullNameController : TestController;
 
     [View(Key = "TestElement")]
-    public class KeyTestDataContextController : TestController { }
+    public class KeyTestDataContextController : TestController;
 
     public class TestWpfControllerAsync
     {
@@ -270,12 +270,12 @@ internal class TestWpfControllers
         public Action<IDependency1, IDependency2, IDependency3, TestElement, TestDataContexts.TestDataContext>? PreviewCanExecuteAttributedArgumentsHandler { get; set; }
     }
 
-    public interface IDependency1 {}
-    public interface IDependency2 { }
-    public interface IDependency3 { }
-    public class Dependency1 : IDependency1 { }
-    public class Dependency2 : IDependency2 { }
-    public class Dependency3 : IDependency3 { }
+    public interface IDependency1;
+    public interface IDependency2;
+    public interface IDependency3;
+    public class Dependency1 : IDependency1;
+    public class Dependency2 : IDependency2;
+    public class Dependency3 : IDependency3;
 
     public class AttributedToField
     {
