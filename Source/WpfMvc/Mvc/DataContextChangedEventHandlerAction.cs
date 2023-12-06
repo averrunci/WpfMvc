@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2022 Fievus
+﻿// Copyright (C) 2022-2023 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
@@ -7,19 +7,8 @@ using System.Windows;
 
 namespace Charites.Windows.Mvc;
 
-internal class DataContextChangedEventHandlerAction
+internal class DataContextChangedEventHandlerAction(MethodInfo method, object? target, IParameterDependencyResolver parameterDependencyResolver)
 {
-    private readonly MethodInfo method;
-    private readonly object? target;
-    private readonly IParameterDependencyResolver parameterDependencyResolver;
-
-    public DataContextChangedEventHandlerAction(MethodInfo method, object? target, IParameterDependencyResolver parameterDependencyResolver)
-    {
-        this.method = method;
-        this.target = target;
-        this.parameterDependencyResolver = parameterDependencyResolver;
-    }
-
     public void OnHandled(object? sender, DependencyPropertyChangedEventArgs e) => Handle(sender, e);
 
     public object? Handle(object? sender, DependencyPropertyChangedEventArgs e)

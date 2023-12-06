@@ -7,12 +7,11 @@ using System.Windows;
 
 namespace Charites.Windows.Mvc;
 
-internal sealed class WpfControllerTypeFinder : ControllerTypeFinder<FrameworkElement>, IWpfControllerTypeFinder
+internal sealed class WpfControllerTypeFinder(
+    IWpfElementKeyFinder elementKeyFinder,
+    IWpfDataContextFinder dataContextFinder
+) : ControllerTypeFinder<FrameworkElement>(elementKeyFinder, dataContextFinder), IWpfControllerTypeFinder
 {
-    public WpfControllerTypeFinder(IWpfElementKeyFinder elementKeyFinder, IWpfDataContextFinder dataContextFinder) : base(elementKeyFinder, dataContextFinder)
-    {
-    }
-
     protected override IEnumerable<Type> FindControllerTypeCandidates(FrameworkElement view)
         => controllerTypeCandidates ??= AppDomain.CurrentDomain.GetAssemblies()
             .SelectMany(assembly => assembly.GetTypes())
