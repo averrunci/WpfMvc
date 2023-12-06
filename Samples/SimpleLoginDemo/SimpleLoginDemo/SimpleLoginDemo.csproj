@@ -1,24 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <OutputType>WinExe</OutputType>
     <RootNamespace>Charites.Windows.Samples.SimpleLoginDemo</RootNamespace>
     <UseWPF>true</UseWPF>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Copyright>Copyright (C) 2022 Fievus</Copyright>
-    <Version>4.2.0</Version>
+    <Copyright>Copyright (C) 2022-2023 Fievus</Copyright>
+    <Version>5.0.0</Version>
     <Authors>averrunci</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <AssemblyVersion>4.2.0</AssemblyVersion>
-    <FileVersion>4.2.0</FileVersion>
+    <AssemblyVersion>5.0.0</AssemblyVersion>
+    <FileVersion>5.0.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
