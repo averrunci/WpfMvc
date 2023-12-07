@@ -1,5 +1,13 @@
 # Release note
 
+## v5.0.0
+
+### Changes
+
+- Change the target framework version to .NET 8.0.
+- Change Charites version to 3.0.0.
+- Change Charites.Binding version to 3.0.0.
+
 ## v4.2.2
 
 - Improve a performance for the WpfControllerTypeFinder.
