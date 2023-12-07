@@ -3,15 +3,8 @@ using Microsoft.Extensions.Hosting;
 
 namespace $safeprojectname$;
 
-internal class $safeitemrootname$ : IHostedService
+internal class $safeitemrootname$(Application application) : IHostedService
 {
-    private readonly Application application;
-
-    public $safeitemrootname$(Application application)
-    {
-        this.application = application;
-    }
-
     public Task StartAsync(CancellationToken cancellationToken)
     {
         application.Run();

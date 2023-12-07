@@ -3,15 +3,8 @@ using Microsoft.Extensions.Hosting;
 
 namespace WpfMvcApp;
 
-internal class WpfMvcApp : IHostedService
+internal class WpfMvcApp(Application application) : IHostedService
 {
-    private readonly Application application;
-
-    public WpfMvcApp(Application application)
-    {
-        this.application = application;
-    }
-
     public Task StartAsync(CancellationToken cancellationToken)
     {
         application.Run();
