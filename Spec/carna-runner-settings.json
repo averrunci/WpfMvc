@@ -1,6 +1,6 @@
 {
   "assemblies": [
-    "WpfMvc.Spec\\bin\\Debug\\net6.0-windows\\WpfMvc.Spec.dll"
+    "WpfMvc.Spec\\bin\\Debug\\net8.0-windows\\WpfMvc.Spec.dll"
   ],
   "reporters": [
     {
