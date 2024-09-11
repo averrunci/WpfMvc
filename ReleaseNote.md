@@ -1,5 +1,11 @@
 # Release note
 
+## v5.1.0
+
+### Change
+
+- Change Charites version to 3.1.0.
+
 ## v5.0.0
 
 ### Changes
@@ -27,7 +33,7 @@
 
 ### Bug fix
 
-- Fixed an issure where events that are not a routed event can't be handled.
+- Fixed an issue where events that are not a routed event can't be handled.
 
 ## v4.1.0
 
@@ -62,7 +68,7 @@
 - Change Charites version to 2.0.0.
 - Change Charites.Bindings version to 2.1.0.
 - Enable Nullable reference types.
-- Change to prefer to resolve parameters with the specified resolver when they are resolved by dependecies.
+- Change to prefer to resolve parameters with the specified resolver when they are resolved by dependencies.
 - Change the CommandHandlerExtension class and the CommandHandlerBase class so that the PreviewExecuted and PreviewCanExecute event can be handled.
 
 ## v3.1.1
