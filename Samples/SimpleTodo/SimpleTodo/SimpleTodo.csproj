@@ -13,11 +13,11 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Authors>averrunci</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Version>5.0.0</Version>
-    <Copyright>Copyright (C) 2022-2023 Fievus</Copyright>
+    <Version>5.1.0</Version>
+    <Copyright>Copyright (C) 2022-2024 Fievus</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <AssemblyVersion>5.0.0</AssemblyVersion>
-    <FileVersion>5.0.0</FileVersion>
+    <AssemblyVersion>5.1.0</AssemblyVersion>
+    <FileVersion>5.1.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
