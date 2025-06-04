@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>Wpfvc.ProjectTemplates</id>
-    <version>5.1.0</version>
+    <version>5.2.0</version>
     <title>WPF Mvc Application</title>
     <authors>averrunci</authors>
     <owners>averrunci</owners>
@@ -11,7 +11,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>WPF Mvc application Project Template.</description>
     <language>en-US</language>
-    <copyright>Copyright (C) 2022-2024 Fievus</copyright>
+    <copyright>Copyright (C) 2022-2025 Fievus</copyright>
     <tags>wpf mvc charites</tags>
     <packageTypes>
       <packageType name="Template"/>
