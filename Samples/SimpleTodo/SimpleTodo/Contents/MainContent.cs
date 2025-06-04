@@ -1,4 +1,4 @@
-// Copyright (C) 2022 Fievus
+// Copyright (C) 2022-2025 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
@@ -42,7 +42,6 @@ public class MainContent
         TodoItems.Add(newTodoItem);
 
         TodoContent.Value = string.Empty;
-        UpdateAllTodoItemsCompletionState();
         ApplyFilter();
     }
 
@@ -53,6 +52,7 @@ public class MainContent
 
     private void OnTodoItemsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
+        UpdateAllTodoItemsCompletionState();
         UpdateAllTodoItemsCompletionEnabled();
         UpdateItemsLeftMessage();
     }

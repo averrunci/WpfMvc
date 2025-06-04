@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2022 Fievus
+﻿// Copyright (C) 2022-2025 Fievus
 //
 // This software may be modified and distributed under the terms
 // of the MIT license.  See the LICENSE file for details.
@@ -215,5 +215,8 @@ class MainContentSpec : FixtureSteppable
 
         When("to add a to-do item", () => AddTodoContent("Todo Item 4"));
         Then("the AllCompleted should be null", () => MainContent.AllCompleted.Value == null);
+
+        When("to remove the last to-do item that is not completed", () => MainContent.TodoItems.Last().Remove());
+        Then("the AllCompleted should be true", () => MainContent.AllCompleted.Value == true);
     }
 }
